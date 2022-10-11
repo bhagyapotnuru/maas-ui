@@ -1,11 +1,11 @@
 ---
 name: Build upload failure
 about: ''
-title: 'Build upload failed for {{ env.BRANCH_NAME }}'
+title: '{{ env.BRANCH_NAME }} build upload failed'
 assignees: ''
 
 ---
 
 Uploading the build to the assets server has failed for the {{ env.BRANCH_NAME }} branch:
 
-<https://github.com/>{{ env.REPO }}/actions/runs/{{ env.RUN_ID }}
+https://github.com/{{ env.REPO }}/actions/runs/{{ env.RUN_ID }}

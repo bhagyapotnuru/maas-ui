@@ -1,10 +1,8 @@
 name: Upload
-on:
-  pull_request_target:
-    types: [closed]
+on: push
 jobs:
   upload-build:
-    if: github.event.pull_request.merged == true
+    # if: github.event.pull_request.merged == true
     name: Upload build artifacts
     runs-on: ubuntu-latest
     env:
@@ -14,6 +12,8 @@ jobs:
         node-version: [16.x]
     steps:
       - uses: actions/checkout@v3
+      - name: Get branch name
+        uses: nelonoel/branch-name@v1.0.1
       - name: Restore node_modules
         id: yarn-cache
         uses: actions/cache@v3
@@ -27,18 +27,18 @@ jobs:
       - name: Install
         if: steps.yarn-cache.outputs.cache-hit != 'true'
         run: CYPRESS_INSTALL_BINARY=0 yarn install
-      - name: Build
-        run: yarn build
-        env:
-          CI: false
-      - name: Compress
-        run: cd build && tar -czf ../${{env.PACKAGE_NAME}} ./
+      # - name: Build
+      #   run: yarn build
+      #   env:
+      #     CI: false
+      # - name: Compress
+      #   run: cd build && tar -czf ../${{env.PACKAGE_NAME}} ./
       - name: Install upload-assets snap
         run: sudo snap install upload-assets
       - name: Upload to assets server
         run: upload-assets --url-path ${{env.PACKAGE_NAME}} ${{env.PACKAGE_NAME}}
-        env:
-          UPLOAD_ASSETS_API_TOKEN: ${{secrets.UPLOAD_ASSETS_API_TOKEN}}
+        # env:
+        # UPLOAD_ASSETS_API_TOKEN: ${{secrets.UPLOAD_ASSETS_API_TOKEN}}
       - name: Create issue on failure
         if: failure()
         uses: JasonEtco/create-an-issue@v2
