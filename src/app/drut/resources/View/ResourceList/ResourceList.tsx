@@ -516,7 +516,7 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
                 base00: "#000000",
               }}
               keyPath={[]}
-              shouldExpandNode={() => true}
+              shouldExpandNodeInitially={() => true}
             />
           </div>
         </div>

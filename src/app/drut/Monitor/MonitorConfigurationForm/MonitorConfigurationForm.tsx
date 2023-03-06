@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 import Notification from "@canonical/react-components/dist/components/Notification";
 import Spinner from "@canonical/react-components/dist/components/Spinner";
-import { navigateToNew } from "@maas-ui/maas-ui-shared";
+import { useNavigate } from "react-router-dom-v5-compat";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Box from "@mui/material/Box";
@@ -365,6 +365,7 @@ const MonitorConfigurationForm = ({
   const [error, setError] = useState("");
 
   const abortController = new AbortController();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchClusterTypes();
@@ -547,7 +548,7 @@ const MonitorConfigurationForm = ({
       postData(url, payLoad, !!parmsId)
         .then(async (promise: any) => {
           if (promise.ok) {
-            navigateToNew(monitorUrls.monitorDashboardList.index);
+            navigate(monitorUrls.monitorDashboardList.index);
           } else {
             const response = await promise.json();
             const error: string = Object.keys(response)

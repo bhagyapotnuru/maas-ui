@@ -91,7 +91,7 @@ const a11yProps = (index: number) => {
   };
 };
 
-const Tabs = styled(MuiTabs)(({ theme }) => ({
+const Tabs = styled(MuiTabs)(() => ({
   "&.MuiTabs-root .MuiTabs-indicator": {
     backgroundColor: "currentcolor",
   },
@@ -202,7 +202,7 @@ const AttachDetachFabricElement = ({
             data={data[key]}
             theme={jsonTheme}
             keyPath={[key]}
-            shouldExpandNode={() => false}
+            shouldExpandNodeInitially={() => false}
           />
         );
       } else {
@@ -468,7 +468,7 @@ const AttachDetachFabricElement = ({
     }
   };
 
-  const getFabricsNodeData = (id: any, fetch = false) => {
+  const getFabricsNodeData = (id: any) => {
     if (id === undefined) {
       return;
     }
@@ -497,7 +497,7 @@ const AttachDetachFabricElement = ({
             if (inProg) {
               setTimeOut = setTimeout(() => {
                 clearTimeout(setTimeOut);
-                getFabricsNodeData(id, true);
+                getFabricsNodeData(id);
               }, 6000);
             }
           }
@@ -846,7 +846,7 @@ const AttachDetachFabricElement = ({
       .then(
         (dt: any) => {
           if (dt && dt.Id) {
-            dispatch(machineActions.get(machine.system_id));
+            dispatch(machineActions.get(machine.system_id, ''));
             setError(`Fetching data...`);
             setTimeout(() => {
               setError(``);
@@ -871,6 +871,7 @@ const AttachDetachFabricElement = ({
   };
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    console.log(event)
     if (newValue === 1) {
       loadNodeDataPath();
     }

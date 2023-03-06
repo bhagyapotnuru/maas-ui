@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Button,
@@ -87,7 +87,7 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
     borderTop: "1px solid rgba(0, 0, 0, .125)",
   }));
 
-  const TableCell = styled(MuiTableCell)(({ theme }) => ({
+  const TableCell = styled(MuiTableCell)(() => ({
     "&.MuiTableCell-root": {
       wordBreak: "break-all",
     },
@@ -103,6 +103,7 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
   }, []);
 
   const handleParentChange = (panel: any) => (event: any, newExpanded: any) => {
+    console.log(event)
     setParentExpanded((prev: any) =>
       newExpanded
         ? [...prev, panel]

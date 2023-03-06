@@ -91,7 +91,7 @@ const ResourceDetails = ({
           base00: "#000000",
         }}
         keyPath={[]}
-        shouldExpandNode={() => true}
+        shouldExpandNodeInitially={() => true}
       />
     );
   };
@@ -111,6 +111,7 @@ const ResourceDetails = ({
                   className=""
                   sections={genObjAccord(data)}
                   onExpandedChange={(id: any, title: string) => {
+                    console.log(id)
                     setDeviceInformationOpen(title);
                   }}
                 />
@@ -129,6 +130,7 @@ const ResourceDetails = ({
                     "Switch Port"
                   )}
                   onExpandedChange={(id: any, title: string) => {
+                    console.log(id)
                     setFabricInformation(title);
                   }}
                 />

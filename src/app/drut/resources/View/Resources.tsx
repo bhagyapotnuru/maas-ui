@@ -53,7 +53,7 @@ const Resources = (): JSX.Element => {
             selected={selected}
           />
         </Route>
-        <Route exact path={resourceUrl.resources.resourceDetails(null, false)}>
+        <Route exact path={resourceUrl.resources.resourceDetails(null)}>
           <ResourceList
             onChangeContent={(nd: any, flag: boolean) =>
               handleContentChange(nd, flag)

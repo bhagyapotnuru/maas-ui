@@ -591,6 +591,7 @@ const IFICAccordion = ({
 }): JSX.Element => {
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+      console.log(event)
       setIficAccordion(newExpanded ? panel : "");
     };
   return (
@@ -754,6 +755,7 @@ const OXCAccordion = ({
 }): JSX.Element => {
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+      console.log(event)
       setOxcAccordion(newExpanded ? panel : "");
     };
   return (
@@ -793,6 +795,7 @@ const TFICAccordion = ({
 }): JSX.Element => {
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
+      console.log(event)
       setTficAccordion(newExpanded ? panel : "");
     };
   return (
@@ -903,9 +906,10 @@ const OxcPortsDropDown = ({
   return (
     <Autocomplete
       id="grouped-oxc-ports"
-      onChange={(e, option: OxcPortOption | null) =>
+      onChange={(e, option: OxcPortOption | null) => {
+        console.log(e)
         onOxcPortSelectionChange(option)
-      }
+      }}
       size="small"
       options={oxcPortOptions}
       groupBy={(option) => option.title}
@@ -929,7 +933,7 @@ const OxcPortsDropDown = ({
           <div className={classess.oxc_option}>{params.children}</div>
         </li>
       )}
-      renderOption={(props, option: OxcPortOption, { selected }) => (
+      renderOption={(props, option: OxcPortOption) => (
         <CustomizedTooltip title={option.fqnn} placement="left">
           <li {...props}>
             <span key={`${option.tx}-${option.rx}`}>{option.port}</span>

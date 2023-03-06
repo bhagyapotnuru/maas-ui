@@ -119,7 +119,7 @@ const arrayObject = (data: Array<any> = [], colSize: any = 4): any => {
               data={dataElm[dtKey]}
               theme={jsonTheme}
               keyPath={[dtKey]}
-              shouldExpandNode={() => true}
+              shouldExpandNodeInitially={() => true}
             />
           );
         }

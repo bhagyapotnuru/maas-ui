@@ -13,7 +13,7 @@ import {
   Accordion,
 } from "@canonical/react-components";
 import type { MainTableRow } from "@canonical/react-components/dist/components/MainTable/MainTable";
-import { navigateToNew } from "@maas-ui/maas-ui-shared";
+import { useNavigate } from "react-router-dom-v5-compat";
 import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
 import MuiAccordion from "@mui/material/Accordion";
 import type { AccordionProps } from "@mui/material/Accordion";
@@ -1069,7 +1069,7 @@ const ComposeNodeBlock = ({
 }) => {
   const [error, setError] = useState("");
   const [composing, setComposing] = useState(false);
-
+  const navigate = useNavigate();
   const onClickCompose = async () => {
     try {
       setError("");
@@ -1083,7 +1083,7 @@ const ComposeNodeBlock = ({
       };
       const promise = await postData("dfab/nodes/", payLoad);
       if (promise.status === 200) {
-        navigateToNew("/drut-cdi/nodes");
+        navigate("/drut-cdi/nodes");
       } else {
         const apiError: string = await promise.text();
         const defaultError = "Failed to Compose a Node.";
@@ -1389,7 +1389,7 @@ const ComposeNodeContent = (): JSX.Element => {
       return () => {
         abortController.abort();
       };
-    }
+    } else return
   }, [selectedIFICRack]);
 
   useEffect(() => {
@@ -1398,7 +1398,7 @@ const ComposeNodeContent = (): JSX.Element => {
       return () => {
         abortController.abort();
       };
-    }
+    } else return
   }, [selectedTFICRack]);
 
   useEffect(() => {

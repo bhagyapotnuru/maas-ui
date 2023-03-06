@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 
 import { Button } from "@canonical/react-components";
 // import { createBrowserHistory } from "history";
-import { NavLink, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 import { fetchData } from "../../config";
 
@@ -105,9 +105,9 @@ const DashboardHeader = ({ onClickTab }: Props): JSX.Element => {
       key="dashboardHeades"
       buttons={getHeaderButtons()}
       title="Dashboard"
-      morelink={
-        <NavLink to="/drut-cdi/dfab-health">{fabric && fabric.url}</NavLink>
-      }
+      // morelink={
+      //   <NavLink to="/drut-cdi/dfab-health">{fabric && fabric.url}</NavLink>
+      // }
       subtitle={
         fabric
           ? "Fabric Manager running at "
