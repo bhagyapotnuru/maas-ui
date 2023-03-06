@@ -1,0 +1,129 @@
+$spv-inner--medium: 6px;
+$sph-inner: 6px;
+$breakpoint-medium: 612px;
+$spv-inner--small: 6px;
+$sph-inner--large: 6px;
+$breakpoint-large: 6px;
+
+@mixin OverallDashboardCard {
+  $donut-size: 6.5rem;
+  $donut-width: 14px;
+  $border-drut: 1px solid #e7f1ee;
+
+
+  .overall-dashboard-card {
+    // @extend %vf-is-bordered;
+    @extend %vf-bg--x-light;
+    display: grid;
+    padding: 8px;
+    border: $border-drut;
+    grid-template-areas:
+      "box1 box1 box1 box1"
+      "box2 box2 box2 box2"
+      "box3 box3 box3 box3";
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: min-content;
+
+    .overall-dashboard-card__box1 {
+      grid-area: box1;
+      padding: $spv-inner--medium $sph-inner;
+    }
+
+    .overall-dashboard-card__box2 {
+      border-top: $border;
+      grid-area: box2;
+      padding: $spv-inner--medium $sph-inner;
+    }
+
+    .overall-dashboard-card__box3 {
+      border-top: $border;
+      grid-area: box3;
+      padding: $spv-inner--medium $sph-inner;
+    }
+
+    .overall-box2__meter {
+      display: grid;
+      grid-column-gap: 1rem;
+      grid-template-areas:
+        "composed unused failed free"
+        "meter meter meter meter";
+      grid-template-columns: 1fr 1fr 1fr 1fr;
+      grid-template-rows: min-content;
+    }
+
+    @media only screen and (min-width: $breakpoint-medium) {
+      grid-template-areas:
+        "box1 box1 box1 box1 box1 box1"
+        "box2 box2 box2 box2 box2 box2"
+        "box3 box3 box3 box3 box3 box3";
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    @media only screen and (min-width: $breakpoint-large) {
+      grid-template-areas: "box1 box1 box1 box1 box2 box2 box2 box2 box3 box3 box3 box3";
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+
+      .overall-dashboard-card__box2,
+      .overall-dashboard-card__box3 {
+        border-left: $border;
+        border-top: 0;
+      }
+    }
+  }
+}
+
+@mixin OverallRamDashboard {
+  $donut-size: 6.5rem;
+  $donut-width: 14px;
+
+  .overall-ram {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+  }
+
+  .overall-ram__chart-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .overall-ram__chart {
+    align-self: center;
+    width: $donut-size;
+  }
+
+  .overall-ram__table {
+    margin-bottom: 0;
+    margin-top: -$spv-inner--small;
+  }
+
+  @media only screen and (min-width: $breakpoint-medium) {
+    .overall-ram {
+      flex-direction: row;
+    }
+
+    .overall-ram__chart-container {
+      flex: 1;
+      margin-right: $sph-inner--large;
+    }
+
+    .overall-ram__table {
+      flex: 3;
+    }
+  }
+
+  @media only screen and (min-width: $breakpoint-large) {
+    .overall-ram__chart-container {
+      flex: 0;
+      margin-right: $sph-inner;
+    }
+
+    .overall-ram__chart {
+      align-self: flex-start;
+    }
+  }
+}
+
+.p-meter--small {
+  margin-bottom: 0px !important;
+}

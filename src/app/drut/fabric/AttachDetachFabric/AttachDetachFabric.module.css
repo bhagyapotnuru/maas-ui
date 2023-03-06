@@ -1,0 +1,22 @@
+.resource_block_row {
+  display: flex;
+  align-items: center;
+  gap: 1%;
+}
+
+.attach_action_list_menu {
+  padding: 0 !important;
+}
+
+.nav_link_disable {
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+.nav_link_enable {
+  pointer-events: auto;
+}
+
+.refresh_dp_icon {
+  transform: rotate(90deg);
+}

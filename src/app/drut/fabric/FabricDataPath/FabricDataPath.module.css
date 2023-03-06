@@ -1,0 +1,41 @@
+.status_col {
+  width: 5%;
+}
+
+.datapath_id_col {
+  width: 13%;
+}
+
+.initiator_col {
+  width: 14%;
+}
+
+.crossconnect_col {
+  width: 17%;
+}
+
+.resourceblock_col {
+  width: 13%;
+}
+
+.flex_data {
+  display: flex;
+  gap: 8%;
+  align-items: center;
+  justify-content: center;
+}
+
+.cross_connect_flex {
+  display: flex;
+  gap: 2%;
+  align-items: center;
+  justify-content: center;
+}
+
+.border_right {
+  border-right: 0.5px solid;
+}
+
+.list_view {
+  display: none !important;
+}

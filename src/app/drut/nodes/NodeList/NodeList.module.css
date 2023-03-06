@@ -1,0 +1,42 @@
+.datapath-creation-order-status {
+  display: flex;
+  flex-direction: row;
+  justify-content: inherit;
+  padding-left: 0.5em;
+}
+
+.datapath-creation-order-status .datapath-status {
+  padding-left: 0.5em;
+}
+
+.datapath_orders_accordian {
+  display: flex;
+  gap: 2%;
+}
+
+.datapath_orders_accordian > div:first-child {
+  min-width: 25rem;
+}
+
+.refresh_btn {
+  width: 15%;
+  padding: 0.5%;
+  max-height: 50px;
+  text-align: right;
+}
+
+.refresh_dp_icon {
+  transform: rotate(90deg);
+}
+
+.node_details_tab section {
+  padding-top: 1rem !important;
+}
+
+.datapath_tab_panel {
+  padding: 5px !important;
+}
+
+.node_details_tab_panel {
+  padding: 15px !important;
+}

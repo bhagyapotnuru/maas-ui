@@ -1,0 +1,202 @@
+.oxc_management_content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%),
+    0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
+  border-radius: 4px;
+}
+
+.oxc_management_header_parent {
+  display: flex;
+  gap: 2rem;
+  margin-left: 1rem;
+  padding-top: 6px;
+}
+
+.oxc_management_header_content {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.oxc_management_header_selections {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.oxc_management_header_selections strong {
+  color: #707070;
+}
+
+.import_export_csv_buttons {
+  display: flex;
+  justify-content: space-between;
+  width: 15rem;
+  margin-right: 1rem;
+}
+
+.import_export_csv_buttons button {
+  text-transform: capitalize !important;
+  color: #e73594;
+  border-color: #e73594;
+}
+
+.import_export_csv_buttons button:hover {
+  color: #e73594;
+  border-color: #e73594;
+}
+
+.connectivity_management_table {
+  box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%),
+    0px 4px 5px 0px rgb(0 0 0 / 14%), 0px 1px 10px 0px rgb(0 0 0 / 12%);
+}
+
+.connectivity_management_table > div {
+  display: flex;
+}
+
+.connectivity_management_table_header {
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.connectivity_management_table_header > strong {
+  font-weight: bold;
+}
+
+.connectivity_management_table_blocks {
+  margin-bottom: 1rem;
+}
+
+.save_button {
+  display: flex;
+  place-content: flex-end;
+  padding: 1rem;
+}
+
+.save_button button {
+  text-transform: capitalize !important;
+  background-color: #e73594;
+  border-color: #e73594;
+}
+
+.save_button button:hover {
+  background-color: #e73594;
+  border-color: #e73594;
+}
+
+.save_button button:disabled {
+  background-color: #e73594;
+  color: white;
+  border-color: #e73594;
+}
+
+.oxc_port_autocomplete_input input {
+  box-shadow: none;
+  font-size: 0.875rem !important;
+}
+
+.no_selection {
+  padding: 5rem;
+  text-align: center;
+}
+
+.block {
+  min-width: 25rem;
+}
+
+.no_info_available {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+}
+
+.oxc_option {
+  margin-left: 0.5rem;
+}
+
+.loading {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.tableHeader th {
+  text-transform: capitalize !important;
+}
+
+.no_data {
+  width: 23rem;
+  text-align: center;
+  font-size: 0.875rem;
+}
+
+.no_data + span {
+  font-size: 0.875rem;
+}
+
+.text_ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 22ch;
+}
+
+.header_selection_menu_item {
+  font-size: 0.875rem !important;
+}
+
+.select_value > div {
+  font-size: 0.875rem !important;
+}
+
+/* Unassigned Managers */
+
+.move_to_rack_div {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 2rem;
+}
+.move_to_rack_div button {
+  text-transform: capitalize !important;
+  background-color: #e73594;
+  border-color: #e73594;
+}
+
+.move_to_rack_div button:hover {
+  background-color: #e73594;
+  border-color: #e73594;
+}
+
+.move_to_rack_div button:disabled {
+  background-color: #e73594;
+  color: white;
+  border-color: #e73594;
+}
+
+.move_to_rack_inputs {
+  display: flex;
+  align-items: center;
+  gap: 4rem;
+  margin-bottom: 2rem;
+}
+
+.manager_name_input input {
+  box-shadow: none;
+  font-size: 0.8rem !important;
+}
+
+.no_data_table_body {
+  display: table-caption !important;
+  text-align: center;
+  padding: 3rem;
+}
+
+.select_dropdown > div {
+  font-size: 0.875rem;
+}
+
+.select_menu_item {
+  font-size: 0.875rem !important;
+}

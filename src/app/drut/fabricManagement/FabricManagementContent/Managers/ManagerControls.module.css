@@ -1,0 +1,14 @@
+.show_select {
+  display: flex;
+  justify-content: end;
+}
+
+.select_label_name {
+  align-items: center;
+  display: flex;
+  height: 2.5rem;
+}
+
+.pagingation_select {
+  min-width: auto !important;
+}

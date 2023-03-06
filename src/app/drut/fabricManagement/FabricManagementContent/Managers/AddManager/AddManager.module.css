@@ -1,0 +1,38 @@
+.redfish_url_block {
+  display: flex;
+  justify-content: space-between;
+  width: 85%;
+}
+
+.redfish_url_block .static_url_field {
+  width: 50%;
+  display: flex;
+  align-items: center;
+}
+
+.static_url_field .static_url_field_border {
+  border-left: 2px solid rgb(133 133 133 / 42%);
+  height: 4rem;
+  margin-top: 1rem;
+}
+
+.manager_url_block {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.manager_url_block .colon_text {
+  padding-top: 1.2rem;
+}
+
+.update_manager_static_label {
+  margin-bottom: 0.6rem;
+  padding-top: 0.4rem;
+  padding-left: 0.5rem;
+}
+
+.update_manager_static_content {
+  margin-bottom: 1.2rem;
+  padding-left: 0.5rem;
+}
