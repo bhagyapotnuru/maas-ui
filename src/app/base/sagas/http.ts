@@ -22,13 +22,13 @@ type UploadScript = {
   name?: Script["name"];
 };
 
-const BAKERY_LOGIN_API = 'http://10.50.0.18:5240' + "/MAAS/accounts/discharge-request/";
-export const ROOT_API = 'http://10.50.0.18:5240' + "/MAAS/api/2.0/";
+const BAKERY_LOGIN_API = 'http://localhost:8400' + "/MAAS/accounts/discharge-request/";
+export const ROOT_API = 'http://localhost:8400' + "/MAAS/api/2.0/";
 const SCRIPTS_API = `${ROOT_API}scripts/`;
 const LICENSE_KEY_API = `${ROOT_API}license-key/`;
 const LICENSE_KEYS_API = `${ROOT_API}license-keys/`;
-const LOGIN_API = 'http://10.50.0.18:5240' + "/MAAS/accounts/login/";
-const LOGOUT_API = 'http://10.50.0.18:5240' + "/MAAS/accounts/logout/";
+const LOGIN_API = 'http://localhost:8400' + "/MAAS/accounts/login/";
+const LOGOUT_API = 'http://localhost:8400' + "/MAAS/accounts/logout/";
 const MACHINES_API = `${ROOT_API}machines/`;
 
 const DEFAULT_HEADERS = {
