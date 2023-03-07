@@ -85,7 +85,7 @@ const MachineSummary = ({
 
   const getTootltipData = (machineData: any) => {
     return Object.keys(MACHINE_SUMMARY_OTHERS).map(
-      (key: string, index: any) => {
+      (key: string) => {
         const machineSummaryKey = key as keyof typeof MACHINE_SUMMARY_OTHERS;
         return (
           <li

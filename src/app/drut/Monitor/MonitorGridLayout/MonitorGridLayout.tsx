@@ -33,6 +33,7 @@ const MonitorGridLayout = ({
     currentLayouts: RGL.Layout[],
     allLayouts: RGL.Layouts
   ) => {
+    console.log(allLayouts);
     const resizedWidget: MonitorConfiguration | undefined = (
       configData as MonitorConfiguration[]
     )

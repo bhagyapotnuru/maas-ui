@@ -30,10 +30,10 @@ const DataPathOrderDetailsTable = (props: Props): JSX.Element => {
       return "p-icon--error";
     } else if (orderStatus === "PENDING") {
       return "p-icon--status-waiting";
-    }
+    } else return
   };
 
-  const TableCell = styled(MuiTableCell)(({ theme }) => ({
+  const TableCell = styled(MuiTableCell)(() => ({
     "&.MuiTableCell-root": {
       wordBreak: "break-all",
     },

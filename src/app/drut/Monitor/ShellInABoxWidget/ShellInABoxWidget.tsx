@@ -136,6 +136,7 @@ const Iframe = ({
   url: string;
   refreshedKey: string;
 }): JSX.Element => {
+  console.log(refreshedKey)
   return (
     <div className={classess.widget_iframe} style={{ overflow: "hidden" }}>
       <iframe
@@ -203,6 +204,7 @@ const ApplicationSelect = ({
       }}
       onChange={(key, value: MonitorAppTypes[]) => {
         setApplications(value);
+        console.log(key)
       }}
       onBlur={(e) => {
         e.preventDefault();

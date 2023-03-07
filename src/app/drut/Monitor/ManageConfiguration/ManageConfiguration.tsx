@@ -122,6 +122,7 @@ const ManageConfiguration = ({
     event: React.MouseEvent<unknown>,
     changedConfig: MonitorConfiguration
   ) => {
+    console.log(event)
     setSelected((prevConfig: MonitorConfiguration[]) => {
       const selectedConfig: MonitorConfiguration | undefined = prevConfig.find(
         (config) => config.id === changedConfig.id

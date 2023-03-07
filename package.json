@@ -98,6 +98,7 @@
     "@types/react": "17.0.53",
     "@types/react-csv": "^1.1.3",
     "@types/react-dom": "17.0.19",
+    "@types/react-grid-layout": "^1.3.2",
     "@types/react-portal": "4.0.4",
     "@types/react-redux": "7.1.25",
     "@types/react-router": "5.1.20",
@@ -161,6 +162,7 @@
       "enzyme-to-json/serializer"
     ]
   },
+  "proxy": "http://localhost:8400",
   "npmpackagejsonlint": {
     "rules": {
       "prefer-absolute-version-dependencies": "error",

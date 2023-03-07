@@ -31,6 +31,7 @@ const ResourceFilterControls = ({
   const [debouncing, setDebouncing] = useState(false);
 
   const selectionchange = (key: any = "", elm: any = null) => {
+    console.log(setExpandedSection);
     let newObj = JSON.parse(JSON.stringify(ft));
     if (elm === null) {
       newObj = JSON.parse(JSON.stringify(items));
@@ -128,7 +129,7 @@ const ResourceFilterControls = ({
             className="filter-accordion__dropdown"
             expanded={expandedSection}
             externallyControlled
-            onExpandedChange={setExpandedSection}
+            // onExpandedChange={setExpandedSection}
             sections={getFilterItems(ft)}
           />
         </ContextualMenu>

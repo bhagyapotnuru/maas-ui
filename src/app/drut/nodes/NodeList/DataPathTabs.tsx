@@ -51,7 +51,7 @@ const a11yProps = (index: number) => {
   };
 };
 
-const Tabs = styled(MuiTabs)(({ theme }) => ({
+const Tabs = styled(MuiTabs)(() => ({
   "&.MuiTabs-root .MuiTabs-indicator": {
     backgroundColor: "currentcolor",
   },
@@ -67,6 +67,7 @@ export default function DataPathTabs(props: Props): JSX.Element {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    console.log(event)
     setValue(newValue);
     console.log(newValue);
     props.isDataPathOrdersTab(newValue === 1);

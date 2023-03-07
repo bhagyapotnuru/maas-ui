@@ -36,7 +36,7 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
       return "p-icon--error";
     } else if (orderStatus === "PENDING") {
       return "p-icon--status-waiting";
-    }
+    } else return
   };
 
   const Accordion = styled((props: any) => (
@@ -127,10 +127,12 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
   };
 
   const handleParentChange = (panel: any) => (event: any, newExpanded: any) => {
+    console.log(event)
     setParentExpanded(newExpanded ? panel : false);
   };
 
   const handleChildChange = (panel: any) => (event: any, newExpanded: any) => {
+    console.log(event)
     setChildExpanded(newExpanded ? panel : false);
   };
 

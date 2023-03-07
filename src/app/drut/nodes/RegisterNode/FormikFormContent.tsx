@@ -15,6 +15,7 @@ import {
   useSendAnalyticsWhen,
 } from "app/base/hooks/index";
 import type { APIError } from "app/base/types";
+import { AnyAction } from "redux";
 
 export type Props<V, E> = {
   allowAllEmpty?: boolean;
@@ -22,7 +23,7 @@ export type Props<V, E> = {
   allowValidate?: boolean;
   children?: ReactNode;
   className?: string;
-  cleanup?: () => void;
+  cleanup?: () => AnyAction;
   editable?: boolean;
   errors?: APIError<E>;
   inline?: boolean;
@@ -41,7 +42,7 @@ export type Props<V, E> = {
   submitDisabled?: boolean;
 } & FormikFormButtonsProps<V>;
 
-const generateNonFieldError = <V, E = null>(
+const generateNonFieldError = <V extends {}, E = null>(
   values: V,
   errors?: APIError<E>
 ) => {
@@ -67,7 +68,7 @@ const generateNonFieldError = <V, E = null>(
   return null;
 };
 
-const FormikFormContent = <V, E = null>({
+const FormikFormContent = <V extends {}, E = null>({
   allowAllEmpty,
   allowUnchanged,
   allowValidate,

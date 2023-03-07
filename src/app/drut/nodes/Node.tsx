@@ -54,7 +54,7 @@ const Compose = (): JSX.Element => {
           <NodeList dataId={tabId} page="list" onNodeDetail={nodeDetails} />
         </Section>
       </Route>
-      <Route exact path={nodeUrl.nodes.nodeDetails(null, true)}>
+      <Route exact path={nodeUrl.nodes.nodeDetails(null)}>
         <Section
           className={`u-no-padding--bottom ${classess.node_details_tab}`}
           key="nodeSection"
