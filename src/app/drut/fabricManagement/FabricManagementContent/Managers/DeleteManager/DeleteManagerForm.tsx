@@ -18,7 +18,6 @@ type Props = {
 
 export const DeleteManagerForm = ({
   onClose,
-  setFetchManagers,
   managerData,
   setError,
 }: Props): JSX.Element | null => {
@@ -29,6 +28,7 @@ export const DeleteManagerForm = ({
   };
 
   const deleteManager = (manager: any) => {
+    console.log(manager)
     setLoading(true);
     // deleteData(`dfab/managers/${manager?.id}/`)
     //   .then(
@@ -85,7 +85,7 @@ export const DeleteManagerForm = ({
           onSuccess={() => {
             onClose();
           }}
-          savedRedirect={tagsURLs.tags.index}
+          savedRedirect={tagsURLs.index}
           submitAppearance="negative"
           submitLabel="Delete"
         >

@@ -75,7 +75,6 @@ type Props = {
 const ManagerTable = ({
   searchText,
   setRenderUpdateManagerForm,
-  setRenderDeleteManagerForm,
   managersData,
   pageSize,
   prev,

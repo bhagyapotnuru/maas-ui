@@ -43,7 +43,6 @@ const groupOptions = [
   },
 ];
 const GroupList = ({
-  setRenderUpdateGroupForm,
   setRenderDeleteGroupForm,
   fetchGroups,
   setGroupList,
@@ -111,7 +110,7 @@ const GroupList = ({
       return () => {
         abortController.abort();
       };
-    }
+    } else return
   }, [fetchGroups]);
 
   useEffect(() => {

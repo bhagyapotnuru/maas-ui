@@ -205,7 +205,7 @@ export const RegisterMachineForm: any = ({
             resetOnSave={resetOnSave}
             saving={machineSaving}
             saved={machineSaved}
-            savedRedirect={resetOnSave ? undefined : machineURLs.machines.index}
+            savedRedirect={resetOnSave ? undefined : machineURLs.index}
             secondarySubmit={(_, { submitForm }) => {
               setResetOnSave(true);
               submitForm();

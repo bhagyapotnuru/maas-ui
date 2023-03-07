@@ -58,7 +58,7 @@ export const AddManagerFormFields = <V extends AnyObject>({
           return "http";
         }
       }
-    }
+    } else return
   };
 
   const getDescription = (

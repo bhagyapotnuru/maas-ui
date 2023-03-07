@@ -47,6 +47,8 @@ export type SidePanelContent<V extends readonly [string, string], E = never> = {
 
 export type SetSidePanelContent<H> = (sidePanelContent: H | null) => void;
 
+export type ClearHeaderContent = () => void;
+
 export type ClearSidePanelContent = () => void;
 
 export type SetSearchFilter = (searchFilter: string) => void;

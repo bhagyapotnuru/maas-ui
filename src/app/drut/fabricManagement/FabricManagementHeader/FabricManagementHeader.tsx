@@ -14,7 +14,7 @@ type Props = {
 const FabricManagementHeader = ({
   title,
   buttonContent,
-  headerContent,
+  // headerContent,
 }: Props): JSX.Element => {
   const location = useLocation();
 
@@ -46,7 +46,7 @@ const FabricManagementHeader = ({
   return (
     <SectionHeader
       key="ManagersHeader"
-      headerContent={headerContent}
+      // headerContent={headerContent}
       buttons={buttonContent}
       title={title}
       tabLinks={tabs}

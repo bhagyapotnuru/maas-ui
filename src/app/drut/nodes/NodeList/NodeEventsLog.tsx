@@ -27,6 +27,7 @@ const NodeEventLog = (props: Props): JSX.Element => {
         return "p-icon--information";
       case "failed":
         return "p-icon--error";
+      default: return
     }
   };
 

@@ -41,7 +41,7 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
   const [nodeFullData, setNodeFullData] = useState([]);
   const [nodes, setNodes] = useState([]);
   const filteredMachines = useSelector((state: RootState) => {
-    return machineSelectors.search(state, null, []);
+    return machineSelectors.search(state, '', []);
   });
 
   localStorage.setItem("myFavoriteSandwich", "tuna");
@@ -70,7 +70,7 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
 
   useEffect(() => {
     filteredMachines.forEach((dt: any) => {
-      dispatch(machineActions.get(dt.system_id));
+      dispatch(machineActions.get(dt.system_id, ''));
       dispatch(machineActions.setActive(dt.system_id));
     });
 
@@ -188,7 +188,7 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
       return "p-icon--error";
     } else if (composedNodeState === "PENDING") {
       return "p-icon--status-waiting";
-    }
+    } else return
   };
 
   const getStatusIcon = (node: any) =>

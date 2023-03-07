@@ -22,4 +22,5 @@ export const PowerTypeNames = {
   VMWARE: "vmware",
   WEBHOOK: "webhook",
   WEDGE: "wedge",
+  DEFAULT: "default",
 } as const;

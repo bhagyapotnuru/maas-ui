@@ -90,7 +90,7 @@ export const DeleteGroupForm = ({
           onSuccess={() => {
             onClose();
           }}
-          savedRedirect={tagsURLs.tags.index}
+          savedRedirect={tagsURLs.index}
           submitAppearance="negative"
           submitLabel="Delete"
         >

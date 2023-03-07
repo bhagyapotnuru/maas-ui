@@ -46,7 +46,7 @@ const ManagerContent = ({
       return () => {
         abortController.abort();
       };
-    }
+    } else return
   }, [fetchManagers]);
 
   const filterData = {

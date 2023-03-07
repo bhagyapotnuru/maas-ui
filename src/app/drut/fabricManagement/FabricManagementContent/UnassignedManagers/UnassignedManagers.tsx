@@ -72,6 +72,7 @@ const UnassignedManagers = (): JSX.Element => {
   }
 
   const getZones = async () => {
+    console.log(headerContent)
     try {
       const promise = await fetchData(
         "dfab/nodegroups/?op=get_zones",
@@ -102,7 +103,7 @@ const UnassignedManagers = (): JSX.Element => {
           <SectionHeader
             key="UnassignedManagersHeader"
             buttons={buttonContent}
-            headerContent={headerContent}
+            // headerContent={headerContent}
             title={headerTitle}
           />
         }

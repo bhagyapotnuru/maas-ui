@@ -26,7 +26,7 @@ import { deleteData, fetchData } from "app/drut/config";
 import DeleteConfirmationModal from "app/utils/Modals/DeleteConfirmationModal";
 import customDrutTheme from "app/utils/Themes/Themes";
 
-const TableCell = styled(MuiTableCell)(({ theme }) => ({
+const TableCell = styled(MuiTableCell)(() => ({
   "&.MuiTableCell-root": {
     whiteSpace: "nowrap",
     overflow: "hidden",

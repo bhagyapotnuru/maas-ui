@@ -30,7 +30,7 @@ import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 
 import { fetchData } from "app/drut/config";
 
-const TableCell = styled(MuiTableCell)(({ theme }) => ({
+const TableCell = styled(MuiTableCell)(() => ({
   "&.MuiTableCell-root": {
     wordBreak: "break-all",
   },

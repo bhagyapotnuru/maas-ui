@@ -55,6 +55,7 @@ const ManagerControls = ({
 
   useEffect(() => {
     // Going to the first page if the search text or filters are updated!
+    console.log(setExpandedSection)
     setPrev(0);
     setNext(1);
   }, [searchText]);
@@ -121,7 +122,7 @@ const ManagerControls = ({
               className="filter-accordion__dropdown"
               expanded={expandedSection}
               externallyControlled
-              onExpandedChange={setExpandedSection}
+              // onExpandedChange={setExpandedSection}
               sections={getFilterItems(filterData)}
             />
           </ContextualMenu>

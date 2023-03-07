@@ -67,7 +67,7 @@ const isValidUrl = (urlString: string) => {
   return urlString !== "" && !!urlPattern.test(urlString);
 };
 
-const FormControl = styled(MuiFormControl)(({ theme }) => ({
+const FormControl = styled(MuiFormControl)(() => ({
   "&.MuiFormControl-root": {
     width: "-webkit-fill-available",
   },
