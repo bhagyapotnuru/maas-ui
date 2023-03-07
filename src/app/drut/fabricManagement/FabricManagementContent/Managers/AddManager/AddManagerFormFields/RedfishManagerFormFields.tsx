@@ -1,13 +1,11 @@
-import { Col, Row } from "@canonical/react-components";
-import { Select } from "@canonical/react-components";
+import { Col, Row, Select } from "@canonical/react-components";
+import FormikField from "app/base/components/FormikField";
+import type { AnyObject } from "app/base/types";
 import { useFormikContext } from "formik";
 
 import classess from "../AddManager.module.css";
 import { REDIFISH_MANAGER_PROTOCOLS } from "../constants";
 import type { Manager } from "../type";
-
-import FormikField from "app/base/components/FormikField";
-import type { AnyObject } from "app/base/types";
 
 type Props = {
   managerToUpdate?: Manager;
@@ -28,9 +26,19 @@ export const RedfishManagerFormFields = <V extends AnyObject>({
                 <Col size={2}>
                   <FormikField
                     component={Select}
+                    disabled={managerToUpdate ? true : false}
                     label="Protocol"
                     name="protocol"
-                    disabled={managerToUpdate ? true : false}
+                    onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
+                      handleChange(evt);
+                      setFieldValue("protocol", evt.target.value);
+                      setFieldValue(
+                        "remote_redfish_uri",
+                        `${evt.target.value}://${values.ip_address}${
+                          values.port ? `:${values.port}` : ""
+                        }/redfish/v1`
+                      );
+                    }}
                     options={[
                       {
                         label: "Select Protocol",
@@ -43,32 +51,19 @@ export const RedfishManagerFormFields = <V extends AnyObject>({
                         value: protocol,
                       })),
                     ]}
-                    onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
-                      handleChange(evt);
-                      setFieldValue("protocol", evt.target.value);
-                      setFieldValue(
-                        "remote_redfish_uri",
-                        `${evt.target.value}://${values.ip_address}${
-                          values.port ? `:${values.port}` : ""
-                        }/redfish/v1`
-                      );
-                    }}
                     required
                   />
                 </Col>
-                <Col size={1} className={classess.colon_text}>
+                <Col className={classess.colon_text} size={1}>
                   <span>
                     <strong>&#58;&#47;&#47;</strong>
                   </span>
                 </Col>
                 <Col size={3}>
                   <FormikField
+                    disabled={managerToUpdate ? true : false}
                     label="IP Address"
                     name="ip_address"
-                    required={true}
-                    disabled={managerToUpdate ? true : false}
-                    placeholder="IP Address"
-                    type="text"
                     onChange={(evt: React.ChangeEvent<HTMLInputElement>) => {
                       setFieldValue("ip_address", evt.target.value);
                       setFieldValue(
@@ -78,24 +73,21 @@ export const RedfishManagerFormFields = <V extends AnyObject>({
                         }/redfish/v1`
                       );
                     }}
+                    placeholder="IP Address"
+                    required={true}
+                    type="text"
                   />
                 </Col>
-                <Col size={1} className={classess.colon_text}>
+                <Col className={classess.colon_text} size={1}>
                   <span>
                     <strong>&#58;</strong>
                   </span>
                 </Col>
                 <Col size={1}>
                   <FormikField
+                    disabled={managerToUpdate ? true : false}
                     label="Port"
                     name="port"
-                    required={
-                      values.manager_type !== "BMC" &&
-                      values.protocol !== "https"
-                    }
-                    disabled={managerToUpdate ? true : false}
-                    placeholder="Port"
-                    type="text"
                     onChange={(evt: React.ChangeEvent<HTMLInputElement>) => {
                       setFieldValue("port", evt.target.value);
                       setFieldValue(
@@ -105,9 +97,15 @@ export const RedfishManagerFormFields = <V extends AnyObject>({
                         }/redfish/v1`
                       );
                     }}
+                    placeholder="Port"
+                    required={
+                      values.manager_type !== "BMC" &&
+                      values.protocol !== "https"
+                    }
+                    type="text"
                   />
                 </Col>
-                <Col size={1} className={classess.colon_text}>
+                <Col className={classess.colon_text} size={1}>
                   <span>
                     <strong>/redfish/v1</strong>
                   </span>

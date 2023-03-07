@@ -1,6 +1,6 @@
-import { getTypeTitle } from "./../../types";
-
 import Meter from "app/base/components/Meter";
+
+import { getTypeTitle } from "./../../types";
 
 export type Props = {
   data: any;

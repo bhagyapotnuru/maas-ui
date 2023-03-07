@@ -24,9 +24,9 @@ const renderGridItem = ({
       return (
         <MachineSummary
           configData={configData}
-          onRemoveWidget={onRemoveWidget}
-          onPinWidgetHandler={onPinWidgetHandler}
           onMinimizeWidget={onMinimizeWidget}
+          onPinWidgetHandler={onPinWidgetHandler}
+          onRemoveWidget={onRemoveWidget}
         />
       );
     case "Ceph":
@@ -35,11 +35,11 @@ const renderGridItem = ({
     case "Others":
       return (
         <ShellInABoxWidget
-          resizedWidget={resizedWidget}
           configData={configData}
-          onRemoveWidget={onRemoveWidget}
-          onPinWidgetHandler={onPinWidgetHandler}
           onMinimizeWidget={onMinimizeWidget}
+          onPinWidgetHandler={onPinWidgetHandler}
+          onRemoveWidget={onRemoveWidget}
+          resizedWidget={resizedWidget}
         />
       );
     default:
@@ -47,9 +47,9 @@ const renderGridItem = ({
         <>
           <WidgetHeader
             configData={configData}
-            onRemoveWidget={onRemoveWidget}
-            onPinWidgetHandler={onPinWidgetHandler}
             onMinimizeWidget={onMinimizeWidget}
+            onPinWidgetHandler={onPinWidgetHandler}
+            onRemoveWidget={onRemoveWidget}
           />
           <div className={classess.widget_iframe}>
             <iframe src={configData.url} />

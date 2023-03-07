@@ -1,8 +1,7 @@
 import { Button } from "@canonical/react-components";
 // import { createBrowserHistory } from "history";
-import { Link } from "react-router-dom";
-
 import SectionHeader from "app/base/components/SectionHeader";
+import { Link } from "react-router-dom";
 
 const ComposeNodeHeader = (): JSX.Element => {
   // const history = createBrowserHistory();
@@ -38,8 +37,8 @@ const ComposeNodeHeader = (): JSX.Element => {
   return (
     <SectionHeader
       buttons={getHeaderButtons()}
-      title="Compose Node"
       subtitle="Create a machine"
+      title="Compose Node"
     />
   );
 };

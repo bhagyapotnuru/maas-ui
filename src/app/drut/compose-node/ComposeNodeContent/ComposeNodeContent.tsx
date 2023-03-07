@@ -13,7 +13,6 @@ import {
   Accordion,
 } from "@canonical/react-components";
 import type { MainTableRow } from "@canonical/react-components/dist/components/MainTable/MainTable";
-import { useNavigate } from "react-router-dom-v5-compat";
 import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
 import MuiAccordion from "@mui/material/Accordion";
 import type { AccordionProps } from "@mui/material/Accordion";
@@ -32,6 +31,13 @@ import Stepper from "@mui/material/Stepper";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
+import { fetchData, postData } from "app/drut/config";
+import type {
+  Rack,
+  Zone,
+} from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
+import { arrayObjectArray, genObjAccord } from "app/drut/parser";
+import { useNavigate } from "react-router-dom-v5-compat";
 
 import type {
   ComputerSystems,
@@ -46,13 +52,6 @@ import type {
 import { CompositionState } from "../Models/ResourceBlock";
 import type { ResourceBlockInfo } from "../Models/ResourceBlockInfo";
 import classes from "../composedNode.module.scss";
-
-import { fetchData, postData } from "app/drut/config";
-import type {
-  Rack,
-  Zone,
-} from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
-import { arrayObjectArray, genObjAccord } from "app/drut/parser";
 
 const StyledAccordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />
@@ -135,9 +134,9 @@ const Step1Content = ({
             </div>
             <div>
               <ZoneSelect
-                zones={zones}
                 selectedZone={selectedZone}
                 setSelectedZone={setSelectedZone}
+                zones={zones}
               />
             </div>
           </div>
@@ -281,10 +280,10 @@ const ResourceBlockTable = ({
                 position="right"
               >
                 <CheckboxInput
-                  label=""
-                  id={currentRB.Id}
-                  disabled={!currentRB.checked && isMaxPortCountLimitReached}
                   checked={currentRB.checked}
+                  disabled={!currentRB.checked && isMaxPortCountLimitReached}
+                  id={currentRB.Id}
+                  label=""
                   onChange={(e: any) => {
                     if (e.target.checked && header === "Compute") {
                       resourceBlockMembers.forEach((m) => (m.checked = false));
@@ -312,7 +311,6 @@ const ResourceBlockTable = ({
                 position="right"
               >
                 <Button
-                  variant="text"
                   onClick={() => {
                     setExpandedResourceBlock(
                       expandedResourceBlockRow === currentRB.Id
@@ -320,6 +318,7 @@ const ResourceBlockTable = ({
                         : currentRB.Id
                     );
                   }}
+                  variant="text"
                 >
                   {currentRB?.Name}
                 </Button>
@@ -374,9 +373,9 @@ const ResourceBlockTable = ({
           <Row>
             {error && error.length && (
               <Notification
+                inline
                 key={`notification_${Math.random()}`}
                 onDismiss={() => setError("")}
-                inline
                 severity="negative"
               >
                 {error}
@@ -384,13 +383,13 @@ const ResourceBlockTable = ({
             )}
             {loading ? (
               <Notification
-                key={`notification_${Math.random()}`}
                 inline
+                key={`notification_${Math.random()}`}
                 severity="information"
               >
                 <Spinner
-                  text={`Fetching Resource Block Information...`}
                   key={`managerListSpinner_${Math.random()}`}
+                  text={`Fetching Resource Block Information...`}
                 />
               </Notification>
             ) : (
@@ -435,18 +434,18 @@ const ResourceBlockTable = ({
   return (
     <>
       <MainTable
+        className="drut-table-border"
+        emptyStateMsg="Data not available."
         expanding
-        paginate={8}
-        key="computeTable"
         headers={headers}
+        key="computeTable"
+        paginate={8}
         rows={getRowsToRender(
           resourceBlocks,
           expandedResourceBlockRow,
           setExpandedResourceBlock
         )}
         sortable
-        className="drut-table-border"
-        emptyStateMsg="Data not available."
       />
     </>
   );
@@ -487,12 +486,12 @@ const ResourceBlocksAccordion = ({
       </AccordionSummary>
       <AccordionDetails>
         <ResourceBlockTable
-          header={header}
           expandedResourceBlockRow={expandedResourceBlockRow}
+          header={header}
+          isMaxPortCountLimitReached={isMaxPortCountLimitReached}
           resourceBlocks={resourceBlocks}
           setExpandedResourceBlock={setExpandedResourceBlock}
           setSelectedResourceBlocks={setSelectedResourceBlocks}
-          isMaxPortCountLimitReached={isMaxPortCountLimitReached}
         />
       </AccordionDetails>
     </StyledAccordion>
@@ -526,27 +525,27 @@ const ResourceBlockPage = ({
     <>
       {fetchingResourceBlocks ? (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
-            text={`Fetching Resource Blocks...`}
             key={`resource_blocks_spinner_${Math.random()}`}
+            text={`Fetching Resource Blocks...`}
           />
         </Notification>
       ) : isDataAvailable ? (
         keys.map((key: string) => {
           return (
             <ResourceBlocksAccordion
-              header={key}
               expandedResourceBlockRow={expandedResourceBlockRow}
+              expandedResourceType={expandedResourceType}
+              header={key}
+              isMaxPortCountLimitReached={isMaxPortCountLimitReached}
               resourceBlocks={resourceBlocksByType[key]}
               setExpandedResourceBlock={setExpandedResourceBlock}
-              expandedResourceType={expandedResourceType}
               setExpandedResourceType={setExpandedResourceType}
               setSelectedResourceBlocks={setSelectedResourceBlocks}
-              isMaxPortCountLimitReached={isMaxPortCountLimitReached}
             />
           );
         })
@@ -595,13 +594,13 @@ const IFICPool = ({
       {selectedIFICRack !== "" ? (
         <ResourceBlockPage
           expandedResourceBlockRow={expandedResourceBlockRow}
+          expandedResourceType={expandedResourceType}
+          fetchingResourceBlocks={fetchingResourceBlocks}
+          isMaxPortCountLimitReached={false}
           resourceBlocksByType={computeResourceBlocks}
           setExpandedResourceBlock={setExpandedResourceBlock}
-          expandedResourceType={expandedResourceType}
           setExpandedResourceType={setExpandedResourceType}
           setSelectedResourceBlocks={setSelectedResourceBlocks}
-          isMaxPortCountLimitReached={false}
-          fetchingResourceBlocks={fetchingResourceBlocks}
         />
       ) : (
         <div className={classes.no_data}>
@@ -652,13 +651,13 @@ const TFICPool = ({
       {selectedTFICRack !== "" ? (
         <ResourceBlockPage
           expandedResourceBlockRow={expandedResourceBlockRow}
+          expandedResourceType={expandedResourceType}
+          fetchingResourceBlocks={fetchingResourceBlocks}
+          isMaxPortCountLimitReached={isMaxPortCountLimitReached}
           resourceBlocksByType={targetResourceBlocks}
           setExpandedResourceBlock={setExpandedResourceBlock}
-          expandedResourceType={expandedResourceType}
           setExpandedResourceType={setExpandedResourceType}
           setSelectedResourceBlocks={setSelectedResourceBlocks}
-          isMaxPortCountLimitReached={isMaxPortCountLimitReached}
-          fetchingResourceBlocks={fetchingResourceBlocks}
         />
       ) : (
         <div className={classes.no_data}>
@@ -680,19 +679,19 @@ const RackSelect = ({
 }) => {
   return (
     <FormControl
-      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
       size="small"
+      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
       variant="standard"
     >
       <Select
-        placeholder="Select Rack"
+        className={classes.select_value}
         id="rack-select"
         label=""
-        value={`${selectedRack}`}
         onChange={(e: SelectChangeEvent<string>) => {
           setSelectedRack(e.target.value);
         }}
-        className={classes.select_value}
+        placeholder="Select Rack"
+        value={`${selectedRack}`}
         variant="standard"
       >
         {racks.length === 0 ? (
@@ -703,9 +702,9 @@ const RackSelect = ({
           [{ rack_id: 0, rack_name: "All", rack_fqgn: "All" }, ...racks].map(
             (rack: Rack) => (
               <MenuItem
+                className={classes.header_selection_menu_item}
                 key={rack.rack_id}
                 value={rack.rack_id}
-                className={classes.header_selection_menu_item}
               >
                 {rack.rack_name}
               </MenuItem>
@@ -764,11 +763,11 @@ const StepperContent = ({
     case 1:
       return (
         <Step1Content
-          setSelectedZone={setSelectedZone}
-          selectedZone={selectedZone}
-          zones={zones}
           enteredNodeName={enteredNodeName}
+          selectedZone={selectedZone}
           setEnteredNodeName={setEnteredNodeName}
+          setSelectedZone={setSelectedZone}
+          zones={zones}
         />
       );
     case 2:
@@ -776,30 +775,30 @@ const StepperContent = ({
         <IFICPool
           computeResourceBlocks={computeResourceBlocks}
           expandedResourceBlockRow={expandedResourceBlockRow}
-          setExpandedResourceBlock={setExpandedResourceBlock}
+          expandedResourceType={expandedResourceType}
+          fetchingResourceBlocks={fetchingResourceBlocks}
           racks={racks}
           selectedIFICRack={selectedIFICRack}
-          setSelectedIFICRack={setSelectedIFICRack}
-          expandedResourceType={expandedResourceType}
+          setExpandedResourceBlock={setExpandedResourceBlock}
           setExpandedResourceType={setExpandedResourceType}
+          setSelectedIFICRack={setSelectedIFICRack}
           setSelectedResourceBlocks={setSelectedResourceBlocks}
-          fetchingResourceBlocks={fetchingResourceBlocks}
         />
       );
     case 3:
       return (
         <TFICPool
-          targetResourceBlocks={targetResourceBlocks}
           expandedResourceBlockRow={expandedResourceBlockRow}
-          setExpandedResourceBlock={setExpandedResourceBlock}
+          expandedResourceType={expandedResourceType}
+          fetchingResourceBlocks={fetchingResourceBlocks}
+          isMaxPortCountLimitReached={isMaxPortCountLimitReached}
           racks={racks}
           selectedTFICRack={selectedTFICRack}
-          setSelectedTFICRack={setSelectedTFICRack}
-          expandedResourceType={expandedResourceType}
+          setExpandedResourceBlock={setExpandedResourceBlock}
           setExpandedResourceType={setExpandedResourceType}
           setSelectedResourceBlocks={setSelectedResourceBlocks}
-          isMaxPortCountLimitReached={isMaxPortCountLimitReached}
-          fetchingResourceBlocks={fetchingResourceBlocks}
+          setSelectedTFICRack={setSelectedTFICRack}
+          targetResourceBlocks={targetResourceBlocks}
         />
       );
     default:
@@ -818,19 +817,19 @@ const ZoneSelect = ({
 }) => {
   return (
     <FormControl
-      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
       size="small"
+      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
       variant="standard"
     >
       <Select
-        placeholder="Select Zone"
+        className={classes.select_value}
         id="zone-select"
         label=""
-        value={`${selectedZone}`}
         onChange={(e: SelectChangeEvent<string>) => {
           setSelectedZone(e.target.value);
         }}
-        className={classes.select_value}
+        placeholder="Select Zone"
+        value={`${selectedZone}`}
         variant="standard"
       >
         {zones.length === 0 && (
@@ -840,9 +839,9 @@ const ZoneSelect = ({
         )}
         {zones.map((zone: Zone) => (
           <MenuItem
+            className={classes.header_selection_menu_item}
             key={zone.zone_id}
             value={zone.zone_id}
-            className={classes.header_selection_menu_item}
           >
             {zone.zone_fqgn}
           </MenuItem>
@@ -862,19 +861,19 @@ const NodeNameInputField = ({
   return (
     <TextField
       className={classes.input_field}
-      required
+      defaultValue=""
       id="standard-required"
       label=""
-      defaultValue=""
-      placeholder="Node Name"
-      variant="standard"
-      value={enteredNodeName}
       onChange={(e) => {
         if (e.target.value.startsWith(" ")) {
           return;
         }
         setEnteredNodeName(e.target.value);
       }}
+      placeholder="Node Name"
+      required
+      value={enteredNodeName}
+      variant="standard"
     />
   );
 };
@@ -972,10 +971,10 @@ const ComposeNodeStepper = ({
         <div className={classes.node_details_box}>
           <ComposeNodeBlock
             enteredNodeName={enteredNodeName}
-            selectedResourceBlocks={selectedResourceBlocks}
-            setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
-            selectedZone={selectedZoneName}
             onCancelCompostion={onCancelCompostion}
+            selectedResourceBlocks={selectedResourceBlocks}
+            selectedZone={selectedZoneName}
+            setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
           />
         </div>
       )}
@@ -1001,36 +1000,36 @@ const ComposeNodeStepper = ({
         <React.Fragment>
           <div>
             <StepperContent
-              stepIndex={activeStep + 1}
-              zones={zones}
-              selectedZone={selectedZone}
-              setSelectedZone={setSelectedZone}
               computeResourceBlocks={computeResourceBlocks}
-              targetResourceBlocks={targetResourceBlocks}
+              enteredNodeName={enteredNodeName}
               expandedResourceBlockRow={expandedResourceBlockRow}
-              setExpandedResourceBlock={setExpandedResourceBlock}
+              expandedResourceType={expandedResourceType}
+              fetchingResourceBlocks={fetchingResourceBlocks}
+              isMaxPortCountLimitReached={isMaxPortCountLimitReached}
               racks={racks}
               selectedIFICRack={selectedIFICRack}
               selectedTFICRack={selectedTFICRack}
-              setSelectedIFICRack={setSelectedIFICRack}
-              setSelectedTFICRack={setSelectedTFICRack}
-              expandedResourceType={expandedResourceType}
-              setExpandedResourceType={setExpandedResourceType}
-              enteredNodeName={enteredNodeName}
+              selectedZone={selectedZone}
               setEnteredNodeName={setEnteredNodeName}
+              setExpandedResourceBlock={setExpandedResourceBlock}
+              setExpandedResourceType={setExpandedResourceType}
+              setSelectedIFICRack={setSelectedIFICRack}
               setSelectedResourceBlocks={setSelectedResourceBlocks}
-              isMaxPortCountLimitReached={isMaxPortCountLimitReached}
-              fetchingResourceBlocks={fetchingResourceBlocks}
+              setSelectedTFICRack={setSelectedTFICRack}
+              setSelectedZone={setSelectedZone}
+              stepIndex={activeStep + 1}
+              targetResourceBlocks={targetResourceBlocks}
+              zones={zones}
             />
           </div>
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <div className={classes.text_button}>
               <Button
-                variant="text"
                 color="inherit"
                 disabled={activeStep === 0}
                 onClick={handleBack}
                 sx={{ mr: 1 }}
+                variant="text"
               >
                 Back
               </Button>
@@ -1039,9 +1038,9 @@ const ComposeNodeStepper = ({
             {activeStep !== steps.length - 1 && (
               <div className={classes.contained_button}>
                 <Button
-                  variant="contained"
-                  onClick={handleNext}
                   disabled={isNextDisabled(activeStep)}
+                  onClick={handleNext}
+                  variant="contained"
                 >
                   Next
                 </Button>
@@ -1288,11 +1287,11 @@ const ComposeNodeBlock = ({
           <div>
             {error && error.length > 0 && (
               <Notification
-                style={{ margin: 0 }}
+                inline
                 key={`notification_${Math.random()}`}
                 onDismiss={() => setError("")}
-                inline
                 severity="negative"
+                style={{ margin: 0 }}
               >
                 {error}
               </Notification>
@@ -1301,14 +1300,14 @@ const ComposeNodeBlock = ({
           <div className={classes.compose_node_button}>
             <div className={`${classes.text_button}`}>
               <Button
-                variant="text"
                 color="inherit"
                 disabled={!isComputeBlockSelected || composing}
-                sx={{ mr: 1 }}
                 onClick={(e) => {
                   e.preventDefault();
                   onCancelCompostion();
                 }}
+                sx={{ mr: 1 }}
+                variant="text"
               >
                 Cancel
               </Button>
@@ -1316,14 +1315,14 @@ const ComposeNodeBlock = ({
 
             <div className={`${classes.contained_button}`}>
               <Button
-                variant="contained"
                 color="inherit"
                 disabled={!isComputeBlockSelected || composing}
-                sx={{ mr: 1 }}
                 onClick={(e) => {
                   e.preventDefault();
                   onClickCompose();
                 }}
+                sx={{ mr: 1 }}
+                variant="contained"
               >
                 {composing && (
                   <Spinner
@@ -1389,7 +1388,7 @@ const ComposeNodeContent = (): JSX.Element => {
       return () => {
         abortController.abort();
       };
-    } else return
+    } else return;
   }, [selectedIFICRack]);
 
   useEffect(() => {
@@ -1398,7 +1397,7 @@ const ComposeNodeContent = (): JSX.Element => {
       return () => {
         abortController.abort();
       };
-    } else return
+    } else return;
   }, [selectedTFICRack]);
 
   useEffect(() => {
@@ -1564,9 +1563,9 @@ const ComposeNodeContent = (): JSX.Element => {
     <>
       {error && error.length && (
         <Notification
+          inline
           key={`notification_${Math.random()}`}
           onDismiss={() => setError("")}
-          inline
           severity="negative"
         >
           {error}
@@ -1574,42 +1573,42 @@ const ComposeNodeContent = (): JSX.Element => {
       )}
       {loading ? (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
-            text={loadingMessage}
             key={`managerListSpinner_${Math.random()}`}
+            text={loadingMessage}
           />
         </Notification>
       ) : (
         <div>
           <ComposeNodeStepper
-            zones={zones}
-            selectedZone={selectedZone}
-            setSelectedZone={setSelectedZone}
+            activeStep={activeStep}
+            computeResourceBlocks={computeResourceBlocks}
+            enteredNodeName={enteredNodeName}
+            expandedResourceBlockRow={expandedResourceBlockRow}
+            expandedResourceType={expandedResourceType}
+            fetchingResourceBlocks={fetchingResourceBlocks}
+            isMaxPortCountLimitReached={isMaxPortCountLimitReached}
             racks={racks}
             selectedIFICRack={selectedIFICRack}
-            selectedTFICRack={selectedTFICRack}
-            setSelectedIFICRack={setSelectedIFICRack}
-            setSelectedTFICRack={setSelectedTFICRack}
-            computeResourceBlocks={computeResourceBlocks}
-            targetResourceBlocks={targetResourceBlocks}
-            expandedResourceBlockRow={expandedResourceBlockRow}
-            setExpandedResourceBlock={setExpandedResourceBlock}
-            expandedResourceType={expandedResourceType}
-            setExpandedResourceType={setExpandedResourceType}
-            enteredNodeName={enteredNodeName}
-            setEnteredNodeName={setEnteredNodeName}
             selectedResourceBlocks={selectedResourceBlocks}
-            setSelectedResourceBlocks={setSelectedResourceBlocks}
-            isMaxPortCountLimitReached={isMaxPortCountLimitReached}
-            setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
+            selectedTFICRack={selectedTFICRack}
+            selectedZone={selectedZone}
             selectedZoneName={selectedZoneName}
             setActiveStep={setActiveStep}
-            activeStep={activeStep}
-            fetchingResourceBlocks={fetchingResourceBlocks}
+            setEnteredNodeName={setEnteredNodeName}
+            setExpandedResourceBlock={setExpandedResourceBlock}
+            setExpandedResourceType={setExpandedResourceType}
+            setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
+            setSelectedIFICRack={setSelectedIFICRack}
+            setSelectedResourceBlocks={setSelectedResourceBlocks}
+            setSelectedTFICRack={setSelectedTFICRack}
+            setSelectedZone={setSelectedZone}
+            targetResourceBlocks={targetResourceBlocks}
+            zones={zones}
           />
         </div>
       )}

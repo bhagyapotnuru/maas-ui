@@ -1,6 +1,8 @@
 import { useState } from "react";
 
 import { Button } from "@canonical/react-components";
+import Section from "app/base/components/Section";
+import NotFound from "app/base/views/NotFound";
 import { Route, Switch } from "react-router-dom";
 
 import FabricManagementHeader from "../../FabricManagementHeader";
@@ -10,9 +12,6 @@ import AddGroupForm from "./AddGroup/AddGroupForm";
 import DeleteGroupForm from "./DeleteGroup/DeleteGroupForm";
 import GroupList from "./GroupList";
 import type { Group } from "./type";
-
-import Section from "app/base/components/Section";
-import NotFound from "app/base/views/NotFound";
 
 const Groups = (): JSX.Element => {
   const [renderAddGroupsForm, setRenderAddGroupsForm] = useState(false);
@@ -30,10 +29,10 @@ const Groups = (): JSX.Element => {
   if (renderAddGroupsForm) {
     headerContent = (
       <AddGroupForm
-        setError={setError}
-        setFetchGroups={setFetchGroups}
         clearHeaderContent={() => createGroupFunctionality(false)}
         groupList={groupList}
+        setError={setError}
+        setFetchGroups={setFetchGroups}
       />
     );
     renderTitle = "Add Group";
@@ -41,11 +40,11 @@ const Groups = (): JSX.Element => {
   if (renderUpdateGroupsForm) {
     headerContent = (
       <AddGroupForm
+        clearHeaderContent={() => setRenderUpdateGroupsForm(false)}
+        groupList={groupList}
         groupToUpdate={group}
         setError={setError}
-        groupList={groupList}
         setFetchGroups={setFetchGroups}
-        clearHeaderContent={() => setRenderUpdateGroupsForm(false)}
       />
     );
     renderTitle = "Update Group";
@@ -53,10 +52,10 @@ const Groups = (): JSX.Element => {
   if (renderDeleteGroupsForm) {
     headerContent = (
       <DeleteGroupForm
-        setError={setError}
         groupData={group}
-        setFetchGroups={setFetchGroups}
         onClose={() => setRenderDeleteGroupsForm(false)}
+        setError={setError}
+        setFetchGroups={setFetchGroups}
       />
     );
     renderTitle = "Delete Group";
@@ -84,29 +83,29 @@ const Groups = (): JSX.Element => {
 
   return (
     <Section
-      key="managersHeader"
       className="u-no-padding--bottom"
       header={
         <FabricManagementHeader
-          tag="groups"
-          headerContent={headerContent}
           buttonContent={buttonContent}
+          headerContent={headerContent}
+          tag="groups"
           title={renderTitle}
         />
       }
+      key="managersHeader"
     >
       <Switch>
         <Route exact path={managersUrl.fabricManagement.index}>
           <GroupList
-            setRenderUpdateGroupForm={updateGroupFunctionality}
-            setRenderDeleteGroupForm={deleteGroupFunctionality}
+            error={error}
             fetchGroups={fetchGroups}
+            setError={setError}
             setGroupList={(groups: Group[]) => {
               setFetchGroups(false);
               setGroupList(groups);
             }}
-            error={error}
-            setError={setError}
+            setRenderDeleteGroupForm={deleteGroupFunctionality}
+            setRenderUpdateGroupForm={updateGroupFunctionality}
           />
         </Route>
         <Route path="*">

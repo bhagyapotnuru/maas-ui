@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 
 import Notification from "@canonical/react-components/dist/components/Notification";
 import Spinner from "@canonical/react-components/dist/components/Spinner";
-import { useNavigate } from "react-router-dom-v5-compat";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import Box from "@mui/material/Box";
@@ -15,7 +14,10 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import { styled, ThemeProvider } from "@mui/material/styles";
+import { fetchData, postData } from "app/drut/config";
+import customDrutTheme from "app/utils/Themes/Themes";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom-v5-compat";
 
 import classess from "../MonitorDashboardConfig.module.css";
 import {
@@ -25,9 +27,6 @@ import {
 } from "../ShellInABoxWidget/constants";
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 import monitorUrls from "../url";
-
-import { fetchData, postData } from "app/drut/config";
-import customDrutTheme from "app/utils/Themes/Themes";
 
 interface State {
   clusterTypes: string[];
@@ -80,14 +79,12 @@ const clusterTypeSelection = (
   setClusterTypeOnError: (value: boolean) => void
 ) => (
   <div>
-    <FormControl variant="standard" sx={{ m: 1, minWidth: "30ch" }}>
+    <FormControl sx={{ m: 1, minWidth: "30ch" }} variant="standard">
       <TextField
         className={classess.config_input}
-        select
         error={clusterTypeOnError}
         id="cluster-type-simple-select-standard"
         label="Select Cluster Type"
-        value={values.selectedClusterType ?? ""}
         onChange={(e) => {
           setValues({
             ...values,
@@ -96,6 +93,8 @@ const clusterTypeSelection = (
           setClusterTypeOnError(false);
         }}
         required
+        select
+        value={values.selectedClusterType ?? ""}
         variant="standard"
       >
         {values.clusterTypes.map((clusterType: string) => {
@@ -117,14 +116,12 @@ const resourcePoolSelection = (
 ) => {
   return (
     <div>
-      <FormControl variant="standard" sx={{ m: 1, minWidth: "30ch" }}>
+      <FormControl sx={{ m: 1, minWidth: "30ch" }} variant="standard">
         <TextField
           className={classess.config_input}
-          select
           error={resourcePoolOnError}
           id="resource-pool-simple-select-standard"
           label="Select Resource Pool"
-          value={values.selectedResourcePool ?? ""}
           onChange={(e) => {
             setValues({
               ...values,
@@ -133,6 +130,8 @@ const resourcePoolSelection = (
             setResourcePoolOnError(false);
           }}
           required
+          select
+          value={values.selectedResourcePool ?? ""}
           variant="standard"
         >
           {values.resourcepools.map((rPool: string) => {
@@ -155,22 +154,22 @@ const configUrl = (
   placeHolder: string
 ) => (
   <div>
-    <FormControl sx={{ m: 1, width: "100%" }} variant="standard" required>
+    <FormControl required sx={{ m: 1, width: "100%" }} variant="standard">
       <InputLabel htmlFor="standard-configurl">{placeHolder}</InputLabel>
       <Input
-        error={configUrlDomOnError}
         className={classess.config_input}
+        error={configUrlDomOnError}
         id="standard-configurl"
-        value={values.configUrl}
-        onChange={(e) => {
-          setValues({ ...values, configUrl: e.target.value as string });
-          setConfigUrlOnError(false);
-        }}
         onBlur={(e) => {
           if (!isValidUrl(e.target.value)) {
             setConfigUrlOnError(true);
           }
         }}
+        onChange={(e) => {
+          setValues({ ...values, configUrl: e.target.value as string });
+          setConfigUrlOnError(false);
+        }}
+        value={values.configUrl}
       />
     </FormControl>
     <div className={classess.error_field}>
@@ -189,22 +188,22 @@ const shellInTheBoxUrl = (
   setShellInTheBoxUrlOnError: (value: boolean) => void
 ) => (
   <div>
-    <FormControl sx={{ m: 1, width: "100%" }} variant="standard" required>
+    <FormControl required sx={{ m: 1, width: "100%" }} variant="standard">
       <InputLabel htmlFor="standard-configurl">Shell In The Box Url</InputLabel>
       <Input
-        error={shellInTheBoxUrlOnError}
         className={classess.config_input}
+        error={shellInTheBoxUrlOnError}
         id="standard-shellInTheBoxurl"
-        value={values.shellInTheBoxUrl}
-        onChange={(e) => {
-          setValues({ ...values, shellInTheBoxUrl: e.target.value as string });
-          setShellInTheBoxUrlOnError(false);
-        }}
         onBlur={(e) => {
           if (!isValidUrl(e.target.value)) {
             setShellInTheBoxUrlOnError(true);
           }
         }}
+        onChange={(e) => {
+          setValues({ ...values, shellInTheBoxUrl: e.target.value as string });
+          setShellInTheBoxUrlOnError(false);
+        }}
+        value={values.shellInTheBoxUrl}
       />
     </FormControl>
     <div className={classess.error_field}>
@@ -221,12 +220,12 @@ const userName = (values: State, setValues: (values: State) => void) => (
     <InputLabel htmlFor="standard-username">Username</InputLabel>
     <Input
       className={classess.config_input}
-      required
       id="standard-username"
-      value={values.userName}
       onChange={(e) => {
         setValues({ ...values, userName: e.target.value as string });
       }}
+      required
+      value={values.userName}
     />
   </FormControl>
 );
@@ -236,14 +235,6 @@ const password = (values: State, setValues: (values: State) => void) => (
     <InputLabel htmlFor="standard-adornment-password">Password</InputLabel>
     <Input
       className={classess.config_input}
-      id="standard-adornment-password"
-      type={values.showPassword ? "text" : "password"}
-      value={values.password}
-      onChange={(e) => {
-        {
-          setValues({ ...values, password: e.target.value as string });
-        }
-      }}
       endAdornment={
         <InputAdornment position="end">
           <IconButton
@@ -260,6 +251,14 @@ const password = (values: State, setValues: (values: State) => void) => (
           </IconButton>
         </InputAdornment>
       }
+      id="standard-adornment-password"
+      onChange={(e) => {
+        {
+          setValues({ ...values, password: e.target.value as string });
+        }
+      }}
+      type={values.showPassword ? "text" : "password"}
+      value={values.password}
     />
   </FormControl>
 );
@@ -282,11 +281,6 @@ const widgetName = (
         className={classess.config_input}
         error={widgetNameOnError}
         id="standard-widgetname"
-        value={values.widgetName}
-        onChange={(e) => {
-          setValues({ ...values, widgetName: e.target.value as string });
-          setWidgetNameOnError(false);
-        }}
         onBlur={(e) => {
           if (
             compareStringsIgnoreCase(
@@ -298,6 +292,11 @@ const widgetName = (
             setWidgetNameOnError(true);
           }
         }}
+        onChange={(e) => {
+          setValues({ ...values, widgetName: e.target.value as string });
+          setWidgetNameOnError(false);
+        }}
+        value={values.widgetName}
       />
     </FormControl>
     <div className={classess.error_field}>
@@ -310,16 +309,16 @@ const widgetName = (
 );
 
 const description = (values: State, setValues: (values: State) => void) => (
-  <FormControl sx={{ m: 1 }} variant="standard" fullWidth>
+  <FormControl fullWidth sx={{ m: 1 }} variant="standard">
     <InputLabel htmlFor="config-description">Description</InputLabel>
     <Input
       className={classess.config_input}
       id="config-description"
-      value={values.description}
-      rows={6}
       onChange={(e) => {
         setValues({ ...values, description: e.target.value as string });
       }}
+      rows={6}
+      value={values.description}
     />
   </FormControl>
 );
@@ -583,9 +582,9 @@ const MonitorConfigurationForm = ({
       )}
       {error && (
         <Notification
+          inline
           key={`error_notification_${Math.random()}`}
           onDismiss={() => setError("")}
-          inline
           severity="negative"
         >
           <pre>{error}</pre>
@@ -594,13 +593,13 @@ const MonitorConfigurationForm = ({
       {!isLoading && (
         <ThemeProvider theme={customDrutTheme}>
           <Box
+            autoComplete="off"
             className={classess.config_box}
             component="form"
-            noValidate
-            autoComplete="off"
-            width="fit-content"
-            marginRight="auto"
             marginLeft="auto"
+            marginRight="auto"
+            noValidate
+            width="fit-content"
           >
             <div className={classess.row_1}>
               {clusterTypeSelection(
@@ -654,20 +653,20 @@ const MonitorConfigurationForm = ({
                 <div className={classess.form_btn}>
                   <Button
                     className={classess.default_btn}
-                    variant="text"
                     component={Link}
                     to={monitorUrls.monitorDashboardList.index}
+                    variant="text"
                   >
                     Cancel
                   </Button>
                   <Button
-                    focusRipple
                     className={classess.primay_btn}
-                    variant="contained"
+                    focusRipple
                     onClick={(e) => {
                       e.preventDefault();
                       onClickSave();
                     }}
+                    variant="contained"
                   >
                     Save
                   </Button>

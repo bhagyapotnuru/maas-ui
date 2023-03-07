@@ -1,6 +1,14 @@
 import { Redirect } from "react-router-dom";
 import { Route, Routes as ReactRouterRoutes } from "react-router-dom-v5-compat";
 
+import MonitorConfigurationAction from "./drut/Monitor/ConfigurationAction/ConfigurationAction";
+import Monitor from "./drut/Monitor/Monitor";
+import ConnectivityManagement from "./drut/fabricManagement/FabricManagementContent/ConnectivityManagement";
+import Managers from "./drut/fabricManagement/FabricManagementContent/Managers/Managers";
+import UnassignedManagers from "./drut/fabricManagement/FabricManagementContent/UnassignedManagers/UnassignedManagers";
+import DrutManageGroups from "./drut/manage/groups";
+import DrutManageSession from "./drut/manage/sessions";
+
 import ErrorBoundary from "app/base/components/ErrorBoundary";
 import urls from "app/base/urls";
 import NotFound from "app/base/views/NotFound";
@@ -27,6 +35,26 @@ import VLANDetails from "app/subnets/views/VLANDetails";
 import Tags from "app/tags/views/Tags";
 import ZoneDetails from "app/zones/views/ZoneDetails";
 import ZonesList from "app/zones/views/ZonesList";
+
+// Drut Routes
+import monitorDasboardUrls from "app/drut/Monitor/url";
+import Compose from "app/drut/compose";
+import ComposeNode from "app/drut/compose-node/ComposeNode";
+import composeNodeUrls from "app/drut/compose-node/url";
+import composeUrls from "app/drut/compose/url";
+import DrutDashboard from "app/drut/dashboard";
+import drutDashboardUrl from "app/drut/dashboard/url";
+import Events from "app/drut/events";
+import eventUrl from "app/drut/events/url";
+import Groups from "app/drut/fabricManagement/FabricManagementContent/Groups";
+import managersUrls from "app/drut/fabricManagement/url";
+import DrutHealth from "app/drut/health";
+import drutHealthUrl from "app/drut/health/url";
+import drutManageUrl from "app/drut/manage/url";
+import Node from "app/drut/nodes";
+import nodesUrl from "app/drut/nodes/url";
+import Resources from "app/drut/resources/View";
+import resourceUrls from "app/drut/resources/url";
 
 const Routes = (): JSX.Element => (
   <ReactRouterRoutes>
@@ -222,6 +250,127 @@ const Routes = (): JSX.Element => (
         </ErrorBoundary>
       }
       path={`${urls.dashboard.index}/*`}
+    />
+    {/* DRUT route config */}
+    <Route
+      path={`${resourceUrls.resources.index}/*`}
+      element={
+        <ErrorBoundary>
+          <Resources />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={`${nodesUrl.nodes.index}/*`}
+      element={
+        <ErrorBoundary>
+          <Node />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={drutManageUrl.manage.groups}
+      element={
+        <ErrorBoundary>
+          <DrutManageGroups />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={drutManageUrl.manage.session}
+      element={
+        <ErrorBoundary>
+          <DrutManageSession />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={`${eventUrl.events.index}/*`}
+      element={
+        <ErrorBoundary>
+          <Events />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={composeUrls.compose.index}
+      element={
+        <ErrorBoundary>
+          <Compose />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={composeNodeUrls.compose.index}
+      element={
+        <ErrorBoundary>
+          <ComposeNode />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={managersUrls.fabricManagement.index}
+      element={
+        <ErrorBoundary>
+          <Groups />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={managersUrls.fabricManagement.managers.index}
+      element={
+        <ErrorBoundary>
+          <Managers />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={managersUrls.fabricManagement.unassignedManagers.index}
+      element={
+        <ErrorBoundary>
+          <UnassignedManagers />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={managersUrls.fabricManagement.connectivityManagement.index}
+      element={
+        <ErrorBoundary>
+          <ConnectivityManagement />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={drutHealthUrl.health.index}
+      element={
+        <ErrorBoundary>
+          <DrutHealth />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={drutDashboardUrl.dashboard.index}
+      element={
+        <ErrorBoundary>
+          <DrutDashboard />
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={`${monitorDasboardUrls.monitorDashboard.index}/*`}
+      element={
+        <ErrorBoundary>
+          <Monitor></Monitor>
+        </ErrorBoundary>
+      }
+    />
+    <Route
+      path={`${monitorDasboardUrls.monitorDashboardActions.index}/*`}
+      element={
+        <ErrorBoundary>
+          <MonitorConfigurationAction></MonitorConfigurationAction>
+        </ErrorBoundary>
+      }
     />
     <Route element={<NotFound includeSection />} path="*" />
   </ReactRouterRoutes>

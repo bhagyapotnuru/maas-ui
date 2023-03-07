@@ -1,8 +1,7 @@
+import SectionHeader from "app/base/components/SectionHeader";
 import { Link, useLocation } from "react-router-dom";
 
 import managersUrl from "../url";
-
-import SectionHeader from "app/base/components/SectionHeader";
 
 type Props = {
   tag?: string;
@@ -14,8 +13,8 @@ type Props = {
 const FabricManagementHeader = ({
   title,
   buttonContent,
-  // headerContent,
-}: Props): JSX.Element => {
+}: // headerContent,
+Props): JSX.Element => {
   const location = useLocation();
 
   const tabs = [
@@ -45,11 +44,11 @@ const FabricManagementHeader = ({
 
   return (
     <SectionHeader
-      key="ManagersHeader"
-      // headerContent={headerContent}
       buttons={buttonContent}
-      title={title}
+      // headerContent={headerContent}
+      key="ManagersHeader"
       tabLinks={tabs}
+      title={title}
     />
   );
 };

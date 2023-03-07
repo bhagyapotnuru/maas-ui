@@ -9,11 +9,10 @@ import {
   Row,
   Select,
 } from "@canonical/react-components";
-
-import classess from "./ManagerControls.module.css";
-
 import DebounceSearchBox from "app/base/components/DebounceSearchBox";
 import type { SetSearchFilter } from "app/base/types";
+
+import classess from "./ManagerControls.module.css";
 
 type Props = {
   searchText: string;
@@ -55,7 +54,7 @@ const ManagerControls = ({
 
   useEffect(() => {
     // Going to the first page if the search text or filters are updated!
-    console.log(setExpandedSection)
+    console.log(setExpandedSection);
     setPrev(0);
     setNext(1);
   }, [searchText]);
@@ -71,11 +70,11 @@ const ManagerControls = ({
       data.forEach((item: any) => {
         listItems.push(
           <Button
-            key={`btn${item.index}`}
             appearance="base"
             className={`u-align-text--left u-no-margin--bottom filter-accordion__item is-dense ${
               item === selectedItem ? "is-active" : "vcvc"
             }`}
+            key={`btn${item.index}`}
             onClick={() => onItemClick(item)}
           >
             {item}
@@ -95,8 +94,8 @@ const ManagerControls = ({
           key: key,
           content: (
             <List
-              key={`filterItems${index}`}
               items={itemsData(items[key])}
+              key={`filterItems${index}`}
             ></List>
           ),
         };
@@ -135,8 +134,8 @@ const ManagerControls = ({
             setSearchText={setSearchText}
           />
         </Col>
-        <Col size={3} className={classess.show_select}>
-          <Col size={1} className={classess.select_label_name}>
+        <Col className={classess.show_select} size={3}>
+          <Col className={classess.select_label_name} size={1}>
             <span>Show</span>
           </Col>
           <Col size={1}>
@@ -170,19 +169,19 @@ const ManagerControls = ({
           </Col>
           <Col size={1}>
             <Button
-              hasIcon
               appearance="base"
               className="u-no-margin--right u-no-margin--bottom"
               disabled={prev === 0}
+              hasIcon
               onClick={() => previousNext("P")}
             >
               <i className="p-icon--chevron-up drut-prev-icon"></i>
             </Button>
             <Button
-              hasIcon
               appearance="base"
               className="u-no-margin--right u-no-margin--bottom"
               disabled={managerCount < next * +pageSize}
+              hasIcon
               onClick={() => previousNext("N")}
             >
               <i className="p-icon--chevron-up drut-next-icon"></i>

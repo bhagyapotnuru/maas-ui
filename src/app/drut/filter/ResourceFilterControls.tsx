@@ -63,11 +63,11 @@ const ResourceFilterControls = ({
     data.forEach((elm: any) => {
       listItems.push(
         <Button
-          key={`btn${elm.index}`}
           appearance="base"
           className={`u-align-text--left u-no-margin--bottom filter-accordion__item is-dense ${
             elm.selected ? "is-active" : "vcvc"
           }`}
+          key={`btn${elm.index}`}
           onClick={() => selectionchange(key, elm)}
         >
           {elm.data}
@@ -86,8 +86,8 @@ const ResourceFilterControls = ({
           key: key,
           content: (
             <List
-              key={`filterItems${index}`}
               items={itemsData(key, itm[key].ability)}
+              key={`filterItems${index}`}
             ></List>
           ),
         };

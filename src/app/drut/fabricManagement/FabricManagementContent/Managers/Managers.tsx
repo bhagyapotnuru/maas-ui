@@ -1,6 +1,9 @@
 import { useEffect, useState } from "react";
 
 import { Button } from "@canonical/react-components";
+import Section from "app/base/components/Section";
+import NotFound from "app/base/views/NotFound";
+import { fetchData } from "app/drut/config";
 import { Route, Switch, Link } from "react-router-dom";
 
 import FabricManagementHeader from "../../FabricManagementHeader";
@@ -10,10 +13,6 @@ import AddManagerForm from "./AddManager/AddManagerForm";
 import type { Rack, Zone, Manager } from "./AddManager/type";
 import DeleteManagerForm from "./DeleteManager/DeleteManagerForm";
 import ManagerContent from "./ManagerContent";
-
-import Section from "app/base/components/Section";
-import NotFound from "app/base/views/NotFound";
-import { fetchData } from "app/drut/config";
 
 const Managers = (): JSX.Element => {
   const [renderAddManagersForm, setRenderAddManagersForm] = useState(false);
@@ -90,9 +89,9 @@ const Managers = (): JSX.Element => {
     headerContent = (
       <AddManagerForm
         clearHeaderContent={() => setRenderAddManagersForm(false)}
-        zoneRackPairs={zoneRackPairs}
-        setFetchManagers={setFetchManagers}
         setError={setError}
+        setFetchManagers={setFetchManagers}
+        zoneRackPairs={zoneRackPairs}
       />
     );
     headerTitle = "Add Manager";
@@ -100,11 +99,11 @@ const Managers = (): JSX.Element => {
   if (renderUpdateManagersForm) {
     headerContent = (
       <AddManagerForm
-        managerToUpdate={manager}
         clearHeaderContent={() => setRenderUpdateManagersForm(false)}
-        zoneRackPairs={zoneRackPairs}
-        setFetchManagers={setFetchManagers}
+        managerToUpdate={manager}
         setError={setError}
+        setFetchManagers={setFetchManagers}
+        zoneRackPairs={zoneRackPairs}
       />
     );
     headerTitle = "Update Manager";
@@ -112,10 +111,10 @@ const Managers = (): JSX.Element => {
   if (renderDeleteManagersForm) {
     headerContent = (
       <DeleteManagerForm
-        setError={setError}
         managerData={manager}
-        setFetchManagers={setFetchManagers}
         onClose={() => setRenderDeleteManagersForm(false)}
+        setError={setError}
+        setFetchManagers={setFetchManagers}
       />
     );
     headerTitle = "Delete Manager";
@@ -170,27 +169,27 @@ const Managers = (): JSX.Element => {
   return (
     <>
       <Section
-        key="managersHeader"
         className="u-no-padding--bottom"
         header={
           <FabricManagementHeader
-            tag="managers"
-            headerContent={headerContent}
             buttonContent={buttonContent}
+            headerContent={headerContent}
+            tag="managers"
             title={headerTitle}
           />
         }
+        key="managersHeader"
       >
         <Switch>
           <Route exact path={managersUrl.fabricManagement.managers.index}>
             <ManagerContent
               error={error}
-              setFetchManagers={setFetchManagers}
-              setError={setError}
-              rackNames={rackNames}
               fetchManagers={fetchManagers}
-              setRenderUpdateManagerForm={updateManager}
+              rackNames={rackNames}
+              setError={setError}
+              setFetchManagers={setFetchManagers}
               setRenderDeleteManagerForm={deleteManager}
+              setRenderUpdateManagerForm={updateManager}
             />
           </Route>
           <Route path="*">

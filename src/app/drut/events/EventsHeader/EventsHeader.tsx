@@ -1,8 +1,7 @@
 import { Button } from "@canonical/react-components";
 // import { createBrowserHistory } from "history";
-import { Link } from "react-router-dom";
-
 import SectionHeader from "app/base/components/SectionHeader";
+import { Link } from "react-router-dom";
 
 const DashboardHeader = (): JSX.Element => {
   // const history = createBrowserHistory();
@@ -37,10 +36,10 @@ const DashboardHeader = (): JSX.Element => {
 
   return (
     <SectionHeader
-      key="dashboardHeades"
       buttons={getHeaderButtons()}
-      title="Event Logs"
+      key="dashboardHeades"
       subtitle={"All events logs from Fabric."}
+      title="Event Logs"
     />
   );
 };

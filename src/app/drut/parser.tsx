@@ -11,7 +11,7 @@ const generateObjData = (node: any = null, size: any = 4): any => {
     Object.keys(node).forEach((key, index) => {
       if (!(key === "Id") && !(typeof node[key] === "object")) {
         fnd.push(
-          <Col size={size} key={"objcol" + index + Math.random()}>
+          <Col key={"objcol" + index + Math.random()} size={size}>
             <div className="drut-node-info-box-1">
               <strong className="p-muted-heading">{key}</strong>
               <br />
@@ -25,7 +25,7 @@ const generateObjData = (node: any = null, size: any = 4): any => {
     });
   } else {
     fnd.push(
-      <Col size={6} key={"nodata-obj" + Math.random()}>
+      <Col key={"nodata-obj" + Math.random()} size={6}>
         <p>Data not available!</p>
       </Col>
     );
@@ -115,17 +115,17 @@ const arrayObject = (data: Array<any> = [], colSize: any = 4): any => {
         } else {
           fndObj.push(
             <JSONTree
-              key={"json" + index + Math.random()}
               data={dataElm[dtKey]}
-              theme={jsonTheme}
+              key={"json" + index + Math.random()}
               keyPath={[dtKey]}
               shouldExpandNodeInitially={() => true}
+              theme={jsonTheme}
             />
           );
         }
       });
       colFnd.push(
-        <Col size={colSize} key={"final" + Math.random()}>
+        <Col key={"final" + Math.random()} size={colSize}>
           <Card className="drut-node-summary-card">{fnd.concat(fndObj)}</Card>
         </Col>
       );

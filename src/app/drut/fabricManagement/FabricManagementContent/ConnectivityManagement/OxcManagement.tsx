@@ -27,6 +27,8 @@ import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
+import { fetchData, postData } from "app/drut/config";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import type {
   Manager,
@@ -41,9 +43,6 @@ import type {
 } from "../../Models/Manager";
 import classess from "../../fabricManagement.module.css";
 import type { Rack, Zone } from "../Managers/AddManager/type";
-
-import { fetchData, postData } from "app/drut/config";
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type ZoneSelectionProps = {
   zones: Zone[];
@@ -72,20 +71,20 @@ const ZoneSelect = ({
 }: ZoneSelectionProps): JSX.Element => {
   return (
     <FormControl
-      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
       size="small"
+      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
       variant="standard"
     >
       <InputLabel id="zone-select">Zone</InputLabel>
       <Select
-        labelId="zone-select"
+        className={classess.select_value}
         id="zone-select"
         label=""
-        value={`${selectedZone}`}
+        labelId="zone-select"
         onChange={(e: SelectChangeEvent<string>) => {
           setSelectedZone(e.target.value);
         }}
-        className={classess.select_value}
+        value={`${selectedZone}`}
         variant="standard"
       >
         {zones.length === 0 && (
@@ -95,9 +94,9 @@ const ZoneSelect = ({
         )}
         {zones.map((zone: Zone) => (
           <MenuItem
+            className={classess.header_selection_menu_item}
             key={zone.zone_id}
             value={zone.zone_id}
-            className={classess.header_selection_menu_item}
           >
             {zone.zone_fqgn}
           </MenuItem>
@@ -115,21 +114,21 @@ const IFicPoolSelect = ({
 }: IFicPoolSelectionProps): JSX.Element => {
   return (
     <FormControl
-      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
       size="small"
+      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
       variant="standard"
     >
       <InputLabel id="ific-pool-select">Rack</InputLabel>
       <Select
-        labelId="ific-pool-select"
-        id="ific-pool-select"
-        value={`${selectedIFicPool}`}
-        label={`IFIC Pool`}
         autoFocus={false}
+        className={classess.select_value}
+        id="ific-pool-select"
+        label={`IFIC Pool`}
+        labelId="ific-pool-select"
         onChange={(e: SelectChangeEvent<string>) =>
           setSelectedIFicPool(e.target.value)
         }
-        className={classess.select_value}
+        value={`${selectedIFicPool}`}
         variant="standard"
       >
         {iFicPools.length === 0 && selectedZone && (
@@ -139,9 +138,9 @@ const IFicPoolSelect = ({
         )}
         {iFicPools.map((ificPool: Rack) => (
           <MenuItem
+            className={classess.header_selection_menu_item}
             key={`${ificPool.rack_id}`}
             value={ificPool.rack_id}
-            className={classess.header_selection_menu_item}
           >
             {ificPool.rack_name}
           </MenuItem>
@@ -159,21 +158,21 @@ const TFicPoolSelect = ({
 }: TFicPoolSelectionProps): JSX.Element => {
   return (
     <FormControl
-      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
       size="small"
+      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
       variant="standard"
     >
       <InputLabel id="tfic-pool-select">Rack</InputLabel>
       <Select
-        variant="standard"
-        labelId="tfic-pool-select"
-        id="tfic-pool-select"
-        value={`${selectedTFicPool}`}
-        label={`TFIC Pool`}
         className={classess.select_value}
+        id="tfic-pool-select"
+        label={`TFIC Pool`}
+        labelId="tfic-pool-select"
         onChange={(e: SelectChangeEvent<string>) =>
           setSelectedTFicPool(e.target.value)
         }
+        value={`${selectedTFicPool}`}
+        variant="standard"
       >
         {tFicPools.length === 0 && selectedZone && (
           <MenuItem value="">
@@ -182,9 +181,9 @@ const TFicPoolSelect = ({
         )}
         {tFicPools.map((tficPool: Rack) => (
           <MenuItem
+            className={classess.header_selection_menu_item}
             key={`${tficPool.rack_id}`}
             value={tficPool.rack_id}
-            className={classess.header_selection_menu_item}
           >
             {tficPool.rack_name}
           </MenuItem>
@@ -214,9 +213,9 @@ const HeaderSelections = ({
           <strong>Zone &#58;</strong>
         </div>
         <ZoneSelect
-          zones={zones}
           selectedZone={selectedZone}
           setSelectedZone={setSelectedZone}
+          zones={zones}
         />
       </div>
       <div className={classess.oxc_management_header_selections}>
@@ -226,8 +225,8 @@ const HeaderSelections = ({
         <IFicPoolSelect
           iFicPools={iFicPools}
           selectedIFicPool={selectedIFicPool}
-          setSelectedIFicPool={setSelectedIFicPool}
           selectedZone={selectedZone}
+          setSelectedIFicPool={setSelectedIFicPool}
         />
       </div>
       <div className={classess.oxc_management_header_selections}>
@@ -235,10 +234,10 @@ const HeaderSelections = ({
           <strong>TFIC Pool &#58;</strong>
         </div>
         <TFicPoolSelect
-          tFicPools={tFicPools}
           selectedTFicPool={selectedTFicPool}
-          setSelectedTFicPool={setSelectedTFicPool}
           selectedZone={selectedZone}
+          setSelectedTFicPool={setSelectedTFicPool}
+          tFicPools={tFicPools}
         />
       </div>
     </div>
@@ -280,9 +279,9 @@ const Save = ({
     <div className={classess.save_button}>
       <div>
         <Button
-          variant="contained"
-          onClick={onClickSave}
           disabled={!hasChanges || loading}
+          onClick={onClickSave}
+          variant="contained"
         >
           Save
         </Button>
@@ -329,34 +328,34 @@ const ConnectivityManagementTable = ({
   return (
     <div className={classess.connectivity_management_table_blocks}>
       <IFICBlock
+        expandedIficAccordion={expandedIficAccordion}
+        fetchingConnectivityResponse={fetchingConnectivityResponse}
         iFicData={iFicData}
         oxcPortOptions={oxcPortOptions}
-        setOxcResponse={setOxcResponse}
-        fetchingConnectivityResponse={fetchingConnectivityResponse}
-        expandedIficAccordion={expandedIficAccordion}
-        setIficAccordion={setIficAccordion}
-        zones={zones}
-        selectedZone={selectedZone}
         selectedIFicPool={selectedIFicPool}
+        selectedZone={selectedZone}
+        setIficAccordion={setIficAccordion}
+        setOxcResponse={setOxcResponse}
+        zones={zones}
       />
       <OXCBlock
-        oxcData={oxcData}
-        fetchingConnectivityResponse={fetchingConnectivityResponse}
         expandedOxcAccordion={expandedOxcAccordion}
+        fetchingConnectivityResponse={fetchingConnectivityResponse}
+        oxcData={oxcData}
+        selectedZone={selectedZone}
         setOxcAccordion={setOxcAccordion}
         zones={zones}
-        selectedZone={selectedZone}
       />
       <TFICBlock
-        tFicData={tFicData}
-        oxcPortOptions={oxcPortOptions}
-        setOxcResponse={setOxcResponse}
-        fetchingConnectivityResponse={fetchingConnectivityResponse}
         expandedTficAccordion={expandedTficAccordion}
-        setTficAccordion={setTficAccordion}
-        zones={zones}
-        selectedZone={selectedZone}
+        fetchingConnectivityResponse={fetchingConnectivityResponse}
+        oxcPortOptions={oxcPortOptions}
         selectedTFicPool={selectedTFicPool}
+        selectedZone={selectedZone}
+        setOxcResponse={setOxcResponse}
+        setTficAccordion={setTficAccordion}
+        tFicData={tFicData}
+        zones={zones}
       />
     </div>
   );
@@ -400,11 +399,11 @@ const IFICBlock = ({
             return (
               <div key={`${iFic.id}`}>
                 <IFICAccordion
+                  expandedIficAccordion={expandedIficAccordion}
                   iFic={iFic}
                   oxcPortOptions={oxcPortOptions}
-                  setOxcResponse={setOxcResponse}
-                  expandedIficAccordion={expandedIficAccordion}
                   setIficAccordion={setIficAccordion}
+                  setOxcResponse={setOxcResponse}
                 />
               </div>
             );
@@ -453,8 +452,8 @@ const OXCBlock = ({
           {oxcData.map((oxc: OpticalSwitch) => (
             <div key={`${oxc.id}`}>
               <OXCAccordion
-                oxc={oxc}
                 expandedOxcAccordion={expandedOxcAccordion}
+                oxc={oxc}
                 setOxcAccordion={setOxcAccordion}
               />
             </div>
@@ -511,11 +510,11 @@ const TFICBlock = ({
             return (
               <div key={`${tFic.id}`}>
                 <TFICAccordion
-                  tFic={tFic}
+                  expandedTficAccordion={expandedTficAccordion}
                   oxcPortOptions={oxcPortOptions}
                   setOxcResponse={setOxcResponse}
-                  expandedTficAccordion={expandedTficAccordion}
                   setTficAccordion={setTficAccordion}
+                  tFic={tFic}
                 />
               </div>
             );
@@ -591,7 +590,7 @@ const IFICAccordion = ({
 }): JSX.Element => {
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-      console.log(event)
+      console.log(event);
       setIficAccordion(newExpanded ? panel : "");
     };
   return (
@@ -628,7 +627,7 @@ const FICAccordionTable = ({
 }): JSX.Element => {
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 300 }}>
-      <Table stickyHeader aria-label="FIC table">
+      <Table aria-label="FIC table" stickyHeader>
         <TableHead>
           <TableRow className={classess.tableHeader}>
             <TableCell align="center">PCIE Switch Port</TableCell>
@@ -644,7 +643,7 @@ const FICAccordionTable = ({
                     key={`${fic.fqnn}_${pcieSwitchPortKey}`}
                     sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                   >
-                    <TableCell component="th" scope="row" align="center">
+                    <TableCell align="center" component="th" scope="row">
                       {`${pcieSwitchKey}`}&#8228;{`${pcieSwitchPortKey}`}
                     </TableCell>
                     <TableCell align="center" sx={{ p: 0 }}>
@@ -654,15 +653,15 @@ const FICAccordionTable = ({
                         .optical_switch.name ? (
                         <OxcPortsDropDown
                           fic={fic}
+                          oxcPortOptions={oxcPortOptions}
                           pcieSwitch={pcieSwitchKey}
                           pcieSwitchPort={pcieSwitchPortKey}
-                          oxcPortOptions={oxcPortOptions}
                           setOxcResponse={setOxcResponse}
                         />
                       ) : (
                         <CustomizedTooltip
-                          title={`${fic.switches[pcieSwitchKey][pcieSwitchPortKey].optical_switch.fqnn}`}
                           className={classess.text_ellipsis}
+                          title={`${fic.switches[pcieSwitchKey][pcieSwitchPortKey].optical_switch.fqnn}`}
                         >
                           <span>
                             {`(${fic.switches[pcieSwitchKey][pcieSwitchPortKey].rx} - ${fic.switches[pcieSwitchKey][pcieSwitchPortKey].tx}) 
@@ -692,7 +691,7 @@ const FICAccordionTable = ({
 const OXCAccordionTable = ({ oxc }: { oxc: OpticalSwitch }) => {
   return (
     <TableContainer component={Paper} sx={{ maxHeight: 300 }}>
-      <Table stickyHeader aria-label="oxc table">
+      <Table aria-label="oxc table" stickyHeader>
         <TableHead>
           <TableRow className={classess.tableHeader}>
             <TableCell align="center" style={{ width: 70 }}>
@@ -711,7 +710,7 @@ const OXCAccordionTable = ({ oxc }: { oxc: OpticalSwitch }) => {
                 key={`${oxcPort.rx}-${oxcPort.tx}`}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell component="th" scope="row" align="center">
+                <TableCell align="center" component="th" scope="row">
                   {oxcPort?.rx}
                 </TableCell>
                 <TableCell align="center">{oxcPort?.tx}</TableCell>
@@ -755,7 +754,7 @@ const OXCAccordion = ({
 }): JSX.Element => {
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-      console.log(event)
+      console.log(event);
       setOxcAccordion(newExpanded ? panel : "");
     };
   return (
@@ -795,7 +794,7 @@ const TFICAccordion = ({
 }): JSX.Element => {
   const handleChange =
     (panel: string) => (event: React.SyntheticEvent, newExpanded: boolean) => {
-      console.log(event)
+      console.log(event);
       setTficAccordion(newExpanded ? panel : "");
     };
   return (
@@ -905,15 +904,22 @@ const OxcPortsDropDown = ({
 
   return (
     <Autocomplete
+      getOptionLabel={(option) => option.optionLable}
+      groupBy={(option) => option.title}
       id="grouped-oxc-ports"
       onChange={(e, option: OxcPortOption | null) => {
-        console.log(e)
-        onOxcPortSelectionChange(option)
+        console.log(e);
+        onOxcPortSelectionChange(option);
       }}
-      size="small"
       options={oxcPortOptions}
-      groupBy={(option) => option.title}
-      getOptionLabel={(option) => option.optionLable}
+      renderGroup={(params) => (
+        <li>
+          <div className={classess.oxc_option}>
+            <strong>{params.group}</strong>
+          </div>
+          <div className={classess.oxc_option}>{params.children}</div>
+        </li>
+      )}
       renderInput={(params: AutocompleteRenderInputParams) => {
         return (
           <TextField
@@ -925,21 +931,14 @@ const OxcPortsDropDown = ({
           />
         );
       }}
-      renderGroup={(params) => (
-        <li>
-          <div className={classess.oxc_option}>
-            <strong>{params.group}</strong>
-          </div>
-          <div className={classess.oxc_option}>{params.children}</div>
-        </li>
-      )}
       renderOption={(props, option: OxcPortOption) => (
-        <CustomizedTooltip title={option.fqnn} placement="left">
+        <CustomizedTooltip placement="left" title={option.fqnn}>
           <li {...props}>
             <span key={`${option.tx}-${option.rx}`}>{option.port}</span>
           </li>
         </CustomizedTooltip>
       )}
+      size="small"
     />
   );
 };
@@ -1118,9 +1117,9 @@ const OxcManagement = (): JSX.Element => {
     <>
       {error && error.length && (
         <Notification
+          inline
           key={`notification_${Math.random()}`}
           onDismiss={() => setError("")}
-          inline
           severity="negative"
         >
           {error}
@@ -1128,13 +1127,13 @@ const OxcManagement = (): JSX.Element => {
       )}
       {loading && (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
-            text={loadingMessage}
             key={`managerListSpinner_${Math.random()}`}
+            text={loadingMessage}
           />
         </Notification>
       )}
@@ -1145,15 +1144,15 @@ const OxcManagement = (): JSX.Element => {
       >
         <div className={classess.oxc_management_header_content}>
           <HeaderSelections
-            zones={zones}
-            selectedZone={selectedZone}
-            setSelectedZone={setSelectedZone}
             iFicPools={iFicPools}
             selectedIFicPool={selectedIFicPool}
-            setSelectedIFicPool={setSelectedIFicPool}
-            tFicPools={tFicPools}
             selectedTFicPool={selectedTFicPool}
+            selectedZone={selectedZone}
+            setSelectedIFicPool={setSelectedIFicPool}
             setSelectedTFicPool={setSelectedTFicPool}
+            setSelectedZone={setSelectedZone}
+            tFicPools={tFicPools}
+            zones={zones}
           />
           <ImportExportCsvBtns />
         </div>
@@ -1161,33 +1160,33 @@ const OxcManagement = (): JSX.Element => {
           <div className={classess.connectivity_management_table}>
             {fetchingConnectivityResponse && (
               <Notification
-                key={`notification_${Math.random()}`}
                 inline
+                key={`notification_${Math.random()}`}
                 severity="information"
               >
                 <Spinner
-                  text="Fetching connectivity Information..."
                   key={`managerListSpinner_${Math.random()}`}
+                  text="Fetching connectivity Information..."
                 />
               </Notification>
             )}
             <ConnectivityManagementTable
+              expandedIficAccordion={expandedIficAccordion}
+              expandedOxcAccordion={expandedOxcAccordion}
+              expandedTficAccordion={expandedTficAccordion}
+              fetchingConnectivityResponse={fetchingConnectivityResponse}
               iFicData={iFicResponse}
               oxcData={oxcResponse}
-              tFicData={tFicResponse}
               oxcPortOptions={oxcPortOptions}
-              fetchingConnectivityResponse={fetchingConnectivityResponse}
-              setOxcResponse={setOxcResponse}
-              expandedIficAccordion={expandedIficAccordion}
-              setIficAccordion={setIficAccordion}
-              expandedOxcAccordion={expandedOxcAccordion}
-              setOxcAccordion={setOxcAccordion}
-              expandedTficAccordion={expandedTficAccordion}
-              setTficAccordion={setTficAccordion}
-              zones={zones}
-              selectedZone={selectedZone}
               selectedIFicPool={selectedIFicPool}
               selectedTFicPool={selectedTFicPool}
+              selectedZone={selectedZone}
+              setIficAccordion={setIficAccordion}
+              setOxcAccordion={setOxcAccordion}
+              setOxcResponse={setOxcResponse}
+              setTficAccordion={setTficAccordion}
+              tFicData={tFicResponse}
+              zones={zones}
             />
           </div>
         ) : (
@@ -1196,7 +1195,7 @@ const OxcManagement = (): JSX.Element => {
           </div>
         )}
       </div>
-      <Save oxcData={oxcResponse} onClickSave={onClickSave} loading={loading} />
+      <Save loading={loading} onClickSave={onClickSave} oxcData={oxcResponse} />
     </>
   );
 };

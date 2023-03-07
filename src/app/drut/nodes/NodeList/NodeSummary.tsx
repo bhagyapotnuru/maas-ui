@@ -187,7 +187,7 @@ const NodeSummary = (props: Props): JSX.Element => {
           !(typeof node[key] === "object")
         ) {
           nodeInfo.push(
-            <Col size={4} key={`n_${Math.random()}`}>
+            <Col key={`n_${Math.random()}`} size={4}>
               <div className="drut-node-info-box-1">
                 <strong className="p-muted-heading">
                   {key.replace(/([A-Z])/g, " $1").trim()}
@@ -212,7 +212,7 @@ const NodeSummary = (props: Props): JSX.Element => {
       });
 
       procesorInfo.push(
-        <Col size={5} key={`p_${Math.random()}`}>
+        <Col key={`p_${Math.random()}`} size={5}>
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">Device Model</strong>
             <br />
@@ -221,7 +221,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         </Col>
       );
       procesorInfo.push(
-        <Col size={2} key={`p_${Math.random()}`}>
+        <Col key={`p_${Math.random()}`} size={2}>
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">Cores </strong>
             <br />
@@ -230,7 +230,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         </Col>
       );
       procesorInfo.push(
-        <Col size={2} key={`p_${Math.random()}`}>
+        <Col key={`p_${Math.random()}`} size={2}>
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">Threads </strong>
             <br />
@@ -239,7 +239,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         </Col>
       );
       procesorInfo.push(
-        <Col size={3} key={`p_${Math.random()}`}>
+        <Col key={`p_${Math.random()}`} size={3}>
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">Memory </strong>
             <br />
@@ -248,7 +248,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         </Col>
       );
       nodeInfo.push(
-        <Col size={4} key={`n_${Math.random()}`}>
+        <Col key={`n_${Math.random()}`} size={4}>
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">Health Status</strong>
             <br />
@@ -257,7 +257,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         </Col>
       );
       nodeInfo.push(
-        <Col size={4} key={`n_${Math.random()}`}>
+        <Col key={`n_${Math.random()}`} size={4}>
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">State</strong>
             <br />
@@ -266,7 +266,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         </Col>
       );
       virtualInfo.push(
-        <Col size={3} key={`v_${Math.random()}`}>
+        <Col key={`v_${Math.random()}`} size={3}>
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">Owner </strong>
             <br />
@@ -275,7 +275,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         </Col>
       );
       virtualInfo.push(
-        <Col size={3} key={`v_${Math.random()}`}>
+        <Col key={`v_${Math.random()}`} size={3}>
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">Zone </strong>
             <br />
@@ -284,7 +284,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         </Col>
       );
       virtualInfo.push(
-        <Col size={3} key={`v_${Math.random()}`}>
+        <Col key={`v_${Math.random()}`} size={3}>
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">Resource pool </strong>
             <br />
@@ -293,7 +293,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         </Col>
       );
       virtualInfo.push(
-        <Col size={3} key={`v_${Math.random()}`}>
+        <Col key={`v_${Math.random()}`} size={3}>
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">Power Type </strong>
             <br />
@@ -346,9 +346,9 @@ const NodeSummary = (props: Props): JSX.Element => {
       )}
       {props.notFoundError && (
         <Notification
+          inline
           key={`notification_${Math.random()}`}
           onDismiss={props.onDismissError}
-          inline
           severity="negative"
         >
           {props.notFoundError}

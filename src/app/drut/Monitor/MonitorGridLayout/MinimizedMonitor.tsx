@@ -1,10 +1,9 @@
 import OpenInFullIcon from "@mui/icons-material/OpenInFull";
 import IconButton from "@mui/material/IconButton";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 import classess from "../monitor.module.css";
-
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
   configData: MonitorConfiguration | MonitorConfiguration[];
@@ -24,15 +23,15 @@ const MinimizedMonitor = ({
           (config: MonitorConfiguration) => (
             <li>
               <CustomizedTooltip
-                title={config.header}
                 className={classess.minimized_config_header}
+                title={config.header}
               >
                 <span key={config.id}>{config.header}</span>
               </CustomizedTooltip>
               <CustomizedTooltip title={`Maximize`}>
                 <IconButton
-                  className={classess.minimized_header_icon}
                   aria-label="open_new"
+                  className={classess.minimized_header_icon}
                   onClick={(e) => {
                     e.preventDefault();
                     onMaximizeWidget(+config.id);

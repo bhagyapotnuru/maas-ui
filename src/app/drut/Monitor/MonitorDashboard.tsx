@@ -137,10 +137,10 @@ const MonitorDashboard = ({
     <>
       {showConfigModal && (
         <ManageConfiguration
-          onConfirm={onConfirmHandler}
+          configurations={configResponse}
           onClickBackDrop={onBackDropClickHandler}
           onClickCancel={onCancelHandler}
-          configurations={configResponse}
+          onConfirm={onConfirmHandler}
         />
       )}
       {!isLoading &&
@@ -163,9 +163,9 @@ const MonitorDashboard = ({
         nonMinimizedConfigResponse.length > 0 && (
           <MonitorGridLayout
             configData={nonMinimizedConfigResponse}
-            onRemoveWidget={onRemoveWidgetHandler}
-            onPinWidgetHandler={onPinWidgetHandler}
             onMinimizeWidget={onMinimizeWidgetHandler}
+            onPinWidgetHandler={onPinWidgetHandler}
+            onRemoveWidget={onRemoveWidgetHandler}
           />
         )}
       {!isLoading &&
@@ -173,8 +173,8 @@ const MonitorDashboard = ({
         minimizedConfigResponse.length > 0 && (
           <>
             <MinimizedMonitor
-              key={`Minimize_${Math.random()}`}
               configData={minimizedConfigResponse}
+              key={`Minimize_${Math.random()}`}
               onMaximizeWidget={onMinimizeWidgetHandler}
             />
           </>

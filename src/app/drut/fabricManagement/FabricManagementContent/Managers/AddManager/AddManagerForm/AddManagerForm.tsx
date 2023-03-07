@@ -1,15 +1,14 @@
 import { useState } from "react";
 
 import { Spinner, Notification } from "@canonical/react-components";
+import FormikForm from "app/base/components/FormikForm";
+import type { ClearHeaderContent } from "app/base/types";
 import * as Yup from "yup";
 
 import { postData } from "../../../../../config";
 import AddManagerFormFields from "../AddManagerFormFields";
 import { IP_ADDRESS_REGEX, PORT_REGEX, MANAGER_NAME_REGEX } from "../constants";
 import type { Manager, Zone, Rack } from "../type";
-
-import FormikForm from "app/base/components/FormikForm";
-import type { ClearHeaderContent } from "app/base/types";
 
 type Props = {
   clearHeaderContent: ClearHeaderContent;
@@ -162,15 +161,15 @@ export const AddManagerForm = ({
     <>
       {loading ? (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
+            key={`Add_managers_spinner_${Math.random()}`}
             text={`${
               managerToUpdate?.id ? "Updating Manager..." : "Adding Manager..."
             }`}
-            key={`Add_managers_spinner_${Math.random()}`}
           />
         </Notification>
       ) : (
@@ -222,12 +221,12 @@ export const AddManagerForm = ({
           }
         >
           <AddManagerFormFields
-            zoneRackPairs={zoneRackPairs}
-            selectedManagerType={selectedManagerType}
-            setSelectedManagerType={setSelectedManagerType}
             managerToUpdate={managerToUpdate}
-            setSelectedZone={setSelectedZone}
+            selectedManagerType={selectedManagerType}
             selectedZone={selectedZone}
+            setSelectedManagerType={setSelectedManagerType}
+            setSelectedZone={setSelectedZone}
+            zoneRackPairs={zoneRackPairs}
           />
         </FormikForm>
       )}

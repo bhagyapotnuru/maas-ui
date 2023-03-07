@@ -157,13 +157,13 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
                 >
                   <span className="drut-elapsis-block-name">
                     <Link
+                      color="default"
                       key="nodeNameLink"
-                      title={elm?.Name}
                       onClick={(e) => {
                         e.preventDefault();
                         handleClick(index);
                       }}
-                      color="default"
+                      title={elm?.Name}
                     >
                       {`${elm?.Name}`}
                     </Link>
@@ -256,11 +256,11 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
                   }}
                 >
                   <ResourceDetails
-                    id={`resource-detail${index}`}
-                    data={elm}
-                    loading={loading}
                     close={closeAccordions}
+                    data={elm}
+                    id={`resource-detail${index}`}
                     isMachinesPage={true}
+                    loading={loading}
                   />
                   <Button
                     onClick={() => {
@@ -287,8 +287,8 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
                   </Button>
                   <NavLink
                     className="p-button--neutral"
-                    style={{ margin: "0px 8px 0px 0px" }}
                     key={elm?.NodeId}
+                    style={{ margin: "0px 8px 0px 0px" }}
                     to={`/drut-cdi/resources/${elm?.Id}`}
                   >
                     Know more <i className="p-icon--external-link"></i>
@@ -439,7 +439,7 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
   return (
     <>
       <Row>
-        <Col size={12} className="fabric-sel-main-container">
+        <Col className="fabric-sel-main-container" size={12}>
           {loading ? (
             <Spinner key="nodeListSpinner" />
           ) : (
@@ -452,24 +452,24 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
                   />
                   <hr />
                   <MainTable
-                    key="resourceTableTable"
-                    expanding
                     defaultSort="Name"
                     defaultSortDirection="ascending"
-                    responsive={false}
+                    emptyStateMsg="Resource data not available."
+                    expanding
                     headers={headers}
+                    key="resourceTableTable"
+                    responsive={false}
                     rows={renderRSTable(resources)}
                     sortable
-                    emptyStateMsg="Resource data not available."
                   />
                 </>
               ) : (
                 <ResourceDetails
-                  id="details"
-                  data={resources}
-                  loading={loading}
                   close={closeAccordions}
+                  data={resources}
+                  id="details"
                   isMachinesPage={true}
+                  loading={loading}
                 />
               )}
             </>
@@ -484,21 +484,21 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
         }}
       >
         <div
-          className=""
-          style={{ minWidth: "500px" }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-title"
           aria-describedby="modal-description"
+          aria-labelledby="modal-title"
+          aria-modal="true"
+          className=""
+          role="dialog"
+          style={{ minWidth: "500px" }}
         >
           <header className="p-modal__header">
             <h2 className="p-modal__title" id="modal-title">
               {selectedData?.Name || ""}
             </h2>
             <Button
-              className="p-modal__close"
-              aria-label="Close active modal"
               aria-controls="modal"
+              aria-label="Close active modal"
+              className="p-modal__close"
               onClick={() => {
                 setModalState(!modalState);
               }}
@@ -508,15 +508,15 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
           </header>
           <div style={{ maxHeight: "600px", overflow: "auto" }}>
             <JSONTree
-              key={"jsonModal"}
               data={selectedData}
+              key={"jsonModal"}
+              keyPath={[]}
+              shouldExpandNodeInitially={() => true}
               theme={{
                 scheme: "monokai",
                 author: "Indu",
                 base00: "#000000",
               }}
-              keyPath={[]}
-              shouldExpandNodeInitially={() => true}
             />
           </div>
         </div>

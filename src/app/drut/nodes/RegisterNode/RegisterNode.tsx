@@ -1,14 +1,9 @@
 import { useEffect, useState, useLayoutEffect } from "react";
 
 import { Spinner } from "@canonical/react-components";
-import { useDispatch, useSelector } from "react-redux";
 //import { useHistory } from "react-router-dom";
-import * as Yup from "yup";
 
-import AddMachineFormFields from "./AddMachineFormFields";
-import FormCard from "./FormCard";
 // import FormikForm from "app/base/components/FormikForm";
-import FormikForm from "./FormikForm";
 
 import { useAddMessage, useWindowTitle } from "app/base/hooks/index";
 import { MAC_ADDRESS_REGEX } from "app/base/validation";
@@ -33,6 +28,12 @@ import { actions as resourcePoolActions } from "app/store/resourcepool";
 import resourcePoolSelectors from "app/store/resourcepool/selectors";
 import { actions as zoneActions } from "app/store/zone";
 import zoneSelectors from "app/store/zone/selectors";
+import { useDispatch, useSelector } from "react-redux";
+import * as Yup from "yup";
+
+import AddMachineFormFields from "./AddMachineFormFields";
+import FormCard from "./FormCard";
+import FormikForm from "./FormikForm";
 
 interface Props {
   data: any;
@@ -203,9 +204,9 @@ export const RegisterMachineForm: any = ({
               setPowerType(powerType);
             }}
             resetOnSave={resetOnSave}
-            saving={machineSaving}
             saved={machineSaved}
             savedRedirect={resetOnSave ? undefined : machineURLs.index}
+            saving={machineSaving}
             secondarySubmit={(_, { submitForm }) => {
               setResetOnSave(true);
               submitForm();
@@ -214,7 +215,7 @@ export const RegisterMachineForm: any = ({
             submitLabel="Save machine"
             validationSchema={AddMachineSchema}
           >
-            <AddMachineFormFields saved={machineSaved} macs={aditionalMacs} />
+            <AddMachineFormFields macs={aditionalMacs} saved={machineSaved} />
           </FormikForm>
         </FormCard>
       )}

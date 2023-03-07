@@ -12,12 +12,11 @@ import {
   TableHead,
   TableRow,
 } from "@mui/material";
+import { postData } from "app/drut/config";
 
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 
 import classess from "./ManageConfiguration.module.css";
-
-import { postData } from "app/drut/config";
 
 const getConfigListTable = (
   allConfigurations: MonitorConfiguration[],
@@ -42,13 +41,13 @@ const getConfigListTable = (
               <TableRow>
                 <TableCell padding="checkbox">
                   <Checkbox
+                    checked={isFullyChecked}
                     color="primary"
                     indeterminate={isIndeterminate && !isFullyChecked}
-                    checked={isFullyChecked}
-                    onChange={handleSelectAllClick}
                     inputProps={{
                       "aria-label": "select all configurations",
                     }}
+                    onChange={handleSelectAllClick}
                   />
                 </TableCell>
                 <TableCell align="left">Cluster Type</TableCell>
@@ -61,18 +60,18 @@ const getConfigListTable = (
                   const labelId = `enhanced-table-checkbox-${index}`;
                   return (
                     <TableRow
+                      aria-checked={config.display}
                       hover
+                      key={config.id}
                       onClick={(event) => handleClick(event, config)}
                       role="checkbox"
-                      aria-checked={config.display}
-                      tabIndex={-1}
-                      key={config.id}
                       selected={config.display}
+                      tabIndex={-1}
                     >
                       <TableCell padding="checkbox">
                         <Checkbox
-                          color="primary"
                           checked={config.display}
+                          color="primary"
                           inputProps={{
                             "aria-labelledby": config.header,
                           }}
@@ -81,16 +80,16 @@ const getConfigListTable = (
                       <TableCell
                         component="th"
                         id={labelId}
-                        scope="row"
                         padding="none"
+                        scope="row"
                       >
                         {config.cluster_type}
                       </TableCell>
                       <TableCell
                         component="th"
                         id={labelId}
-                        scope="row"
                         padding="none"
+                        scope="row"
                       >
                         {config.header}
                       </TableCell>
@@ -122,7 +121,7 @@ const ManageConfiguration = ({
     event: React.MouseEvent<unknown>,
     changedConfig: MonitorConfiguration
   ) => {
-    console.log(event)
+    console.log(event);
     setSelected((prevConfig: MonitorConfiguration[]) => {
       const selectedConfig: MonitorConfiguration | undefined = prevConfig.find(
         (config) => config.id === changedConfig.id
@@ -192,8 +191,8 @@ const ManageConfiguration = ({
             onClick={(e) => e.stopPropagation()}
           >
             <div
-              style={{ height: "100%", width: "100%" }}
               onClick={(e) => e.stopPropagation()}
+              style={{ height: "100%", width: "100%" }}
             >
               {getConfigListTable(
                 allConfigurations,
@@ -218,10 +217,10 @@ const ManageConfiguration = ({
             </Button>
             <Button
               className={classess.primary_btn}
-              variant="contained"
               onClick={(e) => {
                 onSaveHandler(e);
               }}
+              variant="contained"
             >
               Save
             </Button>

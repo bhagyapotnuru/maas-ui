@@ -1,11 +1,9 @@
-import { Col, Row } from "@canonical/react-components";
-import { Select } from "@canonical/react-components";
+import { Col, Row, Select } from "@canonical/react-components";
+import FormikField from "app/base/components/FormikField";
+import type { AnyObject } from "app/base/types";
 import { useFormikContext } from "formik";
 
 import type { Zone, Rack } from "../../Managers/AddManager/type";
-
-import FormikField from "app/base/components/FormikField";
-import type { AnyObject } from "app/base/types";
 
 type Props = {
   zones: Zone[];
@@ -32,6 +30,11 @@ export const SetZoneFormFields = <V extends AnyObject>({
             component={Select}
             label="Zone"
             name="zone_id"
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
+              handleChange(event);
+              setSelectedZone(event.target.value);
+              setFieldValue("zone_id", event.target.value);
+            }}
             options={[
               { label: "Select Zone", value: "", disabled: true },
               ...zones
@@ -45,20 +48,20 @@ export const SetZoneFormFields = <V extends AnyObject>({
                   value: zone.zone_id,
                 })),
             ]}
-            onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange(event);
-              setSelectedZone(event.target.value);
-              setFieldValue("zone_id", event.target.value);
-            }}
             required
           />
         </Col>
         <Col size={2}>
           <FormikField
             component={Select}
-            label="Rack"
             disabled={!selectedZone}
+            label="Rack"
             name="rack_id"
+            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
+              handleChange(evt);
+              setFieldValue("rack_id", evt.target.value);
+              setSelectedRack(evt.target.value);
+            }}
             options={
               !racks || racks.length === 0
                 ? [
@@ -77,11 +80,6 @@ export const SetZoneFormFields = <V extends AnyObject>({
                     })),
                   ]
             }
-            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange(evt);
-              setFieldValue("rack_id", evt.target.value);
-              setSelectedRack(evt.target.value);
-            }}
             required
           />
         </Col>

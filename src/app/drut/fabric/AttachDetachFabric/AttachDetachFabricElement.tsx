@@ -18,6 +18,10 @@ import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import MuiTabs from "@mui/material/Tabs";
 import { styled, ThemeProvider } from "@mui/material/styles";
+import { actions as machineActions } from "app/store/machine";
+import machineSelectors from "app/store/machine/selectors";
+import type { RootState } from "app/store/root/types";
+import customDrutTheme from "app/utils/Themes/Themes";
 import { JSONTree } from "react-json-tree";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
@@ -47,11 +51,6 @@ import DataPathInfo from "../FabricDataPath/DataPathInfo";
 import classess from "./AttachDetachFabric.module.css";
 import CustomizedContextualMenu from "./CustomizedContextualMenu";
 
-import { actions as machineActions } from "app/store/machine";
-import machineSelectors from "app/store/machine/selectors";
-import type { RootState } from "app/store/root/types";
-import customDrutTheme from "app/utils/Themes/Themes";
-
 interface Props {
   nodeId?: string;
   isMachinesPage: boolean;
@@ -69,14 +68,14 @@ const TabPanel = (props: TabPanelProps) => {
   const { children, value, index, ...other } = props;
   return (
     <div
-      role="tabpanel"
+      aria-labelledby={`node-details-tab-${index}`}
       hidden={value !== index}
       id={`node-details-tabpanel-${index}`}
-      aria-labelledby={`node-details-tab-${index}`}
+      role="tabpanel"
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }} className={classess.node_details_tab_panel}>
+        <Box className={classess.node_details_tab_panel} sx={{ p: 3 }}>
           {children}
         </Box>
       )}
@@ -200,9 +199,9 @@ const AttachDetachFabricElement = ({
         sub.push(
           <JSONTree
             data={data[key]}
-            theme={jsonTheme}
             keyPath={[key]}
             shouldExpandNodeInitially={() => false}
+            theme={jsonTheme}
           />
         );
       } else {
@@ -309,24 +308,24 @@ const AttachDetachFabricElement = ({
             }}
           >
             <div style={{ padding: "0px 6px" }}>
-              <Row key="" className={classess["resource_block_row"]}>
-                <Col size={1} className="u-align--right">
+              <Row className={classess["resource_block_row"]} key="">
+                <Col className="u-align--right" size={1}>
                   <div style={{ display: "grid" }}>
                     <Input
-                      className="p-checkbox__input"
-                      type="checkbox"
-                      onChange={(e) =>
-                        onResourceBlockChecked(e.target.checked, resourceBlock)
-                      }
                       checked={checkedResourceBlocks.some(
                         (rb: { Id: string }) => rb.Id === resourceBlock.Id
                       )}
+                      className="p-checkbox__input"
                       disabled={
                         loading ||
                         (nodeStatus(node?.DataPathCreationOrderStatus).status &&
                           loadingText.length > 0) ||
                         inProgress
                       }
+                      onChange={(e) =>
+                        onResourceBlockChecked(e.target.checked, resourceBlock)
+                      }
+                      type="checkbox"
                     ></Input>
                   </div>
                 </Col>
@@ -339,9 +338,9 @@ const AttachDetachFabricElement = ({
                           : classess.nav_link_enable
                       }
                       key={`${computeBlockId}_${resourceBlock?.Id}`}
+                      onClick={(e: any) => onClickResource(e, computeBlockId)}
                       style={{ fontSize: "initial" }}
                       to="#"
-                      onClick={(e: any) => onClickResource(e, computeBlockId)}
                     >
                       {computeBlockName || "NA"} <b>(Compute)</b>
                     </NavLink>
@@ -355,11 +354,11 @@ const AttachDetachFabricElement = ({
                           : classess.nav_link_enable
                       }
                       key={resourceBlock?.Id}
-                      style={{ fontSize: "initial" }}
-                      to="#"
                       onClick={(e: any) =>
                         onClickResource(e, resourceBlock?.Id)
                       }
+                      style={{ fontSize: "initial" }}
+                      to="#"
                     >
                       {resourceBlock?.Name}
                       <b>
@@ -373,7 +372,7 @@ const AttachDetachFabricElement = ({
                     </NavLink>
                   </h4>
                 </Col>
-                <Col size={3} className="u-align--right">
+                <Col className="u-align--right" size={3}>
                   {blockStatus(
                     resourceBlock?.CompositionStatus?.CompositionState
                   ).status && (
@@ -588,12 +587,12 @@ const AttachDetachFabricElement = ({
                 >
                   <span className="drut-elapsis-block-name">
                     <Link
+                      color="default"
                       key="nodeNameLink"
-                      title={elm?.Name}
                       onClick={() => {
                         handleClick(index);
                       }}
-                      color="default"
+                      title={elm?.Name}
                     >
                       {`${elm?.Name}`}
                     </Link>
@@ -703,19 +702,19 @@ const AttachDetachFabricElement = ({
           Attach 1 of {res.length} {current} blocks
         </strong>
         <MainTable
-          expanding
-          paginate={8}
-          key="computeTable"
-          headers={selectionHeaders}
-          rows={table}
-          sortable
           className="drut-table-border"
           emptyStateMsg="Data not available."
+          expanding
+          headers={selectionHeaders}
+          key="computeTable"
+          paginate={8}
+          rows={table}
+          sortable
         />
 
         <Button
-          hasIcon
           className="drut-button"
+          hasIcon
           onClick={() => selectResourceBlocks("")}
         >
           <i className="p-icon--close"></i> <span>Close</span>
@@ -846,7 +845,7 @@ const AttachDetachFabricElement = ({
       .then(
         (dt: any) => {
           if (dt && dt.Id) {
-            dispatch(machineActions.get(machine.system_id, ''));
+            dispatch(machineActions.get(machine.system_id, ""));
             setError(`Fetching data...`);
             setTimeout(() => {
               setError(``);
@@ -871,7 +870,7 @@ const AttachDetachFabricElement = ({
   };
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    console.log(event)
+    console.log(event);
     if (newValue === 1) {
       loadNodeDataPath();
     }
@@ -899,7 +898,7 @@ const AttachDetachFabricElement = ({
         ""
       )}
       {error.length ? (
-        <Notification onDismiss={() => setError("")} inline severity="negative">
+        <Notification inline onDismiss={() => setError("")} severity="negative">
           {error}
         </Notification>
       ) : (
@@ -926,27 +925,27 @@ const AttachDetachFabricElement = ({
                 </span>
               </h4>
             </Col>
-            <Col size={6} className="u-align--right">
+            <Col className="u-align--right" size={6}>
               {(nodeStatus(node?.DataPathCreationOrderStatus).status &&
                 loadingText.length > 0) ||
               inProgress ? (
                 ""
               ) : (
                 <CustomizedContextualMenu
-                  isMachinesPage={isMachinesPage}
-                  isResourceBlocksTab={tabValue === 0}
-                  onRefresh={refresh}
-                  onDetach={() =>
-                    actionResourceBlock(checkedResourceBlocks[0], "D")
-                  }
-                  onResourceBlockTypeSelection={(resourceBlockType: any) =>
-                    selectResourceBlocks(resourceBlockType)
-                  }
                   hasCheckedItems={
                     checkedResourceBlocks && checkedResourceBlocks.length > 0
                   }
                   hasDownStreamPorts={downPorts.available > 0}
                   hasResourceBlocks={node.ResourceBlocks?.length > 0}
+                  isMachinesPage={isMachinesPage}
+                  isResourceBlocksTab={tabValue === 0}
+                  onDetach={() =>
+                    actionResourceBlock(checkedResourceBlocks[0], "D")
+                  }
+                  onRefresh={refresh}
+                  onResourceBlockTypeSelection={(resourceBlockType: any) =>
+                    selectResourceBlocks(resourceBlockType)
+                  }
                 />
               )}
             </Col>
@@ -967,17 +966,17 @@ const AttachDetachFabricElement = ({
                     }}
                   >
                     <Tabs
-                      sx={{ width: "100%" }}
-                      value={tabValue}
-                      onChange={handleChange}
                       aria-label="node detail tabs"
+                      onChange={handleChange}
+                      sx={{ width: "100%" }}
                       textColor="inherit"
+                      value={tabValue}
                     >
                       <Tab label="Resource Blocks" {...a11yProps(0)} />
                       <Tab label="Data Path" {...a11yProps(1)} />
                     </Tabs>
                   </Box>
-                  <TabPanel value={tabValue} index={0}>
+                  <TabPanel index={0} value={tabValue}>
                     {/* {(loading || isRefreshInProgress) && (
                       <Notification inline severity="information">
                         <Spinner
@@ -989,7 +988,7 @@ const AttachDetachFabricElement = ({
                     )} */}
                     {!isRefreshing && getResourceBlocks(node, inProgress)}
                   </TabPanel>
-                  <TabPanel value={tabValue} index={1}>
+                  <TabPanel index={1} value={tabValue}>
                     {(loading || isRefreshing) && (
                       <Notification inline severity="information">
                         <Spinner
@@ -1021,20 +1020,20 @@ const AttachDetachFabricElement = ({
         }}
       >
         <div
+          aria-describedby="modal-description"
+          aria-labelledby="modal-title"
+          aria-modal="true"
           className=""
           role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-title"
-          aria-describedby="modal-description"
         >
           <header className="p-modal__header">
             <h2 className="p-modal__title" id="modal-title">
               {"Resource Details"}
             </h2>
             <Button
-              className="p-modal__close"
-              aria-label="Close active modal"
               aria-controls="modal"
+              aria-label="Close active modal"
+              className="p-modal__close"
               onClick={() => {
                 setModalState(!modalState);
               }}
@@ -1047,14 +1046,14 @@ const AttachDetachFabricElement = ({
               <Row>
                 <Col size={12}>
                   <ResourceDetails
+                    data={individualResource}
                     id={
                       individualResource && individualResource.Id
                         ? individualResource.Id
                         : ""
                     }
-                    data={individualResource}
-                    loading={loading}
                     isMachinesPage={isMachinesPage}
+                    loading={loading}
                   />{" "}
                 </Col>
               </Row>

@@ -7,12 +7,11 @@ import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
+import { fetchData } from "app/drut/config";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import DataPathOrderDetailsTable from "./DataPathOrderDetailsTable";
 import classess from "./NodeList.module.css";
-
-import { fetchData } from "app/drut/config";
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
   nodeId: string;
@@ -36,7 +35,7 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
       return "p-icon--error";
     } else if (orderStatus === "PENDING") {
       return "p-icon--status-waiting";
-    } else return
+    } else return;
   };
 
   const Accordion = styled((props: any) => (
@@ -127,12 +126,12 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
   };
 
   const handleParentChange = (panel: any) => (event: any, newExpanded: any) => {
-    console.log(event)
+    console.log(event);
     setParentExpanded(newExpanded ? panel : false);
   };
 
   const handleChildChange = (panel: any) => (event: any, newExpanded: any) => {
-    console.log(event)
+    console.log(event);
     setChildExpanded(newExpanded ? panel : false);
   };
 
@@ -182,8 +181,8 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
                           id={`${dpo?.TargetEndpoint?.["@odata.id"]}_${childIndex}_header`}
                         >
                           <CustomizedTooltip
-                            title={dpo?.DataPathOrderStatus}
                             style={{ "margin-right": "1%" }}
+                            title={dpo?.DataPathOrderStatus}
                           >
                             <i
                               className={getDpOrderStatusIcon(

@@ -2,11 +2,10 @@ import { useState, useEffect } from "react";
 
 import { Button } from "@canonical/react-components";
 // import { createBrowserHistory } from "history";
+import SectionHeader from "app/base/components/SectionHeader";
 import { Link } from "react-router-dom";
 
 import { fetchData } from "../../config";
-
-import SectionHeader from "app/base/components/SectionHeader";
 
 interface Props {
   onClickTab?: any;
@@ -102,18 +101,18 @@ const DashboardHeader = ({ onClickTab }: Props): JSX.Element => {
 
   return (
     <SectionHeader
-      key="dashboardHeades"
       buttons={getHeaderButtons()}
-      title="Dashboard"
-      // morelink={
-      //   <NavLink to="/drut-cdi/dfab-health">{fabric && fabric.url}</NavLink>
-      // }
+      key="dashboardHeades"
       subtitle={
         fabric
           ? "Fabric Manager running at "
           : "Fabric Manager inactive or not configured"
       }
+      // morelink={
+      //   <NavLink to="/drut-cdi/dfab-health">{fabric && fabric.url}</NavLink>
+      // }
       tabLinks={tabs}
+      title="Dashboard"
     />
   );
 };

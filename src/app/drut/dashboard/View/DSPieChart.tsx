@@ -47,7 +47,7 @@ const DSPieChart = ({ data, box, colorCode }: Props): JSX.Element => {
         <table className="overall-ram__table" style={{ border: "0px" }}>
           <thead>
             <tr key={`${Math.random()}`}>
-              <th colSpan={2} className="u-align--right u-text--light">
+              <th className="u-align--right u-text--light" colSpan={2}>
                 <span className="u-nudge-left">
                   <b>{data.total}</b> {data.totalTitle || "Blocks"}
                 </span>

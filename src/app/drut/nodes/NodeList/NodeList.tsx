@@ -10,6 +10,9 @@ import {
   Tooltip,
   Spinner,
 } from "@canonical/react-components";
+import { actions as machineActions } from "app/store/machine";
+import machineSelectors from "app/store/machine/selectors";
+import type { RootState } from "app/store/root/types";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useParams } from "react-router-dom";
 
@@ -18,10 +21,6 @@ import { nodeStatus, nStatus } from "../../nodeStatus";
 import RegisterMachineForm from "../RegisterNode/RegisterNode";
 
 import classess from "./NodeList.module.css";
-
-import { actions as machineActions } from "app/store/machine";
-import machineSelectors from "app/store/machine/selectors";
-import type { RootState } from "app/store/root/types";
 
 type Props = {
   page: any;
@@ -41,7 +40,7 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
   const [nodeFullData, setNodeFullData] = useState([]);
   const [nodes, setNodes] = useState([]);
   const filteredMachines = useSelector((state: RootState) => {
-    return machineSelectors.search(state, '', []);
+    return machineSelectors.search(state, "", []);
   });
 
   localStorage.setItem("myFavoriteSandwich", "tuna");
@@ -70,7 +69,7 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
 
   useEffect(() => {
     filteredMachines.forEach((dt: any) => {
-      dispatch(machineActions.get(dt.system_id, ''));
+      dispatch(machineActions.get(dt.system_id, ""));
       dispatch(machineActions.setActive(dt.system_id));
     });
 
@@ -188,7 +187,7 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
       return "p-icon--error";
     } else if (composedNodeState === "PENDING") {
       return "p-icon--status-waiting";
-    } else return
+    } else return;
   };
 
   const getStatusIcon = (node: any) =>
@@ -207,15 +206,15 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
               key: `HealthStatus_${index}_${Math.random()}`,
               content: (
                 <Tooltip
-                  key={`tp_${Math.random()}`}
                   className="doughnut-chart__tooltip"
                   followMouse={true}
+                  key={`tp_${Math.random()}`}
                   message={`Health Status: ${node?.Status?.Health}`}
                   position="btm-center"
                 >
                   <i
-                    style={{ height: "1.8rem", width: "1.8rem" }}
                     className={getStatusIcon(node)}
+                    style={{ height: "1.8rem", width: "1.8rem" }}
                   ></i>
                 </Tooltip>
               ),
@@ -226,9 +225,9 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
               content: (
                 <span className={classess["datapath-creation-order-status"]}>
                   <Tooltip
-                    key={`tp_${Math.random()}`}
                     className="doughnut-chart__tooltip"
                     followMouse={true}
+                    key={`tp_${Math.random()}`}
                     message={`Datapath Creation Order Status: ${node?.DataPathCreationOrderStatus}`}
                     position="btm-center"
                   >
@@ -358,9 +357,9 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
     } else {
       return (
         <ContextualMenu
-          key={`cmenu_${Math.random()}`}
           data-testid="row-menu"
           hasToggleIcon={true}
+          key={`cmenu_${Math.random()}`}
           links={[
             {
               children: "Delete Node",
@@ -509,9 +508,9 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
     <Fragment key={`${Math.random()}`}>
       {error && error.length && (
         <Notification
+          inline
           key={`notification_${Math.random()}`}
           onDismiss={() => setError("")}
-          inline
           severity="negative"
         >
           {error}
@@ -524,8 +523,8 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
             Registering Node: <b>{rData?.details?.name}</b>
           </h3>
           <RegisterMachineForm
-            key={`RegisterMachine_${Math.random()}`}
             data={rData}
+            key={`RegisterMachine_${Math.random()}`}
             onRegisterNodeAction={onRegisterNodeAction}
           />
         </Fragment>
@@ -556,14 +555,14 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
                   </Row>
                   <hr />
                   <MainTable
-                    key={`nodeListTable_${Math.random()}`}
                     className="p-table--network-node p-table-expanding--light"
                     defaultSort="Name"
                     defaultSortDirection="ascending"
+                    emptyStateMsg="No node created yet or Node data not available."
                     headers={headers}
+                    key={`nodeListTable_${Math.random()}`}
                     rows={generateRows(nodes)}
                     sortable
-                    emptyStateMsg="No node created yet or Node data not available."
                   />
                 </Fragment>
               )}

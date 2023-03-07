@@ -1,11 +1,10 @@
 import { Fragment, useState, useEffect } from "react";
 
 import { Col, MainTable, Row } from "@canonical/react-components";
-
-import type { Manager } from "./type";
-
 import TableActions from "app/base/components/TableActions";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
+
+import type { Manager } from "./type";
 
 const Manager_Headers = [
   {
@@ -122,10 +121,10 @@ const ManagerTable = ({
               key: `Name_${index}_${Math.random()}`,
               content: (
                 <CustomizedTooltip
-                  key={`ManagerName_tooltip_${index}`}
-                  title={manager?.name}
                   className="drut-col-name-left-sn-ellipsis"
+                  key={`ManagerName_tooltip_${index}`}
                   placement={"bottom-start"}
+                  title={manager?.name}
                 >
                   <span>{manager?.name || "-"}</span>
                 </CustomizedTooltip>
@@ -144,10 +143,10 @@ const ManagerTable = ({
               key: `Fully_Qualified_Group_Name_${index}_${Math.random()}`,
               content: (
                 <CustomizedTooltip
-                  key={`FullyQualifiedGroupName_tooltip_${index}`}
-                  title={manager?.rack_fqgn}
                   className="drut-col-name-left-sn-ellipsis"
+                  key={`FullyQualifiedGroupName_tooltip_${index}`}
                   placement={"bottom-start"}
+                  title={manager?.rack_fqgn}
                 >
                   <span>{manager?.rack_fqgn || "-"}</span>
                 </CustomizedTooltip>
@@ -173,13 +172,17 @@ const ManagerTable = ({
               key: `IP_Address_${index}_${Math.random()}`,
               content: (
                 <CustomizedTooltip
-                  title={manager?.remote_redfish_uri}
                   className="drut-col-name-left-sn-ellipsis"
                   key={`IP_Address_tooltip_${index}`}
                   placement={"bottom-start"}
+                  title={manager?.remote_redfish_uri}
                 >
                   <span>
-                    <a target="_blank" href={manager?.remote_redfish_uri}>
+                    <a
+                      href={manager?.remote_redfish_uri}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
                       {manager?.ip_address || "-"}
                     </a>
                   </span>
@@ -237,14 +240,14 @@ const ManagerTable = ({
             <Col size={12}>
               <Fragment key={`nl_${Math.random()}`}>
                 <MainTable
-                  key={`managerListTable_${Math.random()}`}
                   className="p-table--network-group p-table-expanding--light"
                   defaultSort="Name"
                   defaultSortDirection="ascending"
+                  emptyStateMsg="No manager created yet or manager data not available."
                   headers={Manager_Headers}
+                  key={`managerListTable_${Math.random()}`}
                   rows={generateRows(managers)}
                   sortable
-                  emptyStateMsg="No manager created yet or manager data not available."
                 />
               </Fragment>
             </Col>

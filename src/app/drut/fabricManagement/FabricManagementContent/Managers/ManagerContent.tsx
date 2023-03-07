@@ -46,7 +46,7 @@ const ManagerContent = ({
       return () => {
         abortController.abort();
       };
-    } else return
+    } else return;
   }, [fetchManagers]);
 
   const filterData = {
@@ -78,9 +78,9 @@ const ManagerContent = ({
     <>
       {error && error.length && (
         <Notification
+          inline
           key={`notification_${Math.random()}`}
           onDismiss={() => setError("")}
-          inline
           severity="negative"
         >
           {error}
@@ -88,39 +88,39 @@ const ManagerContent = ({
       )}
       {loading ? (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
-            text="Loading..."
             key={`managerListSpinner_${Math.random()}`}
+            text="Loading..."
           />
         </Notification>
       ) : (
         <div aria-label={Label.Title}>
           <ManagerControls
             aria-label="manager list controls"
-            searchText={searchText}
-            setSearchText={setSearchText}
-            managerCount={managerData?.length}
             filterData={filterData}
-            pageSize={pageSize}
-            setPageSize={setPageSize}
+            managerCount={managerData?.length}
             next={next}
-            setNext={setNext}
+            pageSize={pageSize}
             prev={prev}
+            searchText={searchText}
+            setNext={setNext}
+            setPageSize={setPageSize}
             setPrev={setPrev}
+            setSearchText={setSearchText}
           />
           <ManagerTable
             aria-label="managers"
             managersData={managerData || []}
-            setRenderUpdateManagerForm={setRenderUpdateManagerForm}
-            setRenderDeleteManagerForm={setRenderDeleteManagerForm}
-            searchText={searchText}
+            next={next}
             pageSize={pageSize}
             prev={prev}
-            next={next}
+            searchText={searchText}
+            setRenderDeleteManagerForm={setRenderDeleteManagerForm}
+            setRenderUpdateManagerForm={setRenderUpdateManagerForm}
           />
         </div>
       )}

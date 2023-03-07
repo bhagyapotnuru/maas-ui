@@ -51,7 +51,8 @@ const EventsView = (): JSX.Element => {
         return "p-icon--information";
       case "failed":
         return "p-icon--error";
-      default: return
+      default:
+        return;
     }
   };
 
@@ -83,8 +84,8 @@ const EventsView = (): JSX.Element => {
               <span>
                 <span style={{ marginRight: "2%" }}>
                   <Tooltip
-                    key={`event_icon_tooltip_${index}`}
                     followMouse={true}
+                    key={`event_icon_tooltip_${index}`}
                     message={`Event Status: ${elm?.status}`}
                   >
                     <i className={eventStatusIcon(elm?.status)} />
@@ -214,8 +215,8 @@ const EventsView = (): JSX.Element => {
             value={searchText}
           />
         </Col>
-        <Col size={6} className={classess.show_select}>
-          <Col size={1} className={classess.select_label_name}>
+        <Col className={classess.show_select} size={6}>
+          <Col className={classess.select_label_name} size={1}>
             <span>Show</span>
           </Col>
           <Col size={1}>
@@ -249,19 +250,19 @@ const EventsView = (): JSX.Element => {
           </Col>
           <Col size={1}>
             <Button
-              hasIcon
               appearance="base"
               className="u-no-margin--right u-no-margin--bottom"
               disabled={prevNext[0] === "" || prevNext[0] === null}
+              hasIcon
               onClick={() => previousNext("P")}
             >
               <i className="p-icon--chevron-up drut-prev-icon"></i>
             </Button>
             <Button
-              hasIcon
               appearance="base"
               className="u-no-margin--right u-no-margin--bottom"
               disabled={prevNext[1] === "" || prevNext[1] === null}
+              hasIcon
               onClick={() => previousNext("N")}
             >
               <i className="p-icon--chevron-up drut-next-icon"></i>
@@ -277,11 +278,11 @@ const EventsView = (): JSX.Element => {
               <Spinner text="loading ..." />
             ) : (
               <MainTable
-                headers={events_header}
                 className={"event-logs-table"}
+                emptyStateMsg="Data not available."
+                headers={events_header}
                 rows={getEventIformation(events)}
                 sortable
-                emptyStateMsg="Data not available."
               />
             )}
           </div>

@@ -114,23 +114,23 @@ const FabricDataPath = ({
         return dt?.map((d: any, midx: any) => {
           return (
             <li
-              key={`list_${midx}_key${Math.random()}`}
               className="p-accordion__group111"
+              key={`list_${midx}_key${Math.random()}`}
             >
               <div
+                className="p-accordion__heading"
                 key={`div1-${midx}_${Math.random()}`}
                 role="heading"
-                className="p-accordion__heading"
                 style={{ display: isList ? "none" : "" }}
               >
                 <button
-                  key={`btn1-${midx}_${Math.random()}`}
-                  type="button"
-                  className="p-accordion__tab"
-                  id={`${midx}_id`}
                   aria-controls={`${midx}_id_sec`}
                   aria-expanded={getExpSTatus(dp, midx + 1)}
+                  className="p-accordion__tab"
+                  id={`${midx}_id`}
+                  key={`btn1-${midx}_${Math.random()}`}
                   onClick={() => changeSate(midx + 1)}
+                  type="button"
                 >
                   {activeState[midx + 1]}
                   {`${midx + 1} ${d?.InitiatorResourceBlock?.Name} > ${
@@ -139,11 +139,11 @@ const FabricDataPath = ({
                 </button>
               </div>
               <section
-                className="p-accordion__panel"
-                key={`sec1-${midx}_${Math.random()}`}
-                id={`${midx}_id_sec`}
                 aria-hidden={!activeState[midx + 1]}
                 aria-labelledby={`${midx}_id`}
+                className="p-accordion__panel"
+                id={`${midx}_id_sec`}
+                key={`sec1-${midx}_${Math.random()}`}
               >
                 <table
                   key={`tbl1-${midx}_${Math.random()}`}
@@ -185,28 +185,28 @@ const FabricDataPath = ({
                               {pt?.ConnectedRemoteEndpoints?.map((cre: any) => {
                                 return (
                                   <tr
-                                    key={`drut-dp-${index}_${Math.random()}`}
                                     className={`drut-dp-${
                                       isOdd(index + 1) ? "odd" : "even"
                                     }`}
+                                    key={`drut-dp-${index}_${Math.random()}`}
                                   >
                                     <td
-                                      style={{ verticalAlign: "middle" }}
                                       className={getClass(
                                         index,
                                         d?.DataPath,
                                         "L"
                                       )}
+                                      style={{ verticalAlign: "middle" }}
                                     >
                                       {index + 1}
                                     </td>
                                     <td
-                                      style={{ verticalAlign: "middle" }}
                                       className={getClass(
                                         index,
                                         d?.DataPath,
                                         "M"
                                       )}
+                                      style={{ verticalAlign: "middle" }}
                                     >
                                       <div
                                         className={`drut-status drut-color-${
@@ -258,12 +258,12 @@ const FabricDataPath = ({
                                       }
                                     </td>
                                     <td
-                                      style={{ minWidth: "100px" }}
                                       className={getClass(
                                         index,
                                         d?.DataPath,
                                         "R"
                                       )}
+                                      style={{ minWidth: "100px" }}
                                     >
                                       <Link
                                         className={"drut-tooltip-link"}
@@ -339,12 +339,12 @@ const FabricDataPath = ({
                                       )}
                                     </td>
                                     <td
-                                      style={{ minWidth: "100px" }}
                                       className={getClass(
                                         index,
                                         d?.DataPath,
                                         "L"
                                       )}
+                                      style={{ minWidth: "100px" }}
                                     >
                                       <Link
                                         className={"drut-tooltip-link"}
@@ -477,20 +477,20 @@ const FabricDataPath = ({
         }}
       >
         <div
+          aria-describedby="modal-description"
+          aria-labelledby="modal-title"
+          aria-modal="true"
           className=""
           role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-title"
-          aria-describedby="modal-description"
         >
           <header className="p-modal__header">
             <h2 className="p-modal__title" id="modal-title">
               {"Power Information"}
             </h2>
             <Button
-              className="p-modal__close"
-              aria-label="Close active modal"
               aria-controls="modal"
+              aria-label="Close active modal"
+              className="p-modal__close"
               onClick={() => {
                 setModalState(!modalState);
               }}

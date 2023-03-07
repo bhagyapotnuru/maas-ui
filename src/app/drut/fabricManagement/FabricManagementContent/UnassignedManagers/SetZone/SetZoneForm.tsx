@@ -1,15 +1,14 @@
 import { useState, useEffect } from "react";
 
 import { Spinner, Notification } from "@canonical/react-components";
+import FormikForm from "app/base/components/FormikForm";
+import type { ClearHeaderContent } from "app/base/types";
+import { postData } from "app/drut/config";
 import * as Yup from "yup";
 
 import type { Zone, Rack, Manager } from "../../Managers/AddManager/type";
 
 import SetZoneFormFields from "./SetZoneFormFields";
-
-import FormikForm from "app/base/components/FormikForm";
-import type { ClearHeaderContent } from "app/base/types";
-import { postData } from "app/drut/config";
 
 type setZoneForm = {
   zone_id: string;
@@ -103,16 +102,16 @@ export const AddManagerForm = ({
     <>
       {loading ? (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
+            key={`Set_Zone_spinner_${Math.random()}`}
             text={`Adding managers to ${getRackName(
               selectedZone,
               selectedRack
             )}`}
-            key={`Set_Zone_spinner_${Math.random()}`}
           />
         </Notification>
       ) : (
@@ -138,11 +137,11 @@ export const AddManagerForm = ({
           validationSchema={SetZoneSchema}
         >
           <SetZoneFormFields
+            racks={racks}
+            selectedZone={selectedZone}
             setSelectedRack={setSelectedRack}
             setSelectedZone={setSelectedZone}
             zones={zones}
-            racks={racks}
-            selectedZone={selectedZone}
           />
         </FormikForm>
       )}

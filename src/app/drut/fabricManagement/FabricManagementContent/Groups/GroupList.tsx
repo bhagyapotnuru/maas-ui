@@ -10,14 +10,13 @@ import {
   Select,
   Spinner,
 } from "@canonical/react-components";
+import TableActions from "app/base/components/TableActions";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import { fetchData } from "../../../config";
 
 import type { Group } from "./type";
 import { DEFAULT_GROUP_NAMES } from "./type";
-
-import TableActions from "app/base/components/TableActions";
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
   setRenderUpdateGroupForm: (group: Group) => void;
@@ -110,7 +109,7 @@ const GroupList = ({
       return () => {
         abortController.abort();
       };
-    } else return
+    } else return;
   }, [fetchGroups]);
 
   useEffect(() => {
@@ -158,10 +157,10 @@ const GroupList = ({
               key: `FullyQualifiedGroupName_${index}_${Math.random()}`,
               content: (
                 <CustomizedTooltip
-                  key={`FullyQualifiedGroupName_tooltip_${index}`}
-                  title={group?.fqgn}
                   className="drut-col-name-left-sn-ellipsis"
+                  key={`FullyQualifiedGroupName_tooltip_${index}`}
                   placement={"bottom-start"}
+                  title={group?.fqgn}
                 >
                   <span>{group?.fqgn}</span>
                 </CustomizedTooltip>
@@ -174,10 +173,10 @@ const GroupList = ({
               key: `GroupName_${index}_${Math.random()}`,
               content: (
                 <CustomizedTooltip
-                  key={`FullyQualifiedGroupName_tooltip_${index}`}
-                  title={group?.name}
                   className="drut-col-name-left-sn-ellipsis"
+                  key={`FullyQualifiedGroupName_tooltip_${index}`}
                   placement={"bottom-start"}
+                  title={group?.name}
                 >
                   <span>{group?.name}</span>
                 </CustomizedTooltip>
@@ -196,8 +195,8 @@ const GroupList = ({
               key: `Actions_${index}_${Math.random()}`,
               content: (
                 <Tooltip
-                  key={`disable_icon_tooltip_${index}`}
                   followMouse={true}
+                  key={`disable_icon_tooltip_${index}`}
                   message={getDeleteDisabledMessage(group)}
                 >
                   <TableActions
@@ -237,9 +236,9 @@ const GroupList = ({
     <Fragment>
       {error && error.length && (
         <Notification
+          inline
           key={`notification_${Math.random()}`}
           onDismiss={() => setError("")}
-          inline
           severity="negative"
         >
           {error}
@@ -247,13 +246,13 @@ const GroupList = ({
       )}
       {loading ? (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
-            text="Loading..."
             key={`groupListSpinner_${Math.random()}`}
+            text="Loading..."
           />
         </Notification>
       ) : (
@@ -284,14 +283,14 @@ const GroupList = ({
                 </Row>
                 <hr />
                 <MainTable
-                  key={`groupListTable_${Math.random()}`}
                   className="p-table--network-group p-table-expanding--light"
                   defaultSort="Name"
                   defaultSortDirection="ascending"
+                  emptyStateMsg="No group created yet or Group data not available."
                   headers={headers}
+                  key={`groupListTable_${Math.random()}`}
                   rows={generateRows(groupsData)}
                   sortable
-                  emptyStateMsg="No group created yet or Group data not available."
                 />
               </Fragment>
             </Col>

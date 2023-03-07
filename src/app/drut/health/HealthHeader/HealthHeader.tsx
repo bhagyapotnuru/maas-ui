@@ -1,8 +1,7 @@
 import { Button } from "@canonical/react-components";
 // import { createBrowserHistory } from "history";
-import { Link } from "react-router-dom";
-
 import SectionHeader from "app/base/components/SectionHeader";
+import { Link } from "react-router-dom";
 
 interface Props {
   onRefresh: any;
@@ -48,10 +47,10 @@ const HealthHeader = ({ onRefresh }: Props): JSX.Element => {
 
   return (
     <SectionHeader
-      key="healthHeades"
       buttons={getHeaderButtons()}
-      title="Fabric Manager"
+      key="healthHeades"
       subtitle={"Details of all Fabric Manager services."}
+      title="Fabric Manager"
     />
   );
 };

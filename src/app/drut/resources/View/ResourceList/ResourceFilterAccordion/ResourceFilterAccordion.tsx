@@ -1,8 +1,8 @@
 import { Spinner } from "@canonical/react-components";
+import discoverySelectors from "app/store/discovery/selectors";
 import { useSelector } from "react-redux";
 
 // import FilterAccordion from "app/base/components/FilterAccordion";
-import discoverySelectors from "app/store/discovery/selectors";
 // import {
 //   FilterDiscoveries,
 //   getDiscoveryValue,

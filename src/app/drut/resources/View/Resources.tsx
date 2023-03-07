@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+import Section from "app/base/components/Section";
+import { useWindowTitle } from "app/base/hooks/index";
+import NotFound from "app/base/views/NotFound";
 import { Route, Switch, useLocation } from "react-router-dom";
 
 import { rsTypeUI } from "../../types";
@@ -8,10 +11,6 @@ import resourceUrl from "./../url";
 import AddResource from "./AddResource";
 import ResourceList from "./ResourceList";
 import ResourceListHeader from "./ResourceList/ResourceListHeader";
-
-import Section from "app/base/components/Section";
-import { useWindowTitle } from "app/base/hooks/index";
-import NotFound from "app/base/views/NotFound";
 
 const Resources = (): JSX.Element => {
   const [selected, setSelected]: any[] = useState("All");
@@ -32,17 +31,17 @@ const Resources = (): JSX.Element => {
 
   return (
     <Section
-      key={location.key}
       className="u-no-padding--bottom"
       header={
         <ResourceListHeader
-          resourceType={rsTypeUI}
-          stats={stats}
+          currentTab="All"
           isDetails={isDetails}
           onclickTab={onclickTab}
-          currentTab="All"
+          resourceType={rsTypeUI}
+          stats={stats}
         />
       }
+      key={location.key}
     >
       <Switch>
         <Route exact path={resourceUrl.resources.index}>

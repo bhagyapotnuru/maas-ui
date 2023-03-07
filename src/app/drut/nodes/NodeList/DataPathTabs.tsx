@@ -4,12 +4,11 @@ import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import MuiTabs from "@mui/material/Tabs";
 import { styled, ThemeProvider } from "@mui/material/styles";
+import customDrutTheme from "app/utils/Themes/Themes";
 
 import DataPathOrderDetails from "./DataPathOrderDetails";
 import DataPaths from "./DataPaths";
 import classess from "./NodeList.module.css";
-
-import customDrutTheme from "app/utils/Themes/Themes";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -29,14 +28,14 @@ const TabPanel = (props: TabPanelProps) => {
 
   return (
     <div
-      role="tabpanel"
+      aria-labelledby={`datapath-tab-${index}`}
       hidden={value !== index}
       id={`datapath-tabpanel-${index}`}
-      aria-labelledby={`datapath-tab-${index}`}
+      role="tabpanel"
       {...other}
     >
       {value === index && (
-        <Box sx={{ p: 3 }} className={classess.datapath_tab_panel}>
+        <Box className={classess.datapath_tab_panel} sx={{ p: 3 }}>
           {children}
         </Box>
       )}
@@ -67,7 +66,7 @@ export default function DataPathTabs(props: Props): JSX.Element {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    console.log(event)
+    console.log(event);
     setValue(newValue);
     console.log(newValue);
     props.isDataPathOrdersTab(newValue === 1);
@@ -78,24 +77,24 @@ export default function DataPathTabs(props: Props): JSX.Element {
       <Box sx={{ width: "100%" }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider", display: "flex" }}>
           <Tabs
-            sx={{ width: "100%" }}
-            value={value}
-            onChange={handleChange}
             aria-label="data path tabs"
+            onChange={handleChange}
+            sx={{ width: "100%" }}
             textColor="inherit"
+            value={value}
           >
             <Tab label="Data Path List" {...a11yProps(0)} />
             <Tab label="Data Path Orders" {...a11yProps(1)} />
           </Tabs>
         </Box>
-        <TabPanel value={value} index={0}>
+        <TabPanel index={0} value={value}>
           <DataPaths
-            nodeId={props.nodeId}
             isRefreshAction={props.isRefreshAction}
             isRefreshInProgress={props.isRefreshInProgress}
+            nodeId={props.nodeId}
           />
         </TabPanel>
-        <TabPanel value={value} index={1}>
+        <TabPanel index={1} value={value}>
           <DataPathOrderDetails nodeId={props.nodeId} />
         </TabPanel>
       </Box>

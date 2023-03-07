@@ -1,6 +1,6 @@
-import type { MonitorConfiguration } from "./Types/MonitorConfiguration";
-
 import { argPath } from "app/utils/argPath";
+
+import type { MonitorConfiguration } from "./Types/MonitorConfiguration";
 
 const urls = {
   monitorDashboard: {

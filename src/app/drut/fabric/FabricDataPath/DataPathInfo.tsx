@@ -21,11 +21,10 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { styled, ThemeProvider } from "@mui/material/styles";
-
-import classess from "./FabricDataPath.module.css";
-
 import { fetchData } from "app/drut/config";
 import customDrutTheme from "app/utils/Themes/Themes";
+
+import classess from "./FabricDataPath.module.css";
 
 interface Props {
   data: any;
@@ -103,7 +102,7 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
   }, []);
 
   const handleParentChange = (panel: any) => (event: any, newExpanded: any) => {
-    console.log(event)
+    console.log(event);
     setParentExpanded((prev: any) =>
       newExpanded
         ? [...prev, panel]
@@ -159,8 +158,8 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
         onChange={handleParentChange(connectedRB?.TargetResourceBlock?.Id)}
       >
         <AccordionSummary
-          className={isList ? classess.list_view : ""}
           aria-controls={`_${pIndex}_content`}
+          className={isList ? classess.list_view : ""}
           id={`_${pIndex}_header`}
         >
           <Typography>{`${connectedRB?.InitiatorResourceBlock?.Name} > ${connectedRB?.TargetResourceBlock?.Name}`}</Typography>
@@ -168,18 +167,18 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
         <AccordionDetails>
           <TableContainer component={Paper}>
             <Table
-              sx={{ minWidth: 650, margin: 0 }}
-              size="small"
               aria-label="simple table"
+              size="small"
+              sx={{ minWidth: 650, margin: 0 }}
             >
               <TableHead className={isList ? classess.list_view : ""}>
                 <TableRow>
-                  <TableCell className={classess.status_col} align="center">
+                  <TableCell align="center" className={classess.status_col}>
                     Health
                   </TableCell>
                   <TableCell
-                    className={classess.datapath_id_col}
                     align="center"
+                    className={classess.datapath_id_col}
                   >
                     Data Path ID
                   </TableCell>
@@ -219,23 +218,23 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
                             }`}
                           >
                             <TableCell
-                              className={`${classess.status_col} ${classess.border_right}`}
                               align="center"
+                              className={`${classess.status_col} ${classess.border_right}`}
                               key={`drut-dp-${c1Index}_${Math.random()}`}
                             >
                               <Tooltip
-                                key={`tp_${Math.random()}`}
                                 className="doughnut-chart__tooltip"
                                 followMouse={true}
+                                key={`tp_${Math.random()}`}
                                 message={`Health Status: ${cRbDpEP?.PathToRemoteEndpoint?.Status?.Health}`}
                                 position="btm-center"
                               >
                                 <i
-                                  style={{ height: "1.8rem", width: "1.8rem" }}
                                   className={getStatusIcon(
                                     cRbDpEP?.PathToRemoteEndpoint?.Status
                                       ?.Health
                                   )}
+                                  style={{ height: "1.8rem", width: "1.8rem" }}
                                 ></i>
                               </Tooltip>
                             </TableCell>
@@ -475,20 +474,20 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
         }}
       >
         <div
+          aria-describedby="modal-description"
+          aria-labelledby="modal-title"
+          aria-modal="true"
           className=""
           role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-title"
-          aria-describedby="modal-description"
         >
           <header className="p-modal__header">
             <h2 className="p-modal__title" id="modal-title">
               {"Power Information"}
             </h2>
             <Button
-              className="p-modal__close"
-              aria-label="Close active modal"
               aria-controls="modal"
+              aria-label="Close active modal"
+              className="p-modal__close"
               onClick={() => {
                 setModalState(!modalState);
               }}

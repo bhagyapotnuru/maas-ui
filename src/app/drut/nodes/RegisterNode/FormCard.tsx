@@ -1,9 +1,8 @@
 import type { ReactNode } from "react";
 
 import { Card, Col, Row } from "@canonical/react-components";
-import PropTypes from "prop-types";
-
 import { COL_SIZES } from "app/base/constants";
+import PropTypes from "prop-types";
 
 type Props = {
   children: ReactNode;
@@ -53,7 +52,7 @@ export const FormCard = ({
     </Row>
   );
   return (
-    <Card highlighted={true} className="form-card">
+    <Card className="form-card" highlighted={true}>
       {content}
     </Card>
   );

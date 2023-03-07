@@ -28,7 +28,7 @@ export const DeleteManagerForm = ({
   };
 
   const deleteManager = (manager: any) => {
-    console.log(manager)
+    console.log(manager);
     setLoading(true);
     // deleteData(`dfab/managers/${manager?.id}/`)
     //   .then(
@@ -58,13 +58,13 @@ export const DeleteManagerForm = ({
     <>
       {loading ? (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
-            text="Deleting Manager..."
             key={`deleteManagerSpinner_${Math.random()}`}
+            text="Deleting Manager..."
           />
         </Notification>
       ) : (

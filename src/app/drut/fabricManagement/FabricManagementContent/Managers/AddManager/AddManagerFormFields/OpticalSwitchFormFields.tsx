@@ -1,12 +1,10 @@
-import { Col, Row } from "@canonical/react-components";
-import { Select } from "@canonical/react-components";
+import { Col, Row, Select } from "@canonical/react-components";
+import FormikField from "app/base/components/FormikField";
+import type { AnyObject } from "app/base/types";
 import { useFormikContext } from "formik";
 
 import { OPTICAL_SWITCH_PROTOCOLS, VENDORS } from "../constants";
 import type { Manager } from "../type";
-
-import FormikField from "app/base/components/FormikField";
-import type { AnyObject } from "app/base/types";
 
 type Props = {
   managerToUpdate?: Manager;
@@ -25,10 +23,13 @@ export const OpticalSwitchFormFields = <V extends AnyObject>({
             <Col size={3}>
               <FormikField
                 component={Select}
-                label="Vendor"
                 disabled={!!managerToUpdate}
-                style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
+                label="Vendor"
                 name="manufacturer"
+                onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
+                  handleChange(evt);
+                  setFieldValue("manufacturer", evt.target.value);
+                }}
                 options={[
                   {
                     label: "Select Vendor",
@@ -41,31 +42,31 @@ export const OpticalSwitchFormFields = <V extends AnyObject>({
                     value: vendor,
                   })),
                 ]}
-                onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
-                  handleChange(evt);
-                  setFieldValue("manufacturer", evt.target.value);
-                }}
                 required
+                style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
               />
             </Col>
             <Col size={3}>
               <FormikField
-                label="IP Address"
                 disabled={!!managerToUpdate}
-                style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
+                label="IP Address"
                 name="ip_address"
-                required={true}
                 placeholder="IP Address"
+                required={true}
+                style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
                 type="text"
               />
             </Col>
             <Col size={2}>
               <FormikField
                 component={Select}
+                disabled={!!managerToUpdate}
                 label="Protocol"
                 name="protocol"
-                disabled={!!managerToUpdate}
-                style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
+                onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
+                  handleChange(evt);
+                  setFieldValue("protocol", evt.target.value);
+                }}
                 options={[
                   {
                     label: "Select Protocol",
@@ -78,21 +79,18 @@ export const OpticalSwitchFormFields = <V extends AnyObject>({
                     value: protocol,
                   })),
                 ]}
-                onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
-                  handleChange(evt);
-                  setFieldValue("protocol", evt.target.value);
-                }}
                 required
+                style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
               />
             </Col>
             <Col size={2}>
               <FormikField
                 disabled={!!managerToUpdate}
-                style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
-                name="port"
-                required={true}
-                placeholder={`${values.protocol} Port`}
                 label={`${values.protocol} Port`}
+                name="port"
+                placeholder={`${values.protocol} Port`}
+                required={true}
+                style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
                 type="text"
               />
             </Col>

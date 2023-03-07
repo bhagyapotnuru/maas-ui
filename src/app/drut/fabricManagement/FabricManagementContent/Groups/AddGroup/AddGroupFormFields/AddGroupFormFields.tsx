@@ -1,11 +1,9 @@
-import { Col, Row } from "@canonical/react-components";
-import { Select } from "@canonical/react-components";
+import { Col, Row, Select } from "@canonical/react-components";
+import FormikField from "app/base/components/FormikField";
+import type { AnyObject } from "app/base/types";
 import { useFormikContext } from "formik";
 
 import type { Group } from "../../type";
-
-import FormikField from "app/base/components/FormikField";
-import type { AnyObject } from "app/base/types";
 
 export const AddGroupFormFields = <V extends AnyObject>({
   parentGroups = [],
@@ -25,6 +23,14 @@ export const AddGroupFormFields = <V extends AnyObject>({
             component={Select}
             label="Parent group"
             name="parentGroupName"
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
+              handleChange(event);
+              const parentGroup = parentGroups.find(
+                (parentGroup) => parentGroup.name === event.target.value
+              );
+              setFieldValue("parentGroupName", event.target.value);
+              setFieldValue("fqgn", `${parentGroup?.fqgn}.${values.name}`);
+            }}
             options={[
               { label: "Select Group", value: "", disabled: true },
               ...parentGroups
@@ -38,14 +44,6 @@ export const AddGroupFormFields = <V extends AnyObject>({
                   value: parentGroup.name,
                 })),
             ]}
-            onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange(event);
-              const parentGroup = parentGroups.find(
-                (parentGroup) => parentGroup.name === event.target.value
-              );
-              setFieldValue("parentGroupName", event.target.value);
-              setFieldValue("fqgn", `${parentGroup?.fqgn}.${values.name}`);
-            }}
             required
           />
         </Col>
@@ -53,7 +51,6 @@ export const AddGroupFormFields = <V extends AnyObject>({
           <FormikField
             label="Group name"
             name="name"
-            required={true}
             onChange={(event: any) => {
               const parentGroup = parentGroups.find(
                 (parentGroup) => parentGroup.name === values.parentGroupName
@@ -65,6 +62,7 @@ export const AddGroupFormFields = <V extends AnyObject>({
               );
             }}
             placeholder="Enter valid group name"
+            required={true}
             type="text"
           />
         </Col>
@@ -75,6 +73,10 @@ export const AddGroupFormFields = <V extends AnyObject>({
             component={Select}
             label="Group Type"
             name="type"
+            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
+              handleChange(evt);
+              setFieldValue("type", evt.target.value);
+            }}
             options={[
               { label: "Select Group Type", value: "", disabled: true },
               ...groupTypes.map((groupType) => ({
@@ -83,10 +85,6 @@ export const AddGroupFormFields = <V extends AnyObject>({
                 value: groupType,
               })),
             ]}
-            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange(evt);
-              setFieldValue("type", evt.target.value);
-            }}
             required
           />
         </Col>
@@ -95,6 +93,10 @@ export const AddGroupFormFields = <V extends AnyObject>({
             component={Select}
             label="Group Category"
             name="category"
+            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
+              handleChange(evt);
+              setFieldValue("category", evt.target.value);
+            }}
             options={[
               { label: "Select Category", value: "", disabled: true },
               ...groupCategories.map((groupCategory) => ({
@@ -106,10 +108,6 @@ export const AddGroupFormFields = <V extends AnyObject>({
                   groupCategory === "Rack",
               })),
             ]}
-            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange(evt);
-              setFieldValue("category", evt.target.value);
-            }}
             required
           />
         </Col>

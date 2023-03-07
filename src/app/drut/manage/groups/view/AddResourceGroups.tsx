@@ -192,9 +192,9 @@ const AddResourceGroups = (): JSX.Element => {
         <Col size={5}>
           <label>Group Name</label>
           <Input
+            onChange={(e: any) => setStateValues("n", e.target.value)}
             type="text"
             value={name}
-            onChange={(e: any) => setStateValues("n", e.target.value)}
           />
         </Col>
         <Col size={7}>
@@ -212,15 +212,15 @@ const AddResourceGroups = (): JSX.Element => {
         </Col>
         <Col size={12}>
           <label>Fully qualified group name</label>
-          <Input type="text" disabled={true} value={getQName(name, pqname)} />
+          <Input disabled={true} type="text" value={getQName(name, pqname)} />
         </Col>
         <Col size={12}>
           <Button
-            hasIcon
             appearance="base"
             className="p-button--positive u-no-margin--right u-no-margin--bottom"
-            onClick={() => createGroup()}
             disabled={name === ""}
+            hasIcon
+            onClick={() => createGroup()}
           >
             Save
           </Button>
@@ -236,11 +236,11 @@ const AddResourceGroups = (): JSX.Element => {
               <Spinner text="loading ..." />
             ) : (
               <MainTable
-                headers={gp_header}
                 className={"event-logs-table"}
+                emptyStateMsg="Data not available."
+                headers={gp_header}
                 rows={getGPIformation(groupdata)}
                 sortable
-                emptyStateMsg="Data not available."
               />
             )}
           </div>

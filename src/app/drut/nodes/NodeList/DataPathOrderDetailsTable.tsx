@@ -30,7 +30,7 @@ const DataPathOrderDetailsTable = (props: Props): JSX.Element => {
       return "p-icon--error";
     } else if (orderStatus === "PENDING") {
       return "p-icon--status-waiting";
-    } else return
+    } else return;
   };
 
   const TableCell = styled(MuiTableCell)(() => ({
@@ -41,7 +41,7 @@ const DataPathOrderDetailsTable = (props: Props): JSX.Element => {
 
   return (
     <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} size="small" aria-label="simple table">
+      <Table aria-label="simple table" size="small" sx={{ minWidth: 650 }}>
         <TableHead>
           <TableRow>
             {dataPathOrderTableColumns.map((cell) => {

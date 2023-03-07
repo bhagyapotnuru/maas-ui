@@ -77,13 +77,13 @@ const HealthView = ({ rf }: Props): JSX.Element => {
               content: (
                 <span>
                   <Link
+                    color="default"
                     key="nodeNameLink"
-                    title={elm?.Labels?.App}
                     onClick={(e: any) => {
                       e.preventDefault();
                       handleClick(index);
                     }}
-                    color="default"
+                    title={elm?.Labels?.App}
                   >
                     {elm?.Labels?.App || "NA"}
                   </Link>
@@ -234,7 +234,7 @@ const HealthView = ({ rf }: Props): JSX.Element => {
   return (
     <>
       {error.length ? (
-        <Notification onDismiss={() => setError("")} inline severity="negative">
+        <Notification inline onDismiss={() => setError("")} severity="negative">
           {error}
         </Notification>
       ) : (
@@ -245,15 +245,15 @@ const HealthView = ({ rf }: Props): JSX.Element => {
           {loading ? <Spinner text="Loading..." /> : ""}
 
           <MainTable
-            key="resourceTableTable"
-            expanding
             defaultSort="App"
             defaultSortDirection="ascending"
-            responsive={false}
+            emptyStateMsg="Resource data not available."
+            expanding
             headers={headers}
+            key="resourceTableTable"
+            responsive={false}
             rows={renderRSTable(hd)}
             sortable
-            emptyStateMsg="Resource data not available."
           />
         </Col>
       </Row>

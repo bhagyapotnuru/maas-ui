@@ -1,15 +1,14 @@
 import { useState } from "react";
 
 import { Spinner, Notification } from "@canonical/react-components";
+import FormikForm from "app/base/components/FormikForm";
+import type { ClearHeaderContent } from "app/base/types";
 import * as Yup from "yup";
 
 import { postData } from "../../../../../config";
 import type { Group } from "../../type";
 import AddGroupFormFields from "../AddGroupFormFields";
 import type { AddGroupValues } from "../type";
-
-import FormikForm from "app/base/components/FormikForm";
-import type { ClearHeaderContent } from "app/base/types";
 
 type Props = {
   clearHeaderContent: ClearHeaderContent;
@@ -73,15 +72,15 @@ export const AddGroupForm = ({
     <>
       {loading ? (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
+            key={`Add_groups_spinner_${Math.random()}`}
             text={`${
               groupToUpdate?.id ? "Updating Group..." : "Adding Group..."
             }`}
-            key={`Add_groups_spinner_${Math.random()}`}
           />
         </Notification>
       ) : (

@@ -1,9 +1,6 @@
 import { useEffect } from "react";
 
 import { Input, Select, Spinner } from "@canonical/react-components";
-import { useFormikContext } from "formik";
-import { useDispatch, useSelector } from "react-redux";
-
 import FormikField from "app/base/components/FormikField";
 import type { AnyObject } from "app/base/types";
 import { actions as generalActions } from "app/store/general";
@@ -11,6 +8,8 @@ import { PowerTypeNames } from "app/store/general/constants";
 import { powerTypes as powerTypesSelectors } from "app/store/general/selectors";
 import type { PowerType } from "app/store/general/types";
 import { PowerFieldScope } from "app/store/general/types";
+import { useFormikContext } from "formik";
+import { useDispatch, useSelector } from "react-redux";
 
 type Props = {
   disableFields?: boolean;
@@ -111,14 +110,6 @@ export const PowerTypeFields = <V extends AnyObject>({
           disabled={disableSelect}
           label="Power type"
           name={powerTypeValueName}
-          options={[
-            { label: "Select power type", value: "", disabled: false },
-            ...powerTypes.map((powerType) => ({
-              key: `power-type-${powerType.name}`,
-              label: powerType.description,
-              value: powerType.name,
-            })),
-          ]}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
             // Reset errors and touched formik state when selecting a new power
             // type, in order to start validation from new.
@@ -142,6 +133,14 @@ export const PowerTypeFields = <V extends AnyObject>({
               });
             }
           }}
+          options={[
+            { label: "Select power type", value: "", disabled: false },
+            ...powerTypes.map((powerType) => ({
+              key: `power-type-${powerType.name}`,
+              label: powerType.description,
+              value: powerType.name,
+            })),
+          ]}
           required
         />
       )}

@@ -1,6 +1,10 @@
 import { useState, useEffect } from "react";
 
 import { Button, ContextualMenu } from "@canonical/react-components";
+import Section from "app/base/components/Section";
+import SectionHeader from "app/base/components/SectionHeader";
+import NotFound from "app/base/views/NotFound";
+import { fetchData } from "app/drut/config";
 import { Route, Switch, Link } from "react-router-dom";
 
 import managersUrl from "../../url";
@@ -9,11 +13,6 @@ import type { Manager } from "../Managers/type";
 
 import SetZoneForm from "./SetZone/SetZoneForm";
 import UnassignedManagersContent from "./UnassignedManagersContent";
-
-import Section from "app/base/components/Section";
-import SectionHeader from "app/base/components/SectionHeader";
-import NotFound from "app/base/views/NotFound";
-import { fetchData } from "app/drut/config";
 
 const UnassignedManagers = (): JSX.Element => {
   const [zones, setZones] = useState<Zone[]>([]);
@@ -61,18 +60,18 @@ const UnassignedManagers = (): JSX.Element => {
   if (renderSetZoneForm) {
     headerContent = (
       <SetZoneForm
-        zones={zones}
         clearHeaderContent={() => setRenderSetZoneForm(false)}
+        managerToMove={managers.filter((manager: Manager) => manager.checked)}
         setError={setError}
         setFetchManagers={setFetchManagers}
-        managerToMove={managers.filter((manager: Manager) => manager.checked)}
+        zones={zones}
       />
     );
     headerTitle = "Set Zone";
   }
 
   const getZones = async () => {
-    console.log(headerContent)
+    console.log(headerContent);
     try {
       const promise = await fetchData(
         "dfab/nodegroups/?op=get_zones",
@@ -97,16 +96,16 @@ const UnassignedManagers = (): JSX.Element => {
   return (
     <>
       <Section
-        key="unassignedManagersHeader"
         className="u-no-padding--bottom"
         header={
           <SectionHeader
-            key="UnassignedManagersHeader"
             buttons={buttonContent}
+            key="UnassignedManagersHeader"
             // headerContent={headerContent}
             title={headerTitle}
           />
         }
+        key="unassignedManagersHeader"
       >
         <Switch>
           <Route
@@ -115,9 +114,9 @@ const UnassignedManagers = (): JSX.Element => {
           >
             <UnassignedManagersContent
               error={error}
-              setFetchManagers={setFetchManagers}
               fetchManagers={fetchManagers}
               setError={setError}
+              setFetchManagers={setFetchManagers}
               setManagers={setManagers}
             />
           </Route>

@@ -20,15 +20,14 @@ import {
   TextField,
 } from "@mui/material";
 import { ThemeProvider } from "@mui/material/styles";
-
-import classess from "../../fabricManagement.module.css";
-import { MANAGER_TYPES } from "../Managers/AddManager/constants";
-import type { Manager } from "../Managers/type";
-
 import DebounceSearchBox from "app/base/components/DebounceSearchBox";
 import { fetchData } from "app/drut/config";
 import customDrutTheme from "app/utils/Themes/Themes";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
+
+import classess from "../../fabricManagement.module.css";
+import { MANAGER_TYPES } from "../Managers/AddManager/constants";
+import type { Manager } from "../Managers/type";
 
 type Props = {
   error: string;
@@ -127,13 +126,13 @@ const UnassignedManagersContent = ({
                   <TableRow className={classess.tableHeader}>
                     <TableCell padding="checkbox">
                       <Checkbox
+                        checked={isFullyChecked}
                         color="primary"
                         indeterminate={isIndeterminate && !isFullyChecked}
-                        checked={isFullyChecked}
-                        onChange={onParentCheckBoxChange}
                         inputProps={{
                           "aria-label": "select all managers",
                         }}
+                        onChange={onParentCheckBoxChange}
                       />
                     </TableCell>
                     <TableCell align="left" sx={{ width: 150 }}>
@@ -165,72 +164,73 @@ const UnassignedManagersContent = ({
                       const labelId = `enhanced-table-checkbox-${index}`;
                       return (
                         <TableRow
-                          hover
-                          role="checkbox"
                           aria-checked={manager.checked}
-                          tabIndex={-1}
+                          hover
                           key={manager.id}
+                          role="checkbox"
                           selected={manager.checked}
+                          tabIndex={-1}
                         >
                           <TableCell padding="checkbox">
                             <Checkbox
-                              color="primary"
                               checked={manager.checked}
+                              color="primary"
                               onChange={(_, checked: boolean) => {
                                 manager.checked = checked;
                                 onChildCheckBoxChange(checked, manager);
                               }}
                             />
                           </TableCell>
-                          <TableCell id={labelId} scope="row" align="left">
+                          <TableCell align="left" id={labelId} scope="row">
                             <TextField
                               className={classess.manager_name_input}
-                              required
+                              defaultValue={manager.name}
                               id="manager-name-input-text"
-                              variant="standard"
+                              label=""
                               onChange={(
                                 e: React.ChangeEvent<HTMLInputElement>
                               ) => {
                                 manager.name = e.target.value;
                               }}
-                              label=""
-                              defaultValue={manager.name}
                               placeholder="Manager Name"
+                              required
+                              variant="standard"
                             />
                           </TableCell>
-                          <TableCell id={labelId} scope="row" align="left">
+                          <TableCell align="left" id={labelId} scope="row">
                             {manager.manager_type}
                           </TableCell>
-                          <TableCell id={labelId} align="left" scope="row">
+                          <TableCell align="left" id={labelId} scope="row">
                             {
                               <CustomizedTooltip
-                                key={`FullyQualifiedGroupName_tooltip_${index}`}
-                                title={manager?.rack_fqgn}
                                 className="drut-col-name-left-sn-ellipsis"
+                                key={`FullyQualifiedGroupName_tooltip_${index}`}
                                 placement={"bottom-start"}
+                                title={manager?.rack_fqgn}
                               >
                                 <span>{manager?.rack_fqgn || "-"}</span>
                               </CustomizedTooltip>
                             }
                           </TableCell>
-                          <TableCell id={labelId} align="left" scope="row">
+                          <TableCell align="left" id={labelId} scope="row">
                             {manager.manufacturer || "-"}
                           </TableCell>
-                          <TableCell id={labelId} align="left" scope="row">
+                          <TableCell align="left" id={labelId} scope="row">
                             {manager.protocol || "-"}
                           </TableCell>
-                          <TableCell id={labelId} align="left" scope="row">
+                          <TableCell align="left" id={labelId} scope="row">
                             {
                               <CustomizedTooltip
-                                title={manager?.remote_redfish_uri}
                                 className="drut-col-name-left-sn-ellipsis"
                                 key={`IP_Address_tooltip_${index}`}
                                 placement={"bottom-start"}
+                                title={manager?.remote_redfish_uri}
                               >
                                 <span>
                                   <a
-                                    target="_blank"
                                     href={manager?.remote_redfish_uri}
+                                    rel="noreferrer"
+                                    target="_blank"
                                   >
                                     {manager?.ip_address || "-"}
                                   </a>
@@ -238,7 +238,7 @@ const UnassignedManagersContent = ({
                               </CustomizedTooltip>
                             }
                           </TableCell>
-                          <TableCell id={labelId} align="left" scope="row">
+                          <TableCell align="left" id={labelId} scope="row">
                             {manager.port_count || 0}
                           </TableCell>
                         </TableRow>
@@ -322,9 +322,9 @@ const UnassignedManagersContent = ({
     <>
       {error && error.length && (
         <Notification
+          inline
           key={`notification_${Math.random()}`}
           onDismiss={() => setError("")}
-          inline
           severity="negative"
         >
           {error}
@@ -332,13 +332,13 @@ const UnassignedManagersContent = ({
       )}
       {loading ? (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
-            text="Loading..."
             key={`managerListSpinner_${Math.random()}`}
+            text="Loading..."
           />
         </Notification>
       ) : (

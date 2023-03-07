@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 
 import { Notification } from "@canonical/react-components";
+import { fetchData, postData } from "app/drut/config";
+import AttachDetachFabricElement from "app/drut/fabric/AttachDetachFabric";
 import { useParams } from "react-router-dom";
 
 import DataPathTabs from "./DataPathTabs";
 import NodeEventLog from "./NodeEventsLog";
 import NodeSummary from "./NodeSummary";
-
-import { fetchData, postData } from "app/drut/config";
-import AttachDetachFabricElement from "app/drut/fabric/AttachDetachFabric";
 
 type Props = {
   tabId: string;
@@ -82,9 +81,9 @@ const NodeInfo = (props: Props): JSX.Element => {
     <>
       {error && error.length && (
         <Notification
+          inline
           key={`notification_${Math.random()}`}
           onDismiss={() => setError("")}
-          inline
           severity="negative"
         >
           {error}
@@ -93,30 +92,30 @@ const NodeInfo = (props: Props): JSX.Element => {
 
       {props.tabId === "sum" && (
         <NodeSummary
-          isRefreshInProgress={isRefreshInProgress}
           isLoadingInProgress={isLoading}
-          onNodeDetail={props.onNodeDetail}
-          selectedNode={selectedNode}
+          isRefreshInProgress={isRefreshInProgress}
           notFoundError={notFoundError}
           onDismissError={() => setError("")}
+          onNodeDetail={props.onNodeDetail}
+          selectedNode={selectedNode}
         />
       )}
       {props.tabId === "dp" && (
         <AttachDetachFabricElement
-          isRefreshInProgress={isRefreshInProgress}
-          isRefreshAction={props.refresh}
-          nodeId={parms.id}
           isMachinesPage={false}
+          isRefreshAction={props.refresh}
+          isRefreshInProgress={isRefreshInProgress}
+          nodeId={parms.id}
         />
       )}
       {props.tabId === "dpo" && (
         <DataPathTabs
-          isRefreshInProgress={isRefreshInProgress}
-          isRefreshAction={props.refresh}
-          nodeId={parms.id}
           isDataPathOrdersTab={(value: boolean) =>
             props.isDataPathOrdersTab(value)
           }
+          isRefreshAction={props.refresh}
+          isRefreshInProgress={isRefreshInProgress}
+          nodeId={parms.id}
         />
       )}
       {props.tabId === "log" && <NodeEventLog nodeId={parms.id} />}

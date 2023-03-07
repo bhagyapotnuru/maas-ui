@@ -9,6 +9,11 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { ThemeProvider } from "@mui/material/styles";
+import Meter from "app/base/components/Meter";
+import { COLOURS } from "app/base/constants";
+import { fetchData } from "app/drut/config";
+import customDrutTheme from "app/utils/Themes/Themes";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import WidgetHeader from "../MonitorWidgetHeader/MonitorWidgetHeader";
 import type {
@@ -18,12 +23,6 @@ import type {
 import classess from "../monitor.module.css";
 
 import { CEPH_STATUS_FILTERS } from "./constants";
-
-import Meter from "app/base/components/Meter";
-import { COLOURS } from "app/base/constants";
-import { fetchData } from "app/drut/config";
-import customDrutTheme from "app/utils/Themes/Themes";
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
   resizedWidget: MonitorConfiguration | undefined;
@@ -107,18 +106,18 @@ const StatusFilterChips = ({
   appendQueryParamsToIframeUrl: (selectedChip: string) => void;
 }) => {
   return (
-    <Stack direction="row" spacing={1} className={classess.ceph_chip_stack}>
+    <Stack className={classess.ceph_chip_stack} direction="row" spacing={1}>
       {["All", ...CEPH_STATUS_FILTERS].map((label: string) => (
         <Chip
-          size="small"
-          label={label}
           color="primary"
-          variant={selectedChip === label ? "filled" : "outlined"}
           key={label}
+          label={label}
           onClick={(event: any) => {
             setChipFilter(event?.target?.innerText);
             appendQueryParamsToIframeUrl(event?.target?.innerText);
           }}
+          size="small"
+          variant={selectedChip === label ? "filled" : "outlined"}
         />
       ))}
     </Stack>
@@ -136,10 +135,11 @@ const Iframe = ({
   url: string;
   refreshedKey: string;
 }): JSX.Element => {
-  console.log(refreshedKey)
+  console.log(refreshedKey);
   return (
     <div className={classess.widget_iframe} style={{ overflow: "hidden" }}>
       <iframe
+        src={url}
         style={{
           position: "relative",
           height: "100%",
@@ -147,7 +147,6 @@ const Iframe = ({
           width: "100%",
           overflow: "hidden",
         }}
-        src={url}
         // key={refreshedKey}
       />
     </div>
@@ -167,22 +166,21 @@ const ApplicationSelect = ({
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
   return (
     <Autocomplete
+      className={classess.ceph_autocomplete}
+      disableCloseOnSelect
+      getOptionLabel={(value: MonitorAppTypes) => value.appname}
       id="checkboxes-apps"
       multiple
-      disableCloseOnSelect
+      onBlur={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        appendQueryParamsToIframeUrl("");
+      }}
+      onChange={(key, value: MonitorAppTypes[]) => {
+        setApplications(value);
+        console.log(key);
+      }}
       options={applications}
-      getOptionLabel={(value: MonitorAppTypes) => value.appname}
-      renderOption={(props, option, { selected }) => (
-        <li {...props}>
-          <Checkbox
-            icon={icon}
-            checkedIcon={checkedIcon}
-            style={{ marginRight: 8 }}
-            checked={option.checked || selected}
-          />
-          {option?.appname}
-        </li>
-      )}
       renderInput={(params) => (
         <TextField
           className={classess.autocomplete_text_field}
@@ -191,27 +189,28 @@ const ApplicationSelect = ({
           variant="standard"
         />
       )}
+      renderOption={(props, option, { selected }) => (
+        <li {...props}>
+          <Checkbox
+            checked={option.checked || selected}
+            checkedIcon={checkedIcon}
+            icon={icon}
+            style={{ marginRight: 8 }}
+          />
+          {option?.appname}
+        </li>
+      )}
       renderTags={(list: MonitorAppTypes[]) => {
         const checkedApps: string = list.map((item) => item.appname).join(", ");
         return (
           <CustomizedTooltip
-            title={checkedApps}
             className={classess.ceph_autocomplete_text}
+            title={checkedApps}
           >
             <span>{checkedApps}</span>
           </CustomizedTooltip>
         );
       }}
-      onChange={(key, value: MonitorAppTypes[]) => {
-        setApplications(value);
-        console.log(key)
-      }}
-      onBlur={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        appendQueryParamsToIframeUrl("");
-      }}
-      className={classess.ceph_autocomplete}
     />
   );
 };
@@ -274,33 +273,33 @@ const ShellInABoxWidget = ({
       <ThemeProvider theme={customDrutTheme}>
         <WidgetHeader
           configData={configData}
-          onRemoveWidget={onRemoveWidget}
-          onPinWidgetHandler={onPinWidgetHandler}
           onMinimizeWidget={onMinimizeWidget}
+          onPinWidgetHandler={onPinWidgetHandler}
+          onRemoveWidget={onRemoveWidget}
         />
         <MachineDetails machineData={machineData} />
         <div>
           <div className={classess.ceph_actions_header}>
             <div className={classess.ceph_filters}>
               <StatusFilterChips
-                setChipFilter={setChipFilter}
-                selectedChip={selectedChip}
                 appendQueryParamsToIframeUrl={appendQueryParamsToIframeUrl}
+                selectedChip={selectedChip}
+                setChipFilter={setChipFilter}
               />
               <Divider style={{ height: "30px" }} />
               <ApplicationSelect
+                appendQueryParamsToIframeUrl={appendQueryParamsToIframeUrl}
                 applications={configData.apps || []}
                 setApplications={setApplications}
-                appendQueryParamsToIframeUrl={appendQueryParamsToIframeUrl}
               />
             </div>
             <div className={classess.ceph_redirect}>
-              <a target="_blank" href={iframeUrl}>
+              <a href={iframeUrl} rel="noreferrer" target="_blank">
                 <OpenInNewIcon />
               </a>
             </div>
           </div>
-          <Iframe url={iframeUrl} refreshedKey={refreshedKey} />
+          <Iframe refreshedKey={refreshedKey} url={iframeUrl} />
         </div>
       </ThemeProvider>
     </>

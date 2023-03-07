@@ -1,12 +1,11 @@
 import { useEffect, useState } from "react";
 
 import { Button, Tooltip, Icon } from "@canonical/react-components";
+import SectionHeader from "app/base/components/SectionHeader";
 import { createBrowserHistory } from "history";
 import { Link } from "react-router-dom";
 
 import classess from "../NodeList/NodeList.module.css";
-
-import SectionHeader from "app/base/components/SectionHeader";
 
 type Props = {
   node_data: any;
@@ -116,11 +115,8 @@ const NodeHeader = ({
   return (
     <>
       <SectionHeader
-        key="nodeHeades"
         buttons={getHeaderButtons(node)}
-        title={
-          isListView ? "Node List" : `Details of Node : ${node?.Name || ""}`
-        }
+        key="nodeHeades"
         subtitle={
           isListView ? (
             "Composed nodes"
@@ -138,6 +134,9 @@ const NodeHeader = ({
           )
         }
         tabLinks={isListView ? [] : tabs}
+        title={
+          isListView ? "Node List" : `Details of Node : ${node?.Name || ""}`
+        }
       />
     </>
   );

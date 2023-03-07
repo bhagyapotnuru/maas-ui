@@ -3,11 +3,10 @@ import CloseFullscreenIcon from "@mui/icons-material/CloseFullscreen";
 import PushPinIcon from "@mui/icons-material/PushPin";
 import PushPinOutlinedIcon from "@mui/icons-material/PushPinOutlined";
 import IconButton from "@mui/material/IconButton";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 import classess from "../monitor.module.css";
-
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
   configData: MonitorConfiguration;
@@ -26,17 +25,16 @@ const WidgetHeader = ({
   return (
     <div className="window-header" key={configData?.id}>
       <div className="logo-container">
-        <a target="_blank" href={configData.url}>
+        <a href={configData.url} rel="noreferrer" target="_blank">
           <span className="app-name">{configData?.header}&nbsp;›</span>
         </a>
       </div>
       <div className="actions-container">
         <CustomizedTooltip title={isPinned ? `Unpin` : `Pin`}>
           <IconButton
-            className={`${classess.monitor_pin_icon}`}
             aria-label="open_new"
+            className={`${classess.monitor_pin_icon}`}
             color="error"
-            type="button"
             disableRipple
             disableTouchRipple
             onClick={(e) => {
@@ -44,16 +42,16 @@ const WidgetHeader = ({
               e.stopPropagation();
               onPinWidgetHandler(+configData.id);
             }}
+            type="button"
           >
             {isPinned ? <PushPinIcon /> : <PushPinOutlinedIcon />}
           </IconButton>
         </CustomizedTooltip>
         <CustomizedTooltip title={`Minimize`}>
           <IconButton
-            className={`${classess.monitor_minimize_icon}`}
             aria-label="open_new"
+            className={`${classess.monitor_minimize_icon}`}
             color="primary"
-            type="button"
             disableRipple
             disableTouchRipple
             onClick={(e) => {
@@ -61,16 +59,16 @@ const WidgetHeader = ({
               e.stopPropagation();
               onMinimizeWidget(+configData.id);
             }}
+            type="button"
           >
             <CloseFullscreenIcon />
           </IconButton>
         </CustomizedTooltip>
         <CustomizedTooltip title={`Close`}>
           <IconButton
-            className={`${classess.monitor_close_icon}`}
             aria-label="open_new"
+            className={`${classess.monitor_close_icon}`}
             color="error"
-            type="button"
             disableRipple
             disableTouchRipple
             onClick={(e) => {
@@ -78,6 +76,7 @@ const WidgetHeader = ({
               e.stopPropagation();
               onRemoveWidget(+configData.id);
             }}
+            type="button"
           >
             <CloseIcon />
           </IconButton>

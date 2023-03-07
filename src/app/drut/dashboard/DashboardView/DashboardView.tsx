@@ -10,6 +10,9 @@ import {
   Spinner,
   Tooltip,
 } from "@canonical/react-components";
+import Meter from "app/base/components/Meter";
+import { COLOURS } from "app/base/constants";
+import { useWindowTitle } from "app/base/hooks/index";
 import { NavLink } from "react-router-dom";
 
 import { fetchData } from "../../config";
@@ -17,10 +20,6 @@ import { getParsedSummary, getSummaryInventry } from "../../summaryParser";
 import { getTypeTitle } from "../../types";
 import DSMeterChart from "../View/DSMeterChart";
 import DSPieChart from "../View/DSPieChart";
-
-import Meter from "app/base/components/Meter";
-import { COLOURS } from "app/base/constants";
-import { useWindowTitle } from "app/base/hooks/index";
 
 const DashboardView = (): JSX.Element => {
   const mountedRef = useRef(true);
@@ -70,7 +69,8 @@ const DashboardView = (): JSX.Element => {
         return "p-icon--information";
       case "failed":
         return "p-icon--error";
-        default: return
+      default:
+        return;
     }
   };
 
@@ -112,8 +112,8 @@ const DashboardView = (): JSX.Element => {
           <tr key={`hd_${Math.random()}`}>
             {Object.keys(data[0]).map((key, idxth: any) => (
               <th
-                key={`headerth_${idxth}_${Math.random()}`}
                 className={key === "name" ? "" : "drut-col-name-center"}
+                key={`headerth_${idxth}_${Math.random()}`}
               >
                 {key === "name" ? "TYPE" : key.toUpperCase()}
               </th>
@@ -123,8 +123,8 @@ const DashboardView = (): JSX.Element => {
             <tr key={`subtype_${Math.random()}`}>
               {Object.keys(item).map((k) => (
                 <td
-                  key={`headertr_${idxtr}_${Math.random()}`}
                   className={k === "name" ? "" : "drut-col-name-center"}
+                  key={`headertr_${idxtr}_${Math.random()}`}
                 >
                   {item[k]}
                 </td>
@@ -149,8 +149,8 @@ const DashboardView = (): JSX.Element => {
               <span>
                 <span style={{ marginRight: "2%" }}>
                   <Tooltip
-                    key={`event_icon_tooltip_${index}`}
                     followMouse={true}
+                    key={`event_icon_tooltip_${index}`}
                     message={`Event Status: ${elm?.status}`}
                   >
                     <i className={eventStatusIcon(elm?.status)} />
@@ -187,14 +187,14 @@ const DashboardView = (): JSX.Element => {
               content: (
                 <span className="drut-device-block-name">
                   <Link
+                    color="default"
                     key="nodeNameLink"
-                    title={elm?.name}
                     onClick={(e) => {
                       e.preventDefault();
                       setSelectedData(elm);
                       setModalState(!modalState);
                     }}
-                    color="default"
+                    title={elm?.name}
                   >
                     {`${getTypeTitle(elm?.name).title}`}
                   </Link>
@@ -331,19 +331,19 @@ const DashboardView = (): JSX.Element => {
         if (elm.chart === "PIE") {
           fn.push(
             <DSPieChart
-              key={`${elm.chart}_${index}_${+Math.random()}`}
-              data={elm}
               box={box}
               colorCode={colorCode}
+              data={elm}
+              key={`${elm.chart}_${index}_${+Math.random()}`}
             />
           );
         } else {
           fn.push(
             <DSMeterChart
-              key={`${elm.chart}_${index}_${Math.random()}`}
-              data={elm}
               box={box}
               colorCode={colorCode}
+              data={elm}
+              key={`${elm.chart}_${index}_${Math.random()}`}
             />
           );
         }
@@ -494,14 +494,14 @@ const DashboardView = (): JSX.Element => {
                 </h4>
                 <hr />
                 <MainTable
-                  expanding
-                  responsive={false}
-                  key="nodeListTable"
-                  headers={headers}
                   className="drut-items-border drut-bg-white"
+                  emptyStateMsg="Resource data not available."
+                  expanding
+                  headers={headers}
+                  key="nodeListTable"
+                  responsive={false}
                   rows={renderRSTable(rn)}
                   sortable
-                  emptyStateMsg="Resource data not available."
                 />
               </div>
             </Col>
@@ -524,7 +524,8 @@ const DashboardView = (): JSX.Element => {
                   >
                     <div style={{ textAlign: "center" }}>
                       <DSPieChart
-                        key={`NodeStatusKey`}
+                        box={"box1"}
+                        colorCode={colorCodeNodes}
                         data={{
                           chart: "PIE",
                           position: 0,
@@ -535,8 +536,7 @@ const DashboardView = (): JSX.Element => {
                           data: null,
                           unit: "",
                         }}
-                        box={"box1"}
-                        colorCode={colorCodeNodes}
+                        key={`NodeStatusKey`}
                       />
                     </div>
                   </div>
@@ -580,12 +580,12 @@ const DashboardView = (): JSX.Element => {
         }}
       >
         <div
-          className=""
-          style={{ minWidth: "500px" }}
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="modal-title"
           aria-describedby="modal-description"
+          aria-labelledby="modal-title"
+          aria-modal="true"
+          className=""
+          role="dialog"
+          style={{ minWidth: "500px" }}
         >
           <header className="p-modal__header">
             <h2 className="p-modal__title" id="modal-title">
@@ -595,9 +595,9 @@ const DashboardView = (): JSX.Element => {
               {""} Stats
             </h2>
             <Button
-              className="p-modal__close"
-              aria-label="Close active modal"
               aria-controls="modal"
+              aria-label="Close active modal"
+              className="p-modal__close"
               onClick={() => {
                 setModalState(!modalState);
               }}

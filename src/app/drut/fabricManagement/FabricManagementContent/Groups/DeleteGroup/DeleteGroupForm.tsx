@@ -1,13 +1,12 @@
 import { useState } from "react";
 
 import { Col, Row, Spinner, Notification } from "@canonical/react-components";
-
-import { deleteData } from "../../../../config";
-import type { Group } from "../type";
-
 import FormikForm from "app/base/components/FormikForm";
 import type { EmptyObject } from "app/base/types";
 import tagsURLs from "app/tags/urls";
+
+import { deleteData } from "../../../../config";
+import type { Group } from "../type";
 
 type Props = {
   onClose: () => void;
@@ -63,13 +62,13 @@ export const DeleteGroupForm = ({
     <>
       {loading ? (
         <Notification
-          key={`notification_${Math.random()}`}
           inline
+          key={`notification_${Math.random()}`}
           severity="information"
         >
           <Spinner
-            text="Deleting Group..."
             key={`deleteGroupSpinner_${Math.random()}`}
+            text="Deleting Group..."
           />
         </Notification>
       ) : (

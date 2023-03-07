@@ -12,12 +12,9 @@ module.exports = {
     ecmaVersion: 2018,
     sourceType: "module",
   },
-  "prettier/prettier": [
-    "error",
-    {
-      "endOfLine": "auto"
-    },
-  ],
+  rules: {
+    "prettier/prettier": ["error", { "endOfLine": "auto" }]
+  },
   settings: {
     react: {
       version: "detect",

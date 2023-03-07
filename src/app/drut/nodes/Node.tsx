@@ -1,5 +1,8 @@
 import { useState } from "react";
 
+import Section from "app/base/components/Section";
+import { useWindowTitle } from "app/base/hooks/index";
+import NotFound from "app/base/views/NotFound";
 import { Route, Switch } from "react-router-dom";
 
 import NodeList from "./NodeList";
@@ -8,10 +11,6 @@ import NodeInfo from "./NodeList/NodeInfo";
 import classess from "./NodeList/NodeList.module.css";
 import NodeHeader from "./NodesHeader";
 import nodeUrl from "./url";
-
-import Section from "app/base/components/Section";
-import { useWindowTitle } from "app/base/hooks/index";
-import NotFound from "app/base/views/NotFound";
 
 const Compose = (): JSX.Element => {
   const [node, setNode] = useState(null);
@@ -42,43 +41,43 @@ const Compose = (): JSX.Element => {
       <Route exact path={nodeUrl.nodes.index}>
         <Section
           className="u-no-padding--bottom"
-          key="nodehSecetion"
           header={
             <NodeHeader
+              isListView={true}
               node_data={node}
               onClickTab={onclickTab}
-              isListView={true}
             />
           }
+          key="nodehSecetion"
         >
-          <NodeList dataId={tabId} page="list" onNodeDetail={nodeDetails} />
+          <NodeList dataId={tabId} onNodeDetail={nodeDetails} page="list" />
         </Section>
       </Route>
       <Route exact path={nodeUrl.nodes.nodeDetails(null)}>
         <Section
           className={`u-no-padding--bottom ${classess.node_details_tab}`}
-          key="nodeSection"
           header={
             <NodeHeader
-              node_data={node}
-              onClickTab={onclickTab}
-              isListView={false}
-              onClickRefresh={toggleRefreshAction}
-              isUserAction={toggleUserAction}
               isDataPathOrdersTab={isDataPathOrdersTab}
+              isListView={false}
+              isUserAction={toggleUserAction}
+              node_data={node}
+              onClickRefresh={toggleRefreshAction}
+              onClickTab={onclickTab}
             />
           }
+          key="nodeSection"
         >
           <NodeInfo
             isDataPathOrdersTab={setIsDataPathOrdersTab}
-            tabId={tabId}
+            isUserOperation={isUserOperation}
             onNodeDetail={nodeDetails}
             refresh={refresh}
+            tabId={tabId}
             toggleRefresh={() => {
               toggleRefreshAction();
               toggleUserAction();
             }}
-            isUserOperation={isUserOperation}
           ></NodeInfo>
         </Section>
       </Route>

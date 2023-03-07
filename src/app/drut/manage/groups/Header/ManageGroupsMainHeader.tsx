@@ -23,10 +23,10 @@ const ManageRBMainHeader = (): JSX.Element => {
 
   return (
     <SectionHeader
-      key="manageRBHeader"
       buttons={getHeaderButtons()}
-      title="Manage Groups"
+      key="manageRBHeader"
       subtitle={"Manage groups for the resources/users."}
+      title="Manage Groups"
     />
   );
 };

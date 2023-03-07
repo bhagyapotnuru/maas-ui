@@ -2,10 +2,6 @@ import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 
 import { Form, Notification } from "@canonical/react-components";
-import { useFormikContext } from "formik";
-import { useDispatch } from "react-redux";
-import { Redirect } from "react-router";
-
 import type { FormikFormButtonsProps } from "app/base/components/FormikFormButtons";
 import FormikFormButtons from "app/base/components/FormikFormButtons";
 import {
@@ -15,7 +11,10 @@ import {
   useSendAnalyticsWhen,
 } from "app/base/hooks/index";
 import type { APIError } from "app/base/types";
-import { AnyAction } from "redux";
+import { useFormikContext } from "formik";
+import { useDispatch } from "react-redux";
+import { Redirect } from "react-router";
+import type { AnyAction } from "redux";
 
 export type Props<V, E> = {
   allowAllEmpty?: boolean;

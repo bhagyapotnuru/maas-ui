@@ -83,15 +83,15 @@ const ResourceDetails = ({
   const getJSONData = (data: any) => {
     return (
       <JSONTree
-        key={"jsonModal"}
         data={data}
+        key={"jsonModal"}
+        keyPath={[]}
+        shouldExpandNodeInitially={() => true}
         theme={{
           scheme: "monokai",
           author: "Indu",
           base00: "#000000",
         }}
-        keyPath={[]}
-        shouldExpandNodeInitially={() => true}
       />
     );
   };
@@ -106,14 +106,14 @@ const ResourceDetails = ({
               <hr />
               {genObjAccord(data) ? (
                 <Accordion
+                  className=""
                   expanded={deviceInformationOpen}
                   externallyControlled={true}
-                  className=""
-                  sections={genObjAccord(data)}
                   onExpandedChange={(id: any, title: string) => {
-                    console.log(id)
+                    console.log(id);
                     setDeviceInformationOpen(title);
                   }}
+                  sections={genObjAccord(data)}
                 />
               ) : (
                 <p>Device data not available.</p>
@@ -122,17 +122,17 @@ const ResourceDetails = ({
               <hr />
               {arrayObjectArray(getFabricData(data), "FabricInfo").length ? (
                 <Accordion
+                  className=""
                   expanded={fabricInformationOpen}
                   externallyControlled={true}
-                  className=""
+                  onExpandedChange={(id: any, title: string) => {
+                    console.log(id);
+                    setFabricInformation(title);
+                  }}
                   sections={arrayObjectArray(
                     getFabricData(data),
                     "Switch Port"
                   )}
-                  onExpandedChange={(id: any, title: string) => {
-                    console.log(id)
-                    setFabricInformation(title);
-                  }}
                 />
               ) : (
                 <p>Fabric data not available!</p>

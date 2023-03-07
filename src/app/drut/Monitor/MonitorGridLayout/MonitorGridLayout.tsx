@@ -1,13 +1,12 @@
 import { useState } from "react";
 
+import { postData } from "app/drut/config";
 import { Responsive, WidthProvider } from "react-grid-layout";
 import type RGL from "react-grid-layout";
 
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 
 import MonitorGridItem from "./MonitorGridItem";
-
-import { postData } from "app/drut/config";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -120,32 +119,32 @@ const MonitorGridLayout = ({
     <div className="grid-layout-body" key={gridlayoutKey}>
       {configData && (configData as MonitorConfiguration[]).length > 0 && (
         <ResponsiveGridLayout
-          key={`Grid_Layout_${Math.random}`}
-          className="layout"
-          rowHeight={30}
-          cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
           allowOverlap={false}
-          onLayoutChange={onLayoutChangeHandler}
+          className="layout"
+          cols={{ lg: 12, md: 10, sm: 6, xs: 4, xxs: 2 }}
+          key={`Grid_Layout_${Math.random}`}
           layouts={{ lg: generateLayout() }}
+          onLayoutChange={onLayoutChangeHandler}
+          rowHeight={30}
         >
           {(configData as MonitorConfiguration[])
             .filter((config: MonitorConfiguration) => config.display)
             .map((config: MonitorConfiguration) => (
               <div
-                key={config.id}
-                data-grid={config.gridlayout}
                 className={
                   config.cluster_type === "Maas"
                     ? `grid-item machine-summary-pie`
                     : `grid-item`
                 }
+                data-grid={config.gridlayout}
+                key={config.id}
               >
                 <MonitorGridItem
-                  resizedWidget={resizedWidget}
                   configData={config}
-                  onRemoveWidget={onRemoveWidget}
                   onMinimizeWidget={onMinimizeWidget}
                   onPinWidgetHandler={onPinHandler}
+                  onRemoveWidget={onRemoveWidget}
+                  resizedWidget={resizedWidget}
                 />
               </div>
             ))}

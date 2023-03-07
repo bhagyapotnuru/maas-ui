@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 
-import { Col, Row } from "@canonical/react-components";
-import { Select } from "@canonical/react-components";
+import { Col, Row, Select } from "@canonical/react-components";
+import FormikField from "app/base/components/FormikField";
+import type { AnyObject } from "app/base/types";
 import { useFormikContext } from "formik";
 
 import { MANAGER_TYPES } from "../constants";
@@ -9,9 +10,6 @@ import type { Manager, Zone, Rack } from "../type";
 
 import OpticalSwitchFormFields from "./OpticalSwitchFormFields";
 import RedfishManagerFormFields from "./RedfishManagerFormFields";
-
-import FormikField from "app/base/components/FormikField";
-import type { AnyObject } from "app/base/types";
 
 type Props = {
   zoneRackPairs: Zone[];
@@ -58,7 +56,7 @@ export const AddManagerFormFields = <V extends AnyObject>({
           return "http";
         }
       }
-    } else return
+    } else return;
   };
 
   const getDescription = (
@@ -77,10 +75,15 @@ export const AddManagerFormFields = <V extends AnyObject>({
         <Col size={2}>
           <FormikField
             component={Select}
+            disabled={managerToUpdate ? true : false}
             label="Manager Type"
             name="manager_type"
-            disabled={managerToUpdate ? true : false}
-            style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
+            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
+              handleChange(evt);
+              setFieldValue("manager_type", evt.target.value);
+              setFieldValue("protocol", getDefaultProtocol(evt.target.value));
+              setSelectedManagerType(evt.target.value);
+            }}
             options={[
               { label: "Select Manager Type", value: "", disabled: true },
               ...MANAGER_TYPES.map((managerType) => ({
@@ -89,13 +92,8 @@ export const AddManagerFormFields = <V extends AnyObject>({
                 value: managerType,
               })),
             ]}
-            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange(evt);
-              setFieldValue("manager_type", evt.target.value);
-              setFieldValue("protocol", getDefaultProtocol(evt.target.value));
-              setSelectedManagerType(evt.target.value);
-            }}
             required
+            style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
           />
         </Col>
         <Col size={3}>
@@ -103,18 +101,6 @@ export const AddManagerFormFields = <V extends AnyObject>({
             component={Select}
             label="Zone"
             name="zone_id"
-            options={[
-              { label: "Select Zone", value: "", disabled: true },
-              ...zoneRackPairs
-                .filter(
-                  (zoneRack) => zoneRack.zone_name.toLowerCase() !== "drut"
-                )
-                .map((zone: Zone) => ({
-                  key: `zone_id-${zone.zone_id}`,
-                  label: zone.zone_fqgn,
-                  value: zone.zone_id,
-                })),
-            ]}
             onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
               handleChange(event);
               setFieldValue("zone_id", event.target.value);
@@ -137,37 +123,31 @@ export const AddManagerFormFields = <V extends AnyObject>({
                 )
               );
             }}
+            options={[
+              { label: "Select Zone", value: "", disabled: true },
+              ...zoneRackPairs
+                .filter(
+                  (zoneRack) => zoneRack.zone_name.toLowerCase() !== "drut"
+                )
+                .map((zone: Zone) => ({
+                  key: `zone_id-${zone.zone_id}`,
+                  label: zone.zone_fqgn,
+                  value: zone.zone_id,
+                })),
+            ]}
             required
           />
         </Col>
         <Col size={2}>
           <FormikField
             component={Select}
-            label="Rack"
             disabled={
               managerToUpdate
                 ? !!selectedZone && !managerToUpdate
                 : !selectedZone
             }
+            label="Rack"
             name="rack_id"
-            options={
-              !racks || racks.length === 0
-                ? [
-                    {
-                      label: "There are no racks available",
-                      value: "",
-                      disabled: true,
-                    },
-                  ]
-                : [
-                    { label: "Select Rack", value: "", disabled: true },
-                    ...racks?.map((rack: Rack) => ({
-                      key: `rack_id-${rack?.rack_id}`,
-                      label: rack?.rack_name,
-                      value: +rack?.rack_id,
-                    })),
-                  ]
-            }
             onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
               handleChange(evt);
               setFieldValue("rack_id", evt.target.value);
@@ -192,6 +172,24 @@ export const AddManagerFormFields = <V extends AnyObject>({
                 )
               );
             }}
+            options={
+              !racks || racks.length === 0
+                ? [
+                    {
+                      label: "There are no racks available",
+                      value: "",
+                      disabled: true,
+                    },
+                  ]
+                : [
+                    { label: "Select Rack", value: "", disabled: true },
+                    ...racks?.map((rack: Rack) => ({
+                      key: `rack_id-${rack?.rack_id}`,
+                      label: rack?.rack_name,
+                      value: +rack?.rack_id,
+                    })),
+                  ]
+            }
             required
           />
         </Col>
@@ -199,9 +197,6 @@ export const AddManagerFormFields = <V extends AnyObject>({
           <FormikField
             label="Name"
             name="name"
-            required={true}
-            placeholder="Name"
-            type="text"
             onChange={(evt: React.ChangeEvent<HTMLInputElement>) => {
               handleChange(evt);
               setFieldValue(
@@ -213,6 +208,9 @@ export const AddManagerFormFields = <V extends AnyObject>({
                 )
               );
             }}
+            placeholder="Name"
+            required={true}
+            type="text"
           />
         </Col>
       </Row>
@@ -227,29 +225,29 @@ export const AddManagerFormFields = <V extends AnyObject>({
             <Row>
               <Col size={2}>
                 <FormikField
-                  name="user_name"
-                  required={selectedManagerType === "OXC"}
                   disabled={managerToUpdate ? true : false}
-                  placeholder={`${
-                    selectedManagerType === "OXC" ? values.protocol : ""
-                  } User Name`}
                   label={`${
                     selectedManagerType === "OXC" ? values.protocol : ""
                   } User Name`}
+                  name="user_name"
+                  placeholder={`${
+                    selectedManagerType === "OXC" ? values.protocol : ""
+                  } User Name`}
+                  required={selectedManagerType === "OXC"}
                   type="text"
                 />
               </Col>
               <Col size={2}>
                 <FormikField
-                  name="password"
                   disabled={managerToUpdate ? true : false}
-                  required={selectedManagerType === "OXC"}
                   label={`${
                     selectedManagerType === "OXC" ? values.protocol : ""
                   } Password`}
+                  name="password"
                   placeholder={`${
                     selectedManagerType === "OXC" ? values.protocol : ""
                   } Password`}
+                  required={selectedManagerType === "OXC"}
                   type="password"
                 />
               </Col>
