@@ -7,8 +7,8 @@ const REACT_BASENAME = process.env.REACT_BASENAME;
 
 var app = express();
 
-const PROXY_PORT = process.env.PROXY_PORT || 8400;
-const REACT_PORT = 8401;
+const PROXY_PORT = process.env.PROXY_PORT || 8500;
+const REACT_PORT = 8501;
 
 app.get(BASENAME, (req, res) => res.redirect(`${BASENAME}${REACT_BASENAME}`));
 app.get("/", (req, res) => res.redirect(`${BASENAME}${REACT_BASENAME}`));
@@ -33,6 +33,7 @@ app.use(
 // Proxy the WebSocket API endpoint to the MAAS.
 app.use(
   createProxyMiddleware(`${BASENAME}/ws`, {
+    changeOrigin: true,
     secure: false,
     target: process.env.MAAS_URL,
     ws: true,
@@ -42,7 +43,7 @@ app.use(
 // Proxy the HMR endpoint to the React client.
 app.use(
   createProxyMiddleware("/sockjs-node", {
-    target: `http://localhost:${REACT_PORT}/`,
+    target: `http://127.0.0.1:${REACT_PORT}/`,
     ws: true,
   })
 );
@@ -51,7 +52,7 @@ app.use(
 if (process.env.STATIC_DEMO !== "true") {
   app.use(
     createProxyMiddleware("/", {
-      target: `http://localhost:${REACT_PORT}/`,
+      target: `http://127.0.0.1:${REACT_PORT}/`,
     })
   );
 }
