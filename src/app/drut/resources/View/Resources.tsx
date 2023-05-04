@@ -1,8 +1,5 @@
 import { useState } from "react";
 
-import Section from "app/base/components/Section";
-import { useWindowTitle } from "app/base/hooks/index";
-import NotFound from "app/base/views/NotFound";
 import { Route, Switch, useLocation } from "react-router-dom";
 
 import { rsTypeUI } from "../../types";
@@ -11,6 +8,10 @@ import resourceUrl from "./../url";
 import AddResource from "./AddResource";
 import ResourceList from "./ResourceList";
 import ResourceListHeader from "./ResourceList/ResourceListHeader";
+
+import Section from "app/base/components/Section";
+import { useWindowTitle } from "app/base/hooks/index";
+import NotFound from "app/base/views/NotFound";
 
 const Resources = (): JSX.Element => {
   const [selected, setSelected]: any[] = useState("All");

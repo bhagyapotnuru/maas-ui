@@ -1,3 +1,8 @@
+import composeNodeUrls from "../../../drut/compose/url";
+import eventUrl from "../../../drut/events/url";
+import nodesUrl from "../../../drut/nodes/url";
+import resourceUrls from "../../../drut/resources/url";
+
 import type { NavGroup } from "./types";
 
 import urls from "app/base/urls";
@@ -25,6 +30,28 @@ const navGroups: NavGroup[] = [
         ],
         label: "Controllers",
         url: urls.controllers.index,
+      },
+    ],
+  },
+  {
+    groupTitle: "Fabric",
+    groupIcon: "tag",
+    navLinks: [
+      {
+        label: "Resources",
+        url: resourceUrls.resources.index,
+      },
+      {
+        label: "Nodes",
+        url: nodesUrl.nodes.index,
+      },
+      {
+        label: "Events",
+        url: eventUrl.events.index,
+      },
+      {
+        label: "Compose",
+        url: composeNodeUrls.compose.index,
       },
     ],
   },
