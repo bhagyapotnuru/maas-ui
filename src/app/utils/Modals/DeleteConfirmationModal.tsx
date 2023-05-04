@@ -54,12 +54,12 @@ const DeleteConfirmationModal = ({
             </Button>
             <Button
               className={classess.primary_btn}
-              variant="contained"
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 onConfirm();
               }}
+              variant="contained"
             >
               Confirm
             </Button>

@@ -1,12 +1,13 @@
 import { useState, useEffect } from "react";
 
 import { Notification, Spinner } from "@canonical/react-components";
+import { useSelector } from "react-redux";
+import { useParams } from "react-router";
+
 import { fetchData } from "app/drut/config";
 import DataPathInfo from "app/drut/fabric/FabricDataPath/DataPathInfo";
 import machineSelectors from "app/store/machine/selectors";
 import type { RootState } from "app/store/root/types";
-import { useSelector } from "react-redux";
-import { useParams } from "react-router";
 
 type Props = {
   nodeId: any;

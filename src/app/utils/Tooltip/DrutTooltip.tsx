@@ -31,7 +31,7 @@ const CustomizedTooltip = ({
 }: Props): JSX.Element => {
   return (
     <div style={style} {...props}>
-      <BootstrapTooltip title={title} placement={placement}>
+      <BootstrapTooltip placement={placement} title={title}>
         {children}
       </BootstrapTooltip>
     </div>

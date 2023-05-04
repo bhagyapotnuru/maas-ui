@@ -1,6 +1,9 @@
 import { useEffect } from "react";
 
 import { Input, Select, Spinner } from "@canonical/react-components";
+import { useFormikContext } from "formik";
+import { useDispatch, useSelector } from "react-redux";
+
 import FormikField from "app/base/components/FormikField";
 import type { AnyObject } from "app/base/types";
 import { actions as generalActions } from "app/store/general";
@@ -8,8 +11,6 @@ import { PowerTypeNames } from "app/store/general/constants";
 import { powerTypes as powerTypesSelectors } from "app/store/general/selectors";
 import type { PowerType } from "app/store/general/types";
 import { PowerFieldScope } from "app/store/general/types";
-import { useFormikContext } from "formik";
-import { useDispatch, useSelector } from "react-redux";
 
 type Props = {
   disableFields?: boolean;

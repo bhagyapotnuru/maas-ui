@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { MainTable, Spinner, Tooltip } from "@canonical/react-components";
+
 import { fetchData } from "app/drut/config";
 
 type Props = {

@@ -1,7 +1,8 @@
 import { Button } from "@canonical/react-components";
 // import { createBrowserHistory } from "history";
-import SectionHeader from "app/base/components/SectionHeader";
 import { Link } from "react-router-dom";
+
+import SectionHeader from "app/base/components/SectionHeader";
 
 interface Props {
   onRefresh: any;

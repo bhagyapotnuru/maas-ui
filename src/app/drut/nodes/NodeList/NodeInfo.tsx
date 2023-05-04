@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 
 import { Notification } from "@canonical/react-components";
-import { fetchData, postData } from "app/drut/config";
-import AttachDetachFabricElement from "app/drut/fabric/AttachDetachFabric";
 import { useParams } from "react-router-dom";
 
 import DataPathTabs from "./DataPathTabs";
 import NodeEventLog from "./NodeEventsLog";
 import NodeSummary from "./NodeSummary";
+
+import { fetchData, postData } from "app/drut/config";
+import AttachDetachFabricElement from "app/drut/fabric/AttachDetachFabric";
 
 type Props = {
   tabId: string;
