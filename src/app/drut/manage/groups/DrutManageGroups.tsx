@@ -1,12 +1,13 @@
-import Section from "app/base/components/Section";
-import { useWindowTitle } from "app/base/hooks/index";
-import NotFound from "app/base/views/NotFound";
 import { Route, Switch } from "react-router-dom";
 
 import manageUrls from "../url";
 
 import ManageRBMainHeader from "./Header/ManageGroupsMainHeader";
 import AddResourceGroups from "./view/AddResourceGroups";
+
+import Section from "app/base/components/Section";
+import { useWindowTitle } from "app/base/hooks/index";
+import NotFound from "app/base/views/NotFound";
 
 const DrutManageRB = (): JSX.Element => {
   useWindowTitle("MATRIX-Events");

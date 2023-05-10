@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 
 import { Button } from "@canonical/react-components";
-import SectionHeader from "app/base/components/SectionHeader";
 import { createBrowserHistory } from "history";
 import PropType from "prop-types";
 import { Link } from "react-router-dom";
 
 import { getTypeTitle } from "../../../../types";
+
+import SectionHeader from "app/base/components/SectionHeader";
 
 interface Props {
   resourceType: any;

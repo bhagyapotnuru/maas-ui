@@ -1,7 +1,8 @@
-import FormikFormContent from "app/base/components/FormikFormContent";
-import type { Props as ContentProps } from "app/base/components/FormikFormContent/FormikFormContent";
 import { Formik } from "formik";
 import type { FormikConfig } from "formik";
+
+import FormikFormContent from "app/base/components/FormikFormContent";
+import type { Props as ContentProps } from "app/base/components/FormikFormContent/FormikFormContent";
 
 export type Props<V extends {}, E = null> = ContentProps<V, E> &
   FormikConfig<V>;

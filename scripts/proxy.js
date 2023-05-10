@@ -33,7 +33,6 @@ app.use(
 // Proxy the WebSocket API endpoint to the MAAS.
 app.use(
   createProxyMiddleware(`${BASENAME}/ws`, {
-    changeOrigin: true,
     secure: false,
     target: process.env.MAAS_URL,
     ws: true,

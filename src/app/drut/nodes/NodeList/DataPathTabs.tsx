@@ -1,14 +1,16 @@
+/* eslint-disable react/no-multi-comp */
 import * as React from "react";
 
 import Box from "@mui/material/Box";
 import Tab from "@mui/material/Tab";
 import MuiTabs from "@mui/material/Tabs";
 import { styled, ThemeProvider } from "@mui/material/styles";
-import customDrutTheme from "app/utils/Themes/Themes";
 
 import DataPathOrderDetails from "./DataPathOrderDetails";
 import DataPaths from "./DataPaths";
 import classess from "./NodeList.module.css";
+
+import customDrutTheme from "app/utils/Themes/Themes";
 
 interface TabPanelProps {
   children?: React.ReactNode;

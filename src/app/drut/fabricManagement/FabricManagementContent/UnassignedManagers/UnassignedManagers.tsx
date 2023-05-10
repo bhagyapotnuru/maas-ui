@@ -1,10 +1,6 @@
 import { useState, useEffect } from "react";
 
 import { Button, ContextualMenu } from "@canonical/react-components";
-import Section from "app/base/components/Section";
-import SectionHeader from "app/base/components/SectionHeader";
-import NotFound from "app/base/views/NotFound";
-import { fetchData } from "app/drut/config";
 import { Route, Switch, Link } from "react-router-dom";
 
 import managersUrl from "../../url";
@@ -13,6 +9,11 @@ import type { Manager } from "../Managers/type";
 
 import SetZoneForm from "./SetZone/SetZoneForm";
 import UnassignedManagersContent from "./UnassignedManagersContent";
+
+import Section from "app/base/components/Section";
+import SectionHeader from "app/base/components/SectionHeader";
+import NotFound from "app/base/views/NotFound";
+import { fetchData } from "app/drut/config";
 
 const UnassignedManagers = (): JSX.Element => {
   const [zones, setZones] = useState<Zone[]>([]);

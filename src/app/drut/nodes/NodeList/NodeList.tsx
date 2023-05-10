@@ -10,9 +10,6 @@ import {
   Tooltip,
   Spinner,
 } from "@canonical/react-components";
-import { actions as machineActions } from "app/store/machine";
-import machineSelectors from "app/store/machine/selectors";
-import type { RootState } from "app/store/root/types";
 import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useParams } from "react-router-dom";
 
@@ -21,6 +18,10 @@ import { nodeStatus, nStatus } from "../../nodeStatus";
 import RegisterMachineForm from "../RegisterNode/RegisterNode";
 
 import classess from "./NodeList.module.css";
+
+import { actions as machineActions } from "app/store/machine";
+import machineSelectors from "app/store/machine/selectors";
+import type { RootState } from "app/store/root/types";
 
 type Props = {
   page: any;

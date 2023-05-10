@@ -1,3 +1,4 @@
+/* eslint-disable react/no-multi-comp */
 import * as React from "react";
 import { useState } from "react";
 import type { SetStateAction } from "react";
@@ -27,8 +28,6 @@ import TableRow from "@mui/material/TableRow";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
-import { fetchData, postData } from "app/drut/config";
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import type {
   Manager,
@@ -43,6 +42,9 @@ import type {
 } from "../../Models/Manager";
 import classess from "../../fabricManagement.module.css";
 import type { Rack, Zone } from "../Managers/AddManager/type";
+
+import { fetchData, postData } from "app/drut/config";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type ZoneSelectionProps = {
   zones: Zone[];

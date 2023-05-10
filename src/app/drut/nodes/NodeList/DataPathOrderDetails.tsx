@@ -7,11 +7,12 @@ import MuiAccordionDetails from "@mui/material/AccordionDetails";
 import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
-import { fetchData } from "app/drut/config";
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import DataPathOrderDetailsTable from "./DataPathOrderDetailsTable";
 import classess from "./NodeList.module.css";
+
+import { fetchData } from "app/drut/config";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
   nodeId: string;

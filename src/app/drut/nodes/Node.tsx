@@ -1,8 +1,5 @@
 import { useState } from "react";
 
-import Section from "app/base/components/Section";
-import { useWindowTitle } from "app/base/hooks/index";
-import NotFound from "app/base/views/NotFound";
 import { Route, Switch } from "react-router-dom";
 
 import NodeList from "./NodeList";
@@ -11,6 +8,10 @@ import NodeInfo from "./NodeList/NodeInfo";
 import classess from "./NodeList/NodeList.module.css";
 import NodeHeader from "./NodesHeader";
 import nodeUrl from "./url";
+
+import Section from "app/base/components/Section";
+import { useWindowTitle } from "app/base/hooks/index";
+import NotFound from "app/base/views/NotFound";
 
 const Compose = (): JSX.Element => {
   const [node, setNode] = useState(null);
