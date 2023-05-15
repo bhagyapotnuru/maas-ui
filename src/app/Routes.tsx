@@ -20,7 +20,7 @@ import DeviceList from "app/devices/views/DeviceList";
 import DomainDetails from "app/domains/views/DomainDetails";
 // eslint-disable-next-line import/order
 import DomainsList from "app/domains/views/DomainsList";
-// Drut Routes
+// Drut Routes added here
 import monitorDasboardUrls from "app/drut/Monitor/url";
 import Compose from "app/drut/compose";
 import ComposeNode from "app/drut/compose-node/ComposeNode";
