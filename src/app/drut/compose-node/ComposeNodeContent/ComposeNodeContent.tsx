@@ -1,3 +1,4 @@
+/* eslint-disable react/no-multi-comp */
 import * as React from "react";
 import { useEffect, useState } from "react";
 
@@ -31,12 +32,6 @@ import Stepper from "@mui/material/Stepper";
 import TextField from "@mui/material/TextField";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
-import { fetchData, postData } from "app/drut/config";
-import type {
-  Rack,
-  Zone,
-} from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
-import { arrayObjectArray, genObjAccord } from "app/drut/parser";
 import { useNavigate } from "react-router-dom-v5-compat";
 
 import type {
@@ -52,6 +47,13 @@ import type {
 import { CompositionState } from "../Models/ResourceBlock";
 import type { ResourceBlockInfo } from "../Models/ResourceBlockInfo";
 import classes from "../composedNode.module.scss";
+
+import { fetchData, postData } from "app/drut/config";
+import type {
+  Rack,
+  Zone,
+} from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
+import { arrayObjectArray, genObjAccord } from "app/drut/parser";
 
 const StyledAccordion = styled((props: AccordionProps) => (
   <MuiAccordion disableGutters elevation={0} square {...props} />

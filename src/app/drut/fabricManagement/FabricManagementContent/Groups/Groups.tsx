@@ -1,8 +1,6 @@
 import { useState } from "react";
 
 import { Button } from "@canonical/react-components";
-import Section from "app/base/components/Section";
-import NotFound from "app/base/views/NotFound";
 import { Route, Switch } from "react-router-dom";
 
 import FabricManagementHeader from "../../FabricManagementHeader";
@@ -12,6 +10,9 @@ import AddGroupForm from "./AddGroup/AddGroupForm";
 import DeleteGroupForm from "./DeleteGroup/DeleteGroupForm";
 import GroupList from "./GroupList";
 import type { Group } from "./type";
+
+import Section from "app/base/components/Section";
+import NotFound from "app/base/views/NotFound";
 
 const Groups = (): JSX.Element => {
   const [renderAddGroupsForm, setRenderAddGroupsForm] = useState(false);

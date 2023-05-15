@@ -1,10 +1,12 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { Fragment, useState, useEffect } from "react";
 
 import { Col, MainTable, Row } from "@canonical/react-components";
-import TableActions from "app/base/components/TableActions";
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import type { Manager } from "./type";
+
+import TableActions from "app/base/components/TableActions";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 const Manager_Headers = [
   {

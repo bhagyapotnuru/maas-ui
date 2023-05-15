@@ -1,5 +1,7 @@
-import composeNodeUrls from "../../../drut/compose/url";
+import composeNodeUrls from "../../../drut/compose-node/url";
+import drutDashboardUrl from "../../../drut/dashboard/url";
 import eventUrl from "../../../drut/events/url";
+import managersUrls from "../../../drut/fabricManagement/url";
 import nodesUrl from "../../../drut/nodes/url";
 import resourceUrls from "../../../drut/resources/url";
 
@@ -52,6 +54,14 @@ const navGroups: NavGroup[] = [
       {
         label: "Compose",
         url: composeNodeUrls.compose.index,
+      },
+      {
+        label: "Fabric Management",
+        url: managersUrls.fabricManagement.index,
+      },
+      {
+        label: "DashBoard",
+        url: drutDashboardUrl.dashboard.index,
       },
     ],
   },

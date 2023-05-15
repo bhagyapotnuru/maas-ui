@@ -1,14 +1,16 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 
 import { Spinner, Notification } from "@canonical/react-components";
-import FormikForm from "app/base/components/FormikForm";
-import type { ClearHeaderContent } from "app/base/types";
-import { postData } from "app/drut/config";
 import * as Yup from "yup";
 
 import type { Zone, Rack, Manager } from "../../Managers/AddManager/type";
 
 import SetZoneFormFields from "./SetZoneFormFields";
+
+import FormikForm from "app/base/components/FormikForm";
+import type { ClearHeaderContent } from "app/base/types";
+import { postData } from "app/drut/config";
 
 type setZoneForm = {
   zone_id: string;
