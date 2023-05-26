@@ -38,11 +38,11 @@ const GroupCheckbox = <S,>({
   const id = useRef(nanoid());
   const allSelected = checkAllSelected
     ? checkAllSelected(items, selectedItems)
-    : selectedItems.length > 0 && selectedItems.length === items.length;
+    : selectedItems?.length > 0 && selectedItems.length === items.length;
   const someSelected =
     !allSelected && checkSelected
       ? checkSelected(items, selectedItems)
-      : selectedItems.length > 0 && !allSelected;
+      : selectedItems?.length > 0 && !allSelected;
 
   return (
     <Input

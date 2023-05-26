@@ -14,8 +14,8 @@ const Dashboard = (): JSX.Element => {
   return (
     <Section
       className="u-no-padding--bottom"
-      header={<EventHeader />}
       key="nodehSecetion"
+      header={<EventHeader />}
     >
       <Switch>
         <Route exact path={eventUrl.events.index}>

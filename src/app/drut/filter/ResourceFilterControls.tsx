@@ -8,18 +8,40 @@ import {
   Accordion,
   List,
   Button,
+  Select,
 } from "@canonical/react-components";
 
 type Props = {
   items: any;
   onFilterChange: any;
+  grouping: string;
+  setGrouping: (text: string) => void;
+  selectedTab: string;
 };
 
 export const DEBOUNCE_INTERVAL = 500;
 
+const groupOptions = [
+  {
+    value: "none",
+    label: "No grouping",
+  },
+  {
+    value: "type",
+    label: "Group by type",
+  },
+  {
+    value: "rack",
+    label: "Group by Pool",
+  },
+];
+
 const ResourceFilterControls = ({
   items,
   onFilterChange,
+  grouping,
+  setGrouping,
+  selectedTab,
 }: Props): JSX.Element => {
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -31,7 +53,6 @@ const ResourceFilterControls = ({
   const [debouncing, setDebouncing] = useState(false);
 
   const selectionchange = (key: any = "", elm: any = null) => {
-    console.log(setExpandedSection);
     let newObj = JSON.parse(JSON.stringify(ft));
     if (elm === null) {
       newObj = JSON.parse(JSON.stringify(items));
@@ -63,11 +84,11 @@ const ResourceFilterControls = ({
     data.forEach((elm: any) => {
       listItems.push(
         <Button
+          key={`btn${elm.index}`}
           appearance="base"
           className={`u-align-text--left u-no-margin--bottom filter-accordion__item is-dense ${
             elm.selected ? "is-active" : "vcvc"
           }`}
-          key={`btn${elm.index}`}
           onClick={() => selectionchange(key, elm)}
         >
           {elm.data}
@@ -86,8 +107,8 @@ const ResourceFilterControls = ({
           key: key,
           content: (
             <List
-              items={itemsData(key, itm[key].ability)}
               key={`filterItems${index}`}
+              items={itemsData(key, itm[key].ability)}
             ></List>
           ),
         };
@@ -116,7 +137,7 @@ const ResourceFilterControls = ({
 
   return (
     <Row>
-      <Col size={4}>
+      <Col size={selectedTab === "All" ? 3 : 4}>
         <ContextualMenu
           className="filter-accordion filter-List-item"
           constrainPanelWidth
@@ -129,12 +150,15 @@ const ResourceFilterControls = ({
             className="filter-accordion__dropdown"
             expanded={expandedSection}
             externallyControlled
-            // onExpandedChange={setExpandedSection}
+            onExpandedChange={setExpandedSection}
             sections={getFilterItems(ft)}
           />
         </ContextualMenu>
       </Col>
-      <Col size={8} style={{ position: "relative" }}>
+      <Col
+        size={selectedTab === "All" ? 6 : 8}
+        style={{ position: "relative" }}
+      >
         <SearchBox
           externallyControlled
           onChange={(e) => {
@@ -166,6 +190,20 @@ const ResourceFilterControls = ({
           ></i>
         )}
       </Col>
+      {selectedTab === "All" && (
+        <Col size={3}>
+          <Select
+            defaultValue={"none"}
+            disabled={selectedTab !== "All"}
+            name="resources-grouping"
+            onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+              setGrouping(e.target.value);
+            }}
+            value={grouping}
+            options={groupOptions}
+          />
+        </Col>
+      )}
     </Row>
   );
 };

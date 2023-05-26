@@ -30,10 +30,10 @@ const Groups = (): JSX.Element => {
   if (renderAddGroupsForm) {
     headerContent = (
       <AddGroupForm
-        clearHeaderContent={() => createGroupFunctionality(false)}
-        groupList={groupList}
         setError={setError}
         setFetchGroups={setFetchGroups}
+        clearHeaderContent={() => createGroupFunctionality(false)}
+        groupList={groupList}
       />
     );
     renderTitle = "Add Group";
@@ -41,11 +41,11 @@ const Groups = (): JSX.Element => {
   if (renderUpdateGroupsForm) {
     headerContent = (
       <AddGroupForm
-        clearHeaderContent={() => setRenderUpdateGroupsForm(false)}
-        groupList={groupList}
         groupToUpdate={group}
         setError={setError}
+        groupList={groupList}
         setFetchGroups={setFetchGroups}
+        clearHeaderContent={() => setRenderUpdateGroupsForm(false)}
       />
     );
     renderTitle = "Update Group";
@@ -53,10 +53,10 @@ const Groups = (): JSX.Element => {
   if (renderDeleteGroupsForm) {
     headerContent = (
       <DeleteGroupForm
-        groupData={group}
-        onClose={() => setRenderDeleteGroupsForm(false)}
         setError={setError}
+        groupData={group}
         setFetchGroups={setFetchGroups}
+        onClose={() => setRenderDeleteGroupsForm(false)}
       />
     );
     renderTitle = "Delete Group";
@@ -84,29 +84,29 @@ const Groups = (): JSX.Element => {
 
   return (
     <Section
+      key="managersHeader"
       className="u-no-padding--bottom"
       header={
         <FabricManagementHeader
-          buttonContent={buttonContent}
-          headerContent={headerContent}
           tag="groups"
+          headerContent={headerContent}
+          buttonContent={buttonContent}
           title={renderTitle}
         />
       }
-      key="managersHeader"
     >
       <Switch>
         <Route exact path={managersUrl.fabricManagement.index}>
           <GroupList
-            error={error}
+            setRenderUpdateGroupForm={updateGroupFunctionality}
+            setRenderDeleteGroupForm={deleteGroupFunctionality}
             fetchGroups={fetchGroups}
-            setError={setError}
             setGroupList={(groups: Group[]) => {
               setFetchGroups(false);
               setGroupList(groups);
             }}
-            setRenderDeleteGroupForm={deleteGroupFunctionality}
-            setRenderUpdateGroupForm={updateGroupFunctionality}
+            error={error}
+            setError={setError}
           />
         </Route>
         <Route path="*">

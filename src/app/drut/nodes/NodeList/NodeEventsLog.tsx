@@ -27,8 +27,6 @@ const NodeEventLog = (props: Props): JSX.Element => {
         return "p-icon--information";
       case "failed":
         return "p-icon--error";
-      default:
-        return;
     }
   };
 
@@ -80,8 +78,8 @@ const NodeEventLog = (props: Props): JSX.Element => {
               <span>
                 <span style={{ marginRight: "2%" }}>
                   <Tooltip
-                    followMouse={true}
                     key={`event_icon_tooltip_${index}`}
+                    followMouse={true}
                     message={`Event Status: ${elm?.status}`}
                   >
                     <i className={eventStatusIcon(elm?.status)} />
@@ -115,12 +113,12 @@ const NodeEventLog = (props: Props): JSX.Element => {
 
   const logsTable = (
     <MainTable
-      className={"event-logs-table"}
-      emptyStateMsg="Event data not available."
-      headers={events_header}
       key={`mt_${Math.random()}`}
+      headers={events_header}
+      className={"event-logs-table"}
       rows={getEventIformation(events)}
       sortable
+      emptyStateMsg="Event data not available."
     />
   );
 

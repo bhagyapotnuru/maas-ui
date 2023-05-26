@@ -1,38 +1,6 @@
-/* eslint-disable react/no-multi-comp */
-import * as React from "react";
 import { useEffect, useState } from "react";
 
-import {
-  Card,
-  CheckboxInput,
-  Col,
-  MainTable,
-  Notification,
-  Row,
-  Spinner,
-  Tooltip,
-  Accordion,
-} from "@canonical/react-components";
-import type { MainTableRow } from "@canonical/react-components/dist/components/MainTable/MainTable";
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-import MuiAccordion from "@mui/material/Accordion";
-import type { AccordionProps } from "@mui/material/Accordion";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import MuiAccordionSummary from "@mui/material/AccordionSummary";
-import type { AccordionSummaryProps } from "@mui/material/AccordionSummary";
-import Box from "@mui/material/Box";
-import Button from "@mui/material/Button";
-import FormControl from "@mui/material/FormControl";
-import MenuItem from "@mui/material/MenuItem";
-import Select from "@mui/material/Select";
-import type { SelectChangeEvent } from "@mui/material/Select";
-import Step from "@mui/material/Step";
-import StepLabel from "@mui/material/StepLabel";
-import Stepper from "@mui/material/Stepper";
-import TextField from "@mui/material/TextField";
-import Typography from "@mui/material/Typography";
-import { styled } from "@mui/material/styles";
-import { useNavigate } from "react-router-dom-v5-compat";
+import { Notification, Spinner } from "@canonical/react-components";
 
 import type {
   ComputerSystems,
@@ -45,1308 +13,18 @@ import type {
   StorageSummary,
 } from "../Models/ResourceBlock";
 import { CompositionState } from "../Models/ResourceBlock";
-import type { ResourceBlockInfo } from "../Models/ResourceBlockInfo";
-import classes from "../composedNode.module.scss";
 
-import { fetchData, postData } from "app/drut/config";
+import ComposeNodeStepper from "./Components/ComposeNodeStepper";
+
+import { fetchData, fetchResources } from "app/drut/config";
 import type {
-  Rack,
+  RackByType,
   Zone,
 } from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
-import { arrayObjectArray, genObjAccord } from "app/drut/parser";
-
-const StyledAccordion = styled((props: AccordionProps) => (
-  <MuiAccordion disableGutters elevation={0} square {...props} />
-))(({ theme }) => ({
-  border: `1px solid ${theme.palette.divider}`,
-  "&:not(:last-child)": {
-    borderBottom: 0,
-  },
-  "&:before": {
-    display: "none",
-  },
-}));
-
-const AccordionSummary = styled((props: AccordionSummaryProps) => (
-  <MuiAccordionSummary
-    expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
-    {...props}
-  />
-))(({ theme }) => ({
-  backgroundColor:
-    theme.palette.mode === "dark"
-      ? "rgba(255, 255, 255, .05)"
-      : "rgba(0, 0, 0, .03)",
-  flexDirection: "row-reverse",
-  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-    transform: "rotate(90deg)",
-  },
-  "& .MuiTypography-root": {
-    fontWeight: "400",
-    padding: 0,
-    color: "#707070",
-    fontSize: 14,
-  },
-  "& .MuiAccordionSummary-content": {
-    marginLeft: theme.spacing(1),
-  },
-}));
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-}));
-
-const PageInformation = () => {
-  return (
-    <div className={classes.page_info_content}>
-      <h4>Compose a System for your workload.</h4>
-      <p>
-        Our composition service lets you compose a computer system according to
-        your need. To start with the composition process, you need a compute,
-        please select a compute.
-      </p>
-    </div>
-  );
-};
-
-const Step1Content = ({
-  zones,
-  selectedZone,
-  setSelectedZone,
-  enteredNodeName,
-  setEnteredNodeName,
-}: {
-  zones: Zone[];
-  selectedZone: string;
-  setSelectedZone: (value: string) => void;
-  enteredNodeName: string;
-  setEnteredNodeName: (value: string) => void;
-}) => {
-  return (
-    <>
-      <div className={classes.page_info}>
-        <PageInformation />
-        <div className={classes.page1_data}>
-          <div className={classes.header_selections}>
-            <div>
-              <strong>
-                Zone<span style={{ color: "red" }}>*</span> &#58;
-              </strong>
-            </div>
-            <div>
-              <ZoneSelect
-                selectedZone={selectedZone}
-                setSelectedZone={setSelectedZone}
-                zones={zones}
-              />
-            </div>
-          </div>
-
-          <div className={classes.header_selections}>
-            <div>
-              <strong>
-                Node Name<span style={{ color: "red" }}>*</span> &#58;
-              </strong>
-            </div>
-            <div>
-              <NodeNameInputField
-                enteredNodeName={enteredNodeName}
-                setEnteredNodeName={setEnteredNodeName}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
-
-const ResourceBlockTable = ({
-  resourceBlocks = [],
-  expandedResourceBlockRow,
-  setExpandedResourceBlock,
-  setSelectedResourceBlocks,
-  header,
-  isMaxPortCountLimitReached,
-}: {
-  resourceBlocks: Member[];
-  expandedResourceBlockRow: string;
-  setExpandedResourceBlock: (value: string) => void;
-  setSelectedResourceBlocks: (value: React.SetStateAction<RBTypeResp>) => void;
-  header: string;
-  isMaxPortCountLimitReached: boolean;
-}) => {
-  const [fullRBInfo, setFullRBInfo] = useState({} as ResourceBlockInfo);
-
-  const [deviceInfo, setDeviceInfo] = useState([] as any);
-  const [fabricInfo, setFabricInfo] = useState([] as any);
-  const [fabricSwitchPortInfo, setFabricSwitchPortInfo] = useState([] as any);
-
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-
-  const fetchFullRBInfo = async (rbId: string) => {
-    try {
-      setLoading(true);
-      const promise: Response = await fetchData(`dfab/resourceblocks/${rbId}/`);
-      if (promise.status === 200) {
-        const response: ResourceBlockInfo = await promise.json();
-        setFullRBInfo(response);
-      } else {
-        const apiError: string = await promise.text();
-        const defaultError = "Error fetching Data for Resource Block.";
-        setError(apiError ? apiError : defaultError);
-      }
-    } catch (e: any) {
-      setError(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    if (expandedResourceBlockRow.length > 0) {
-      fetchFullRBInfo(expandedResourceBlockRow);
-    }
-  }, [expandedResourceBlockRow]);
-
-  useEffect(() => {
-    setDeviceInfo(genObjAccord(fullRBInfo));
-    setFabricInfo(arrayObjectArray(getFabricData(fullRBInfo), "FabricInfo"));
-    setFabricSwitchPortInfo(
-      arrayObjectArray(getFabricData(fullRBInfo), "Switch Port")
-    );
-  }, [fullRBInfo]);
-
-  const getFabricData = (data: any) =>
-    data.FabricInfo ? data.FabricInfo : { FabricInfo: null };
-
-  const headers = [
-    {
-      content: "Status",
-      sortKey: "checked",
-      className: "drut-col-sn",
-    },
-    {
-      content: "Name",
-      sortKey: "name",
-      className: "drut-col-name",
-    },
-    {
-      content: "Capacity",
-      sortKey: "capacity",
-      className: "drut-col-name",
-    },
-    {
-      content: "Description",
-      sortKey: "description",
-      width: 280,
-    },
-    {
-      content: "Fully Qualified Group Name",
-      sortKey: "fqgn",
-    },
-    {
-      content: "Count",
-      sortKey: "deviceCount",
-      className: "drut-col-sn",
-    },
-  ];
-
-  const getRowsToRender = (
-    resourceBlockMembers: Member[] = [],
-    expandedResourceBlockRow: string,
-    setExpandedResourceBlock: (value: string) => void
-  ): MainTableRow[] => {
-    return resourceBlockMembers.map((currentRB: Member) => {
-      return {
-        key: currentRB.Id,
-        className:
-          currentRB.Id === expandedResourceBlockRow
-            ? "drut-table-selected-row"
-            : "drut-table-un-selected-row",
-        columns: [
-          {
-            key: `checked_${currentRB.Id}_${Math.random()}`,
-            className: `${classes.col_sn} ${classes.rb_content_align_center}`,
-            content: (
-              <Tooltip
-                className="doughnut-chart__tooltip"
-                followMouse={true}
-                message={`${
-                  !currentRB.checked && isMaxPortCountLimitReached
-                    ? "No available free downstream ports to Attach."
-                    : ""
-                }`}
-                position="right"
-              >
-                <CheckboxInput
-                  checked={currentRB.checked}
-                  disabled={!currentRB.checked && isMaxPortCountLimitReached}
-                  id={currentRB.Id}
-                  label=""
-                  onChange={(e: any) => {
-                    if (e.target.checked && header === "Compute") {
-                      resourceBlockMembers.forEach((m) => (m.checked = false));
-                    }
-                    currentRB.checked = e?.target?.checked;
-                    setSelectedResourceBlocks((rbType: RBTypeResp) => {
-                      rbType[header] = resourceBlockMembers.filter(
-                        (rb: Member) => rb.checked
-                      );
-                      return { ...rbType };
-                    });
-                  }}
-                />
-              </Tooltip>
-            ),
-          },
-          {
-            key: "nodeName",
-            className: `${classes.col_md} ${classes.rb_content_align_center}`,
-            content: (
-              <Tooltip
-                className="doughnut-chart__tooltip"
-                followMouse={true}
-                message={`${currentRB.Name}`}
-                position="right"
-              >
-                <Button
-                  onClick={() => {
-                    setExpandedResourceBlock(
-                      expandedResourceBlockRow === currentRB.Id
-                        ? ""
-                        : currentRB.Id
-                    );
-                  }}
-                  variant="text"
-                >
-                  {currentRB?.Name}
-                </Button>
-              </Tooltip>
-            ),
-          },
-          {
-            key: "capacity",
-            className: `${classes.col_md} ${classes.rb_content_align_center}`,
-            content: (
-              <div>
-                {(currentRB?.capacity || []).map(
-                  (capacity: string, index: number) => (
-                    <div>
-                      {currentRB.capacity.length > 3 &&
-                        currentRB.capacity.length / 2 === index && (
-                          <div style={{ margin: "1rem 6px" }}></div>
-                        )}
-                      {capacity}
-                    </div>
-                  )
-                )}
-              </div>
-            ),
-          },
-          {
-            key: "description",
-            className: `${classes.rb_content_align}`,
-            content: (
-              <div>
-                {(currentRB?.info || []).map((info: string) => (
-                  <div>{info}</div>
-                ))}
-              </div>
-            ),
-            width: 280,
-            maxWidth: 280,
-          },
-          {
-            key: "fqnn",
-            className: `${classes.rb_content_align_left}`,
-            content: <>{currentRB?.Manager?.Fqnn || "-"}</>,
-          },
-          {
-            key: "count",
-            className: `${classes.col_sn} ${classes.rb_content_align_center}`,
-            content: <>{currentRB.Count}</>,
-          },
-        ],
-        expanded: currentRB.Id === expandedResourceBlockRow,
-        expandedContent: (
-          <Row>
-            {error && error.length && (
-              <Notification
-                inline
-                key={`notification_${Math.random()}`}
-                onDismiss={() => setError("")}
-                severity="negative"
-              >
-                {error}
-              </Notification>
-            )}
-            {loading ? (
-              <Notification
-                inline
-                key={`notification_${Math.random()}`}
-                severity="information"
-              >
-                <Spinner
-                  key={`managerListSpinner_${Math.random()}`}
-                  text={`Fetching Resource Block Information...`}
-                />
-              </Notification>
-            ) : (
-              <Col size={12}>
-                {
-                  <div className="element-container">
-                    <div>
-                      <Card>
-                        <strong className="p-muted-heading">
-                          Device Information
-                        </strong>
-                        <hr />
-                        {deviceInfo.length ? (
-                          <Accordion className="" sections={deviceInfo} />
-                        ) : (
-                          <p>Device data not available.</p>
-                        )}
-                        <strong className="p-muted-heading">
-                          Fabric Information
-                        </strong>
-                        <hr />
-                        {fabricInfo.length ? (
-                          <Accordion
-                            className=""
-                            sections={fabricSwitchPortInfo}
-                          />
-                        ) : (
-                          <p>Fabric data not available!</p>
-                        )}
-                      </Card>
-                    </div>
-                  </div>
-                }
-              </Col>
-            )}
-          </Row>
-        ),
-      };
-    });
-  };
-
-  return (
-    <>
-      <MainTable
-        className="drut-table-border"
-        emptyStateMsg="Data not available."
-        expanding
-        headers={headers}
-        key="computeTable"
-        paginate={8}
-        rows={getRowsToRender(
-          resourceBlocks,
-          expandedResourceBlockRow,
-          setExpandedResourceBlock
-        )}
-        sortable
-      />
-    </>
-  );
-};
-
-const ResourceBlocksAccordion = ({
-  resourceBlocks,
-  expandedResourceBlockRow,
-  setExpandedResourceBlock,
-  header,
-  expandedResourceType,
-  setExpandedResourceType,
-  setSelectedResourceBlocks,
-  isMaxPortCountLimitReached,
-}: {
-  resourceBlocks: Member[];
-  expandedResourceBlockRow: string;
-  header: string;
-  setExpandedResourceBlock: (value: string) => void;
-  expandedResourceType: string;
-  setExpandedResourceType: (value: string) => void;
-  setSelectedResourceBlocks: (value: React.SetStateAction<RBTypeResp>) => void;
-  isMaxPortCountLimitReached: boolean;
-}) => {
-  return (
-    <StyledAccordion
-      expanded={header === expandedResourceType}
-      onChange={() =>
-        setExpandedResourceType(header === expandedResourceType ? "" : header)
-      }
-    >
-      <AccordionSummary aria-controls="panel1a-content" id="panel1a-header">
-        <Typography>
-          <strong>
-            {header} Block &nbsp; ({resourceBlocks.length})
-          </strong>
-        </Typography>
-      </AccordionSummary>
-      <AccordionDetails>
-        <ResourceBlockTable
-          expandedResourceBlockRow={expandedResourceBlockRow}
-          header={header}
-          isMaxPortCountLimitReached={isMaxPortCountLimitReached}
-          resourceBlocks={resourceBlocks}
-          setExpandedResourceBlock={setExpandedResourceBlock}
-          setSelectedResourceBlocks={setSelectedResourceBlocks}
-        />
-      </AccordionDetails>
-    </StyledAccordion>
-  );
-};
-
-const ResourceBlockPage = ({
-  resourceBlocksByType,
-  expandedResourceBlockRow,
-  setExpandedResourceBlock,
-  expandedResourceType,
-  setExpandedResourceType,
-  setSelectedResourceBlocks,
-  isMaxPortCountLimitReached,
-  fetchingResourceBlocks,
-}: {
-  resourceBlocksByType: RBTypeResp;
-  expandedResourceBlockRow: string;
-  setExpandedResourceBlock: (value: string) => void;
-  expandedResourceType: string;
-  setExpandedResourceType: (value: string) => void;
-  setSelectedResourceBlocks: (value: React.SetStateAction<RBTypeResp>) => void;
-  isMaxPortCountLimitReached: boolean;
-  fetchingResourceBlocks: boolean;
-}) => {
-  const keys = Object.keys(resourceBlocksByType);
-  const isDataAvailable: boolean = keys.some(
-    (key) => resourceBlocksByType[key]?.length > 0
-  );
-  return (
-    <>
-      {fetchingResourceBlocks ? (
-        <Notification
-          inline
-          key={`notification_${Math.random()}`}
-          severity="information"
-        >
-          <Spinner
-            key={`resource_blocks_spinner_${Math.random()}`}
-            text={`Fetching Resource Blocks...`}
-          />
-        </Notification>
-      ) : isDataAvailable ? (
-        keys.map((key: string) => {
-          return (
-            <ResourceBlocksAccordion
-              expandedResourceBlockRow={expandedResourceBlockRow}
-              expandedResourceType={expandedResourceType}
-              header={key}
-              isMaxPortCountLimitReached={isMaxPortCountLimitReached}
-              resourceBlocks={resourceBlocksByType[key]}
-              setExpandedResourceBlock={setExpandedResourceBlock}
-              setExpandedResourceType={setExpandedResourceType}
-              setSelectedResourceBlocks={setSelectedResourceBlocks}
-            />
-          );
-        })
-      ) : (
-        <div className={classes.no_data}>Data Not Available</div>
-      )}
-    </>
-  );
-};
-
-const IFICPool = ({
-  computeResourceBlocks,
-  expandedResourceBlockRow,
-  setExpandedResourceBlock,
-  racks,
-  selectedIFICRack,
-  setSelectedIFICRack,
-  expandedResourceType,
-  setExpandedResourceType,
-  setSelectedResourceBlocks,
-  fetchingResourceBlocks,
-}: {
-  computeResourceBlocks: RBTypeResp;
-  expandedResourceBlockRow: string;
-  setExpandedResourceBlock: (value: string) => void;
-  racks: Rack[];
-  selectedIFICRack: string;
-  setSelectedIFICRack: (value: string) => void;
-  expandedResourceType: string;
-  setExpandedResourceType: (value: string) => void;
-  setSelectedResourceBlocks: (value: React.SetStateAction<RBTypeResp>) => void;
-  fetchingResourceBlocks: boolean;
-}) => {
-  return (
-    <div>
-      <div className={classes.fic_block}>
-        <span>
-          <strong>IFIC Pool &#58;</strong>
-        </span>
-        <RackSelect
-          racks={racks}
-          selectedRack={selectedIFICRack}
-          setSelectedRack={setSelectedIFICRack}
-        />
-      </div>
-      {selectedIFICRack !== "" ? (
-        <ResourceBlockPage
-          expandedResourceBlockRow={expandedResourceBlockRow}
-          expandedResourceType={expandedResourceType}
-          fetchingResourceBlocks={fetchingResourceBlocks}
-          isMaxPortCountLimitReached={false}
-          resourceBlocksByType={computeResourceBlocks}
-          setExpandedResourceBlock={setExpandedResourceBlock}
-          setExpandedResourceType={setExpandedResourceType}
-          setSelectedResourceBlocks={setSelectedResourceBlocks}
-        />
-      ) : (
-        <div className={classes.no_data}>
-          Please select Rack to fetch Resource Blocks
-        </div>
-      )}
-    </div>
-  );
-};
-
-const TFICPool = ({
-  targetResourceBlocks,
-  expandedResourceBlockRow,
-  setExpandedResourceBlock,
-  racks,
-  selectedTFICRack,
-  setSelectedTFICRack,
-  expandedResourceType,
-  setExpandedResourceType,
-  setSelectedResourceBlocks,
-  isMaxPortCountLimitReached,
-  fetchingResourceBlocks,
-}: {
-  targetResourceBlocks: RBTypeResp;
-  expandedResourceBlockRow: string;
-  setExpandedResourceBlock: (value: string) => void;
-  racks: Rack[];
-  selectedTFICRack: string;
-  setSelectedTFICRack: (value: string) => void;
-  expandedResourceType: string;
-  setExpandedResourceType: (value: string) => void;
-  setSelectedResourceBlocks: (value: React.SetStateAction<RBTypeResp>) => void;
-  isMaxPortCountLimitReached: boolean;
-  fetchingResourceBlocks: boolean;
-}) => {
-  return (
-    <div>
-      <div className={classes.fic_block}>
-        <span>
-          <strong>TFIC Pool &#58;</strong>
-        </span>
-        <RackSelect
-          racks={racks}
-          selectedRack={selectedTFICRack}
-          setSelectedRack={setSelectedTFICRack}
-        />
-      </div>
-      {selectedTFICRack !== "" ? (
-        <ResourceBlockPage
-          expandedResourceBlockRow={expandedResourceBlockRow}
-          expandedResourceType={expandedResourceType}
-          fetchingResourceBlocks={fetchingResourceBlocks}
-          isMaxPortCountLimitReached={isMaxPortCountLimitReached}
-          resourceBlocksByType={targetResourceBlocks}
-          setExpandedResourceBlock={setExpandedResourceBlock}
-          setExpandedResourceType={setExpandedResourceType}
-          setSelectedResourceBlocks={setSelectedResourceBlocks}
-        />
-      ) : (
-        <div className={classes.no_data}>
-          Please select Rack to fetch Resource Blocks
-        </div>
-      )}
-    </div>
-  );
-};
-
-const RackSelect = ({
-  selectedRack,
-  setSelectedRack,
-  racks,
-}: {
-  selectedRack: string;
-  setSelectedRack: (value: string) => void;
-  racks: Rack[];
-}) => {
-  return (
-    <FormControl
-      size="small"
-      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
-      variant="standard"
-    >
-      <Select
-        className={classes.select_value}
-        id="rack-select"
-        label=""
-        onChange={(e: SelectChangeEvent<string>) => {
-          setSelectedRack(e.target.value);
-        }}
-        placeholder="Select Rack"
-        value={`${selectedRack}`}
-        variant="standard"
-      >
-        {racks.length === 0 ? (
-          <MenuItem>
-            <em>No Racks available</em>
-          </MenuItem>
-        ) : (
-          [{ rack_id: 0, rack_name: "All", rack_fqgn: "All" }, ...racks].map(
-            (rack: Rack) => (
-              <MenuItem
-                className={classes.header_selection_menu_item}
-                key={rack.rack_id}
-                value={rack.rack_id}
-              >
-                {rack.rack_name}
-              </MenuItem>
-            )
-          )
-        )}
-      </Select>
-    </FormControl>
-  );
-};
-
-const StepperContent = ({
-  stepIndex,
-  zones,
-  selectedZone,
-  setSelectedZone,
-  expandedResourceBlockRow,
-  setExpandedResourceBlock,
-  racks,
-  selectedIFICRack,
-  setSelectedIFICRack,
-  selectedTFICRack,
-  setSelectedTFICRack,
-  expandedResourceType,
-  setExpandedResourceType,
-  enteredNodeName,
-  setEnteredNodeName,
-  setSelectedResourceBlocks,
-  isMaxPortCountLimitReached,
-  computeResourceBlocks,
-  targetResourceBlocks,
-  fetchingResourceBlocks,
-}: {
-  stepIndex: number;
-  zones: Zone[];
-  selectedZone: string;
-  setSelectedZone: (value: string) => void;
-  computeResourceBlocks: RBTypeResp;
-  targetResourceBlocks: RBTypeResp;
-  expandedResourceBlockRow: string;
-  setExpandedResourceBlock: (value: string) => void;
-  racks: Rack[];
-  selectedIFICRack: string;
-  setSelectedIFICRack: (value: string) => void;
-  selectedTFICRack: string;
-  setSelectedTFICRack: (value: string) => void;
-  expandedResourceType: string;
-  setExpandedResourceType: (value: string) => void;
-  enteredNodeName: string;
-  setEnteredNodeName: (value: string) => void;
-  setSelectedResourceBlocks: (value: React.SetStateAction<RBTypeResp>) => void;
-  isMaxPortCountLimitReached: boolean;
-  fetchingResourceBlocks: boolean;
-}) => {
-  switch (stepIndex) {
-    case 1:
-      return (
-        <Step1Content
-          enteredNodeName={enteredNodeName}
-          selectedZone={selectedZone}
-          setEnteredNodeName={setEnteredNodeName}
-          setSelectedZone={setSelectedZone}
-          zones={zones}
-        />
-      );
-    case 2:
-      return (
-        <IFICPool
-          computeResourceBlocks={computeResourceBlocks}
-          expandedResourceBlockRow={expandedResourceBlockRow}
-          expandedResourceType={expandedResourceType}
-          fetchingResourceBlocks={fetchingResourceBlocks}
-          racks={racks}
-          selectedIFICRack={selectedIFICRack}
-          setExpandedResourceBlock={setExpandedResourceBlock}
-          setExpandedResourceType={setExpandedResourceType}
-          setSelectedIFICRack={setSelectedIFICRack}
-          setSelectedResourceBlocks={setSelectedResourceBlocks}
-        />
-      );
-    case 3:
-      return (
-        <TFICPool
-          expandedResourceBlockRow={expandedResourceBlockRow}
-          expandedResourceType={expandedResourceType}
-          fetchingResourceBlocks={fetchingResourceBlocks}
-          isMaxPortCountLimitReached={isMaxPortCountLimitReached}
-          racks={racks}
-          selectedTFICRack={selectedTFICRack}
-          setExpandedResourceBlock={setExpandedResourceBlock}
-          setExpandedResourceType={setExpandedResourceType}
-          setSelectedResourceBlocks={setSelectedResourceBlocks}
-          setSelectedTFICRack={setSelectedTFICRack}
-          targetResourceBlocks={targetResourceBlocks}
-        />
-      );
-    default:
-      return <p>No Information</p>;
-  }
-};
-
-const ZoneSelect = ({
-  zones,
-  selectedZone,
-  setSelectedZone,
-}: {
-  zones: Zone[];
-  selectedZone: string;
-  setSelectedZone: (value: string) => void;
-}) => {
-  return (
-    <FormControl
-      size="small"
-      sx={{ m: 0, minWidth: 120, maxWidth: 150 }}
-      variant="standard"
-    >
-      <Select
-        className={classes.select_value}
-        id="zone-select"
-        label=""
-        onChange={(e: SelectChangeEvent<string>) => {
-          setSelectedZone(e.target.value);
-        }}
-        placeholder="Select Zone"
-        value={`${selectedZone}`}
-        variant="standard"
-      >
-        {zones.length === 0 && (
-          <MenuItem>
-            <em>No Zones available</em>
-          </MenuItem>
-        )}
-        {zones.map((zone: Zone) => (
-          <MenuItem
-            className={classes.header_selection_menu_item}
-            key={zone.zone_id}
-            value={zone.zone_id}
-          >
-            {zone.zone_fqgn}
-          </MenuItem>
-        ))}
-      </Select>
-    </FormControl>
-  );
-};
-
-const NodeNameInputField = ({
-  enteredNodeName,
-  setEnteredNodeName,
-}: {
-  enteredNodeName: string;
-  setEnteredNodeName: (value: string) => void;
-}) => {
-  return (
-    <TextField
-      className={classes.input_field}
-      defaultValue=""
-      id="standard-required"
-      label=""
-      onChange={(e) => {
-        if (e.target.value.startsWith(" ")) {
-          return;
-        }
-        setEnteredNodeName(e.target.value);
-      }}
-      placeholder="Node Name"
-      required
-      value={enteredNodeName}
-      variant="standard"
-    />
-  );
-};
-
-const ComposeNodeStepper = ({
-  zones,
-  selectedZone,
-  setSelectedZone,
-  computeResourceBlocks,
-  targetResourceBlocks,
-  expandedResourceBlockRow,
-  setExpandedResourceBlock,
-  racks,
-  selectedIFICRack,
-  setSelectedIFICRack,
-  selectedTFICRack,
-  setSelectedTFICRack,
-  expandedResourceType,
-  setExpandedResourceType,
-  enteredNodeName,
-  setEnteredNodeName,
-  selectedResourceBlocks,
-  setSelectedResourceBlocks,
-  isMaxPortCountLimitReached,
-  setIsMaxPortCountLimitReached,
-  selectedZoneName,
-  setActiveStep,
-  activeStep,
-  fetchingResourceBlocks,
-}: {
-  zones: Zone[];
-  selectedZone: string;
-  setSelectedZone: (value: string) => void;
-  computeResourceBlocks: RBTypeResp;
-  targetResourceBlocks: RBTypeResp;
-  expandedResourceBlockRow: string;
-  setExpandedResourceBlock: (value: string) => void;
-  racks: Rack[];
-  selectedIFICRack: string;
-  setSelectedIFICRack: (value: string) => void;
-  selectedTFICRack: string;
-  setSelectedTFICRack: (value: string) => void;
-  expandedResourceType: string;
-  setExpandedResourceType: (value: string) => void;
-  enteredNodeName: string;
-  setEnteredNodeName: (value: string) => void;
-  selectedResourceBlocks: RBTypeResp;
-  setSelectedResourceBlocks: (value: React.SetStateAction<RBTypeResp>) => void;
-  isMaxPortCountLimitReached: boolean;
-  setIsMaxPortCountLimitReached: (value: boolean) => void;
-  selectedZoneName: string;
-  setActiveStep: (value: React.SetStateAction<number>) => void;
-  activeStep: number;
-  fetchingResourceBlocks: boolean;
-}) => {
-  const steps = [
-    "Select Zone",
-    "Select Compute Block",
-    "Select Target Block(s)",
-  ];
-
-  const isStepOptional = (step: number) => step === 2;
-
-  const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
-  };
-
-  const handleBack = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep - 1);
-  };
-
-  const isNextDisabled = (stepIndex: number): boolean => {
-    if (stepIndex === 0) {
-      return !selectedZone || !enteredNodeName;
-    }
-    if (stepIndex === 1) {
-      const computeBlocks = selectedResourceBlocks["Compute"];
-      return !computeBlocks || computeBlocks.length === 0;
-    }
-    return false;
-  };
-
-  const onCancelCompostion = () => {
-    setActiveStep(0);
-    setSelectedZone("");
-    setSelectedIFICRack("");
-    setSelectedTFICRack("");
-    setExpandedResourceType("");
-    setSelectedResourceBlocks({});
-  };
-
-  return (
-    <div>
-      {activeStep !== 0 && selectedIFICRack !== "" && (
-        <div className={classes.node_details_box}>
-          <ComposeNodeBlock
-            enteredNodeName={enteredNodeName}
-            onCancelCompostion={onCancelCompostion}
-            selectedResourceBlocks={selectedResourceBlocks}
-            selectedZone={selectedZoneName}
-            setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
-          />
-        </div>
-      )}
-      <Box sx={{ width: "100%" }}>
-        <Stepper activeStep={activeStep} alternativeLabel>
-          {steps.map((label, index) => {
-            const stepProps: { completed?: boolean } = {};
-            const labelProps: {
-              optional?: React.ReactNode;
-            } = {};
-            if (isStepOptional(index)) {
-              labelProps.optional = (
-                <Typography variant="caption">Optional</Typography>
-              );
-            }
-            return (
-              <Step key={label} {...stepProps}>
-                <StepLabel {...labelProps}>{label}</StepLabel>
-              </Step>
-            );
-          })}
-        </Stepper>
-        <React.Fragment>
-          <div>
-            <StepperContent
-              computeResourceBlocks={computeResourceBlocks}
-              enteredNodeName={enteredNodeName}
-              expandedResourceBlockRow={expandedResourceBlockRow}
-              expandedResourceType={expandedResourceType}
-              fetchingResourceBlocks={fetchingResourceBlocks}
-              isMaxPortCountLimitReached={isMaxPortCountLimitReached}
-              racks={racks}
-              selectedIFICRack={selectedIFICRack}
-              selectedTFICRack={selectedTFICRack}
-              selectedZone={selectedZone}
-              setEnteredNodeName={setEnteredNodeName}
-              setExpandedResourceBlock={setExpandedResourceBlock}
-              setExpandedResourceType={setExpandedResourceType}
-              setSelectedIFICRack={setSelectedIFICRack}
-              setSelectedResourceBlocks={setSelectedResourceBlocks}
-              setSelectedTFICRack={setSelectedTFICRack}
-              setSelectedZone={setSelectedZone}
-              stepIndex={activeStep + 1}
-              targetResourceBlocks={targetResourceBlocks}
-              zones={zones}
-            />
-          </div>
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <div className={classes.text_button}>
-              <Button
-                color="inherit"
-                disabled={activeStep === 0}
-                onClick={handleBack}
-                sx={{ mr: 1 }}
-                variant="text"
-              >
-                Back
-              </Button>
-            </div>
-            <Box sx={{ flex: "1 1 auto" }} />
-            {activeStep !== steps.length - 1 && (
-              <div className={classes.contained_button}>
-                <Button
-                  disabled={isNextDisabled(activeStep)}
-                  onClick={handleNext}
-                  variant="contained"
-                >
-                  Next
-                </Button>
-              </div>
-            )}
-          </Box>
-        </React.Fragment>
-      </Box>
-    </div>
-  );
-};
-
-const ComposeNodeBlock = ({
-  enteredNodeName,
-  selectedResourceBlocks,
-  setIsMaxPortCountLimitReached,
-  selectedZone,
-  onCancelCompostion,
-}: {
-  enteredNodeName: string;
-  selectedResourceBlocks: RBTypeResp;
-  setIsMaxPortCountLimitReached: (value: boolean) => void;
-  selectedZone: string;
-  onCancelCompostion: () => void;
-}) => {
-  const [error, setError] = useState("");
-  const [composing, setComposing] = useState(false);
-  const navigate = useNavigate();
-  const onClickCompose = async () => {
-    try {
-      setError("");
-      setComposing(true);
-      const resourceBlocks: string[] = Object.values(
-        selectedResourceBlocks
-      ).flatMap((members: Member[]) => members.flatMap((member) => member.Id));
-      const payLoad: { Name: string; ResourceBlocks: string[] } = {
-        Name: enteredNodeName,
-        ResourceBlocks: resourceBlocks,
-      };
-      const promise = await postData("dfab/nodes/", payLoad);
-      if (promise.status === 200) {
-        navigate("/drut-cdi/nodes");
-      } else {
-        const apiError: string = await promise.text();
-        const defaultError = "Failed to Compose a Node.";
-        setError(apiError ? apiError : defaultError);
-      }
-    } catch (e: any) {
-      setError(e);
-    } finally {
-      setComposing(false);
-    }
-  };
-
-  const targetRBs: string[] = Object.keys(selectedResourceBlocks).filter(
-    (key: string) => key !== "Compute"
-  );
-  const isComputeBlockSelected: boolean =
-    selectedResourceBlocks && selectedResourceBlocks["Compute"]?.length > 0;
-  const selectedTargetRBsCount = targetRBs.reduce(
-    (acc, val) => acc + selectedResourceBlocks[val].length,
-    0
-  );
-  const totalIFICDownStreamPorts =
-    selectedResourceBlocks["Compute"]?.[0]?.FabricInfo[0]?.DownstreamPorts || 0;
-  setIsMaxPortCountLimitReached(
-    selectedTargetRBsCount >= totalIFICDownStreamPorts
-  );
-  return (
-    <>
-      <div className={classes.node_details_content}>
-        <div className={classes.node_details_header}>Node Details &#58;</div>
-        <div className={classes.node_details_data}>
-          <div>
-            <span>
-              <strong>Node Name &#58; &nbsp;</strong>
-            </span>
-            <span>{enteredNodeName}</span>
-          </div>
-          <div>
-            <span>
-              <strong>Selected Zone &#58; &nbsp;</strong>
-            </span>
-            <span>{selectedZone}</span>
-          </div>
-          <div>
-            <span>
-              <strong>Selected Compute Block &#58; &nbsp;</strong>
-              {isComputeBlockSelected && (
-                <span>
-                  <strong>
-                    {`[`}&nbsp;Total Ports &#58; &nbsp;{" "}
-                    {totalIFICDownStreamPorts}
-                    &#44; &nbsp; Available &#58; &nbsp;
-                    {totalIFICDownStreamPorts - selectedTargetRBsCount}
-                    &#44; &nbsp; Selected &#58; &nbsp;
-                    {selectedTargetRBsCount} &nbsp;
-                    {`]`}
-                  </strong>
-                </span>
-              )}
-              {isComputeBlockSelected ? (
-                <div className={classes.node_details_resource_block}>
-                  {selectedResourceBlocks["Compute"].map(
-                    (computeBlock: Member) => {
-                      return (
-                        <div
-                          className={
-                            classes.node_details_resource_block_main_content
-                          }
-                        >
-                          <div
-                            className={
-                              classes.node_details_resource_block_child_content
-                            }
-                          >
-                            <div>
-                              {computeBlock?.Manager?.ManagerNodeName || "-"}
-                              &nbsp;
-                              {"("}
-                              {computeBlock?.Manager?.RackName || "-"}
-                              {")"}&nbsp;&#x2010;&nbsp;{computeBlock.Name}
-                              &#44;&nbsp;
-                            </div>
-                            <div>
-                              <span>Device Count&#58;&nbsp;</span>
-                              <span>{computeBlock.Count}&#44;&nbsp;</span>
-                            </div>
-                            <div>
-                              <span>Status &#58; &nbsp;</span>
-                              <span>
-                                {computeBlock.Status.Health} &#10098;{" "}
-                                {computeBlock.Status.State} &#10099;
-                              </span>
-                            </div>
-                          </div>
-                          <div>
-                            {computeBlock.info.map((info: string) => (
-                              <div>{info}</div>
-                            ))}
-                          </div>
-                        </div>
-                      );
-                    }
-                  )}
-                </div>
-              ) : (
-                <span>No Compute Block Selected </span>
-              )}
-            </span>
-          </div>
-          <div>
-            <span>
-              <strong>Selected Target Block(s) &#58; &nbsp;</strong>
-              {selectedTargetRBsCount > 0 ? (
-                <div>
-                  {targetRBs
-                    .flatMap((key: string) => {
-                      return (
-                        <>
-                          {selectedResourceBlocks[key]?.length > 0 && (
-                            <div
-                              className={classes.node_details_target_block_box}
-                            >
-                              <div>
-                                <strong>{key}</strong>
-                              </div>
-                              <div
-                                className={`${
-                                  classes.node_details_target_block
-                                } ${
-                                  selectedResourceBlocks[key].length > 2
-                                    ? classes.space_between
-                                    : classes.start
-                                }`}
-                              >
-                                {selectedResourceBlocks[key].map(
-                                  (targetRb: Member) => (
-                                    <div
-                                      className={
-                                        classes.node_details_target_block_content
-                                      }
-                                    >
-                                      <div
-                                        className={
-                                          classes.node_details_target_block_details
-                                        }
-                                      >
-                                        <div>
-                                          {targetRb?.Manager?.ManagerNodeName ||
-                                            "-"}
-                                          &nbsp;
-                                          {"("}
-                                          {targetRb?.Manager?.RackName || "-"}
-                                          {")"}&nbsp;&#x2010;&nbsp;
-                                          {targetRb.Name}
-                                          &#44;&nbsp;
-                                        </div>
-                                        <div
-                                          className={classes.rb_device_details}
-                                        >
-                                          <div>
-                                            <span>Device Count&#58;&nbsp;</span>
-                                            <span>
-                                              {targetRb.Count}&#44;&nbsp;
-                                            </span>
-                                          </div>
-                                          <div>
-                                            <span>Status&#58;&nbsp;</span>
-                                            <span>
-                                              {targetRb.Status.Health} &#10098;
-                                              {targetRb.Status.State} &#10099;
-                                            </span>
-                                          </div>
-                                        </div>
-                                      </div>
-                                      <div>
-                                        {targetRb.info.map((info: string) => (
-                                          <div>{info}</div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  )
-                                )}
-                              </div>
-                            </div>
-                          )}
-                        </>
-                      );
-                    })
-                    .reduce(
-                      (acc: JSX.Element[], curr: JSX.Element) =>
-                        acc.concat(curr),
-                      []
-                    )}
-                </div>
-              ) : (
-                <span>No Target Resource Block(s) selected.</span>
-              )}
-            </span>
-          </div>
-        </div>
-        <div className={`${classes.compose_button}`}>
-          <div>
-            {error && error.length > 0 && (
-              <Notification
-                inline
-                key={`notification_${Math.random()}`}
-                onDismiss={() => setError("")}
-                severity="negative"
-                style={{ margin: 0 }}
-              >
-                {error}
-              </Notification>
-            )}
-          </div>
-          <div className={classes.compose_node_button}>
-            <div className={`${classes.text_button}`}>
-              <Button
-                color="inherit"
-                disabled={!isComputeBlockSelected || composing}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onCancelCompostion();
-                }}
-                sx={{ mr: 1 }}
-                variant="text"
-              >
-                Cancel
-              </Button>
-            </div>
-
-            <div className={`${classes.contained_button}`}>
-              <Button
-                color="inherit"
-                disabled={!isComputeBlockSelected || composing}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onClickCompose();
-                }}
-                sx={{ mr: 1 }}
-                variant="contained"
-              >
-                {composing && (
-                  <Spinner
-                    color="white"
-                    key={`managerListSpinner_${Math.random()}`}
-                  />
-                )}
-                <span>
-                  {composing ? `Composing Node...` : `Compose System`}
-                </span>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
-  );
-};
 
 const ComposeNodeContent = (): JSX.Element => {
   const [zones, setZones] = useState([] as Zone[]);
-  const [racks, setRacks] = useState([] as Rack[]);
+  const [racks, setRacks] = useState({} as RackByType);
   const [selectedZoneName, setSelectedZoneName] = useState("");
 
   const [selectedZone, setSelectedZone] = useState("");
@@ -1358,6 +36,11 @@ const ComposeNodeContent = (): JSX.Element => {
   const [fetchingResourceBlocks, setFetchingResourceBlocks] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Loading...");
   const [error, setError] = useState("");
+  const [resources, setResources] = useState([] as any);
+  const [fqnn, setFqnn] = useState({
+    uniqueFqnn: [{ label: "All", value: "All" }],
+    selectedFqnn: "All",
+  } as any);
 
   const [expandedResourceBlockRow, setExpandedResourceBlock] = useState("");
   const [expandedResourceType, setExpandedResourceType] = useState("");
@@ -1390,17 +73,54 @@ const ComposeNodeContent = (): JSX.Element => {
       return () => {
         abortController.abort();
       };
-    } else return;
+    }
   }, [selectedIFICRack]);
 
   useEffect(() => {
-    if (typeof +selectedTFICRack === "number" && selectedZone) {
-      fetchResourceBlocks("TFIC");
-      return () => {
-        abortController.abort();
-      };
-    } else return;
-  }, [selectedTFICRack]);
+    let res = resources;
+    if (fqnn.selectedFqnn !== "All") {
+      res = resources.filter(
+        (val: any) => val.Manager.Fqnn === fqnn.selectedFqnn
+      );
+    }
+    setTargetResourceBlocks(getRespByType(res));
+  }, [fqnn.selectedFqnn]);
+
+  useEffect(() => {
+    if (
+      activeStep === 2 &&
+      selectedResourceBlocks.Compute &&
+      selectedResourceBlocks?.Compute[0]?.Id
+    ) {
+      setFetchingResourceBlocks(true);
+      fetchResources(null, selectedResourceBlocks.Compute[0].Id)
+        .then((response: any) => response.json())
+        .then(
+          (result: any) => {
+            setResources(result.Links.Members);
+            setTargetResourceBlocks(getRespByType(result.Links.Members));
+            const uniqueFqnn = [
+              ...new Set(
+                result.Links.Members.map((val: any) => val.Manager.Fqnn)
+              ),
+            ];
+            const values = [
+              { label: "All", value: "All" },
+              ...uniqueFqnn.map((val: any) => ({
+                label: val,
+                value: val,
+              })),
+            ];
+            setFqnn({ uniqueFqnn: values, selectedFqnn: "All" });
+            setFetchingResourceBlocks(false);
+          },
+          (error: any) => {
+            setFetchingResourceBlocks(false);
+            setError(error);
+          }
+        );
+    }
+  }, [activeStep]);
 
   useEffect(() => {
     if (selectedZone) {
@@ -1408,13 +128,11 @@ const ComposeNodeContent = (): JSX.Element => {
         (zone) => zone.zone_id === +selectedZone
       );
       setSelectedZoneName(zone?.zone_fqgn || "-");
-      setRacks(zone?.racks || []);
-      if (!!zone?.racks?.length) {
+      setRacks(zone?.racks as RackByType);
+      if (!!(zone?.racks as RackByType).ific.length) {
         setSelectedIFICRack("0");
-        setSelectedTFICRack("0");
       } else {
         setSelectedIFICRack("");
-        setSelectedTFICRack("");
       }
     }
   }, [selectedZone]);
@@ -1424,7 +142,7 @@ const ComposeNodeContent = (): JSX.Element => {
       setLoading(true);
       setLoadingMessage("Loading...");
       const promise = await fetchData(
-        "dfab/nodegroups/?op=get_zones",
+        "dfab/nodegroups/?op=get_zones_and_racks_by_rack_type",
         false,
         abortController.signal
       );
@@ -1459,9 +177,12 @@ const ComposeNodeContent = (): JSX.Element => {
       } else if (activeStep === 2 && +selectedTFICRack !== 0) {
         params = { ...{ ...params, RackId: +selectedTFICRack } };
       }
-      const queryParam: string = Object.keys(params)
+      let queryParam: string = Object.keys(params)
         .map((key: string) => key + "=" + params[key as keyof typeof params])
         .join("&");
+      if (managerType == "TFIC") {
+        queryParam += `&ManagerType=PRU`;
+      }
       const promise = await fetchData(
         url.concat(queryParam),
         false,
@@ -1533,20 +254,29 @@ const ComposeNodeContent = (): JSX.Element => {
             d?.Manufacturer || "-"
           }] [${d?.Model || "-"}]`
         );
-        if (member?.Summary?.Processors) {
+        if (
+          member?.Summary?.Processors &&
+          d.ResourceBlockType === "Processor"
+        ) {
           const o: Processors = member.Summary.Processors;
           member.capacity.push(`${o.Count} of ${o.TotalCores} CORE(O)`);
           member.capacity.push(`${o.MaxSpeedMHz}MHZ(O)`);
         }
-        if (member?.Summary?.NetworkInterfaces) {
+        if (
+          member?.Summary?.NetworkInterfaces &&
+          d.ResourceBlockType === "Network"
+        ) {
           const n: NetworkInterfaceSummary = member.Summary.NetworkInterfaces;
           member.capacity.push(`${n.MaxSpeedGbps}Mbps(N)`);
         }
-        if (member?.Summary?.Storage) {
+        if (member?.Summary?.Storage && d.ResourceBlockType === "Storage") {
           const s: StorageSummary = member.Summary.Storage;
           member.capacity.push(`${s.CapacityGigaBytes}GB(S)`);
         }
-        if (member?.Summary?.ComputerSystems) {
+        if (
+          member?.Summary?.ComputerSystems &&
+          d.ResourceBlockType.includes("Compute")
+        ) {
           const c: ComputerSystems = member.Summary.ComputerSystems;
           const key: string = member.ResourceBlockType.includes("Compute")
             ? "C"
@@ -1593,6 +323,7 @@ const ComposeNodeContent = (): JSX.Element => {
             expandedResourceBlockRow={expandedResourceBlockRow}
             expandedResourceType={expandedResourceType}
             fetchingResourceBlocks={fetchingResourceBlocks}
+            fqnn={fqnn}
             isMaxPortCountLimitReached={isMaxPortCountLimitReached}
             racks={racks}
             selectedIFICRack={selectedIFICRack}
@@ -1604,6 +335,7 @@ const ComposeNodeContent = (): JSX.Element => {
             setEnteredNodeName={setEnteredNodeName}
             setExpandedResourceBlock={setExpandedResourceBlock}
             setExpandedResourceType={setExpandedResourceType}
+            setFqnn={setFqnn}
             setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
             setSelectedIFICRack={setSelectedIFICRack}
             setSelectedResourceBlocks={setSelectedResourceBlocks}

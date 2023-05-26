@@ -1,17 +1,20 @@
 import { Col, Row, Select } from "@canonical/react-components";
-import FormikField from "app/base/components/FormikField";
-import type { AnyObject } from "app/base/types";
 import { useFormikContext } from "formik";
 
 import type { Group } from "../../type";
+
+import FormikField from "app/base/components/FormikField";
+import type { AnyObject } from "app/base/types";
 
 export const AddGroupFormFields = <V extends AnyObject>({
   parentGroups = [],
 }: {
   parentGroups: Group[];
 }): JSX.Element => {
-  const groupTypes = ["Physical"];
-  const groupCategories = ["Zone", "Rack"];
+  const groupCategories = [
+    { label: "Zone", value: "Zone" },
+    { label: "Pool", value: "Rack" },
+  ];
 
   const { handleChange, setFieldValue, values } = useFormikContext<V>();
 
@@ -23,14 +26,6 @@ export const AddGroupFormFields = <V extends AnyObject>({
             component={Select}
             label="Parent group"
             name="parentGroupName"
-            onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange(event);
-              const parentGroup = parentGroups.find(
-                (parentGroup) => parentGroup.name === event.target.value
-              );
-              setFieldValue("parentGroupName", event.target.value);
-              setFieldValue("fqgn", `${parentGroup?.fqgn}.${values.name}`);
-            }}
             options={[
               { label: "Select Group", value: "", disabled: true },
               ...parentGroups
@@ -41,9 +36,18 @@ export const AddGroupFormFields = <V extends AnyObject>({
                 .map((parentGroup: Group) => ({
                   key: `parentGroupName-${parentGroup.name}`,
                   label: parentGroup.fqgn,
-                  value: parentGroup.name,
+                  value: parentGroup.fqgn,
                 })),
             ]}
+            onChange={(event: React.ChangeEvent<HTMLSelectElement>) => {
+              handleChange(event);
+              const parentGroup = parentGroups.find(
+                (parentGroup) => parentGroup.fqgn === event.target.value
+              );
+              setFieldValue("parentGroupName", event.target.value);
+              setFieldValue("fqgn", `${parentGroup?.fqgn}.${values.name}`);
+              setFieldValue("category", "");
+            }}
             required
           />
         </Col>
@@ -51,41 +55,16 @@ export const AddGroupFormFields = <V extends AnyObject>({
           <FormikField
             label="Group name"
             name="name"
+            required={true}
             onChange={(event: any) => {
-              const parentGroup = parentGroups.find(
-                (parentGroup) => parentGroup.name === values.parentGroupName
-              );
               setFieldValue("name", event.target.value);
               setFieldValue(
                 "fqgn",
-                `${parentGroup?.fqgn}.${event.target.value}`
+                `${values.parentGroupName}.${event.target.value}`
               );
             }}
             placeholder="Enter valid group name"
-            required={true}
             type="text"
-          />
-        </Col>
-      </Row>
-      <Row>
-        <Col size={3}>
-          <FormikField
-            component={Select}
-            label="Group Type"
-            name="type"
-            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange(evt);
-              setFieldValue("type", evt.target.value);
-            }}
-            options={[
-              { label: "Select Group Type", value: "", disabled: true },
-              ...groupTypes.map((groupType) => ({
-                key: `group-type-${groupType}`,
-                label: groupType,
-                value: groupType,
-              })),
-            ]}
-            required
           />
         </Col>
         <Col size={3}>
@@ -93,21 +72,22 @@ export const AddGroupFormFields = <V extends AnyObject>({
             component={Select}
             label="Group Category"
             name="category"
-            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
-              handleChange(evt);
-              setFieldValue("category", evt.target.value);
-            }}
+            disabled={values.parentGroupName === ""}
             options={[
               { label: "Select Category", value: "", disabled: true },
               ...groupCategories.map((groupCategory) => ({
                 key: `category-${groupCategory}`,
-                label: groupCategory,
-                value: groupCategory,
+                label: groupCategory.label,
+                value: groupCategory.value,
                 disabled:
                   (values.parentGroupName as string).toLowerCase() === "drut" &&
-                  groupCategory === "Rack",
+                  groupCategory.label === "Pool",
               })),
             ]}
+            onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
+              handleChange(evt);
+              setFieldValue("category", evt.target.value);
+            }}
             required
           />
         </Col>

@@ -13,10 +13,13 @@ export interface ManagerFields {
 
 //Model for OXC
 export interface OpticalSwitch extends ManagerFields {
+  freePorts: number;
+  usedPorts: number;
   ports: OxcPort[];
 }
 
 export interface OxcPort extends TransmitReceiveFields {
+  isRemoving?: boolean;
   connectedPcie: ConnectedPcie | null;
 }
 
@@ -35,6 +38,8 @@ export interface ConnectedPcie {
 
 //Model for FICs
 export interface FicManager extends ManagerFields {
+  totalPorts: number;
+  freePorts: number;
   switches: PcieSwitch;
 }
 
@@ -47,6 +52,7 @@ export interface PcieSwitchPort {
 }
 
 export interface PcieSwitchPortFields extends TransmitReceiveFields {
+  isRemoving: boolean;
   optical_switch: ConnectedOpticalSwitch;
 }
 

@@ -2,7 +2,7 @@ import MachineSummary from "../MachineSummary/MachineSummary";
 import WidgetHeader from "../MonitorWidgetHeader/MonitorWidgetHeader";
 import ShellInABoxWidget from "../ShellInABoxWidget/ShellInABoxWidget";
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
-import classess from "../monitor.module.css";
+import classess from "../monitor.module.scss";
 
 type Props = {
   resizedWidget: MonitorConfiguration | undefined;
@@ -24,9 +24,9 @@ const renderGridItem = ({
       return (
         <MachineSummary
           configData={configData}
-          onMinimizeWidget={onMinimizeWidget}
-          onPinWidgetHandler={onPinWidgetHandler}
           onRemoveWidget={onRemoveWidget}
+          onPinWidgetHandler={onPinWidgetHandler}
+          onMinimizeWidget={onMinimizeWidget}
         />
       );
     case "Ceph":
@@ -35,11 +35,11 @@ const renderGridItem = ({
     case "Others":
       return (
         <ShellInABoxWidget
-          configData={configData}
-          onMinimizeWidget={onMinimizeWidget}
-          onPinWidgetHandler={onPinWidgetHandler}
-          onRemoveWidget={onRemoveWidget}
           resizedWidget={resizedWidget}
+          configData={configData}
+          onRemoveWidget={onRemoveWidget}
+          onPinWidgetHandler={onPinWidgetHandler}
+          onMinimizeWidget={onMinimizeWidget}
         />
       );
     default:
@@ -47,9 +47,9 @@ const renderGridItem = ({
         <>
           <WidgetHeader
             configData={configData}
-            onMinimizeWidget={onMinimizeWidget}
-            onPinWidgetHandler={onPinWidgetHandler}
             onRemoveWidget={onRemoveWidget}
+            onPinWidgetHandler={onPinWidgetHandler}
+            onMinimizeWidget={onMinimizeWidget}
           />
           <div className={classess.widget_iframe}>
             <iframe src={configData.url} />

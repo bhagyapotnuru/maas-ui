@@ -16,11 +16,13 @@ import { fetchData } from "../../config";
 
 import classess from "./EventsView.module.css";
 
+import { paginationOptions } from "app/drut/types";
+
 export const DEBOUNCE_INTERVAL = 500;
 
 const EventsView = (): JSX.Element => {
   const [eventFullData, setEventFullData] = useState([]);
-  const [oldPageSize, setOldPageSize] = useState("25");
+  const [oldPageSize, setOldPageSize] = useState(paginationOptions[0].value);
   const [loading, setLoading] = useState(false);
   const [path, setPath] = useState("");
   const [prevNext, setPrevNext]: [any, any] = useState([null, null]);
@@ -51,8 +53,6 @@ const EventsView = (): JSX.Element => {
         return "p-icon--information";
       case "failed":
         return "p-icon--error";
-      default:
-        return;
     }
   };
 
@@ -84,8 +84,8 @@ const EventsView = (): JSX.Element => {
               <span>
                 <span style={{ marginRight: "2%" }}>
                   <Tooltip
-                    followMouse={true}
                     key={`event_icon_tooltip_${index}`}
+                    followMouse={true}
                     message={`Event Status: ${elm?.status}`}
                   >
                     <i className={eventStatusIcon(elm?.status)} />
@@ -215,8 +215,8 @@ const EventsView = (): JSX.Element => {
             value={searchText}
           />
         </Col>
-        <Col className={classess.show_select} size={6}>
-          <Col className={classess.select_label_name} size={1}>
+        <Col size={6} className={classess.show_select}>
+          <Col size={1} className={classess.select_label_name}>
             <span>Show</span>
           </Col>
           <Col size={1}>
@@ -227,42 +227,25 @@ const EventsView = (): JSX.Element => {
               onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
                 setPageSize(evt.target.value);
               }}
-              options={[
-                {
-                  value: "25",
-                  label: "25",
-                },
-                {
-                  value: "50",
-                  label: "50",
-                },
-                {
-                  value: "100",
-                  label: "100",
-                },
-                {
-                  value: "200",
-                  label: "200",
-                },
-              ]}
+              options={paginationOptions}
               wrapperClassName="u-display-inline-block u-nudge-right"
             />
           </Col>
           <Col size={1}>
             <Button
+              hasIcon
               appearance="base"
               className="u-no-margin--right u-no-margin--bottom"
               disabled={prevNext[0] === "" || prevNext[0] === null}
-              hasIcon
               onClick={() => previousNext("P")}
             >
               <i className="p-icon--chevron-up drut-prev-icon"></i>
             </Button>
             <Button
+              hasIcon
               appearance="base"
               className="u-no-margin--right u-no-margin--bottom"
               disabled={prevNext[1] === "" || prevNext[1] === null}
-              hasIcon
               onClick={() => previousNext("N")}
             >
               <i className="p-icon--chevron-up drut-next-icon"></i>
@@ -278,11 +261,11 @@ const EventsView = (): JSX.Element => {
               <Spinner text="loading ..." />
             ) : (
               <MainTable
-                className={"event-logs-table"}
-                emptyStateMsg="Data not available."
                 headers={events_header}
+                className={"event-logs-table"}
                 rows={getEventIformation(events)}
                 sortable
+                emptyStateMsg="Data not available."
               />
             )}
           </div>

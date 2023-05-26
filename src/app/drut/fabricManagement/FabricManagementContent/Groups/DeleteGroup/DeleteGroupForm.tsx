@@ -1,12 +1,13 @@
 import { useState } from "react";
 
 import { Col, Row, Spinner, Notification } from "@canonical/react-components";
-import FormikForm from "app/base/components/FormikForm";
-import type { EmptyObject } from "app/base/types";
-import tagsURLs from "app/tags/urls";
 
 import { deleteData } from "../../../../config";
 import type { Group } from "../type";
+
+import FormikForm from "app/base/components/FormikForm";
+import type { EmptyObject } from "app/base/types";
+import tagsURLs from "app/tags/urls";
 
 type Props = {
   onClose: () => void;
@@ -30,8 +31,8 @@ export const DeleteGroupForm = ({
   const groupDeleteErrorMessage = (group: Group | null) => {
     const errorMessage =
       group?.category.toUpperCase() === "ZONE"
-        ? `Before deleting ${group?.fqgn}, Please move or delete the Zones or Racks under it.`
-        : `Before deleting ${group?.fqgn}, Please move the managers in it to another Rack.`;
+        ? `Before deleting ${group?.fqgn}, Please move or delete the Zones or Pools under it.`
+        : `Before deleting ${group?.fqgn}, Please move the managers in it to another Pool.`;
     return errorMessage;
   };
   const deleteGroup = (group: Group | null) => {
@@ -62,13 +63,13 @@ export const DeleteGroupForm = ({
     <>
       {loading ? (
         <Notification
-          inline
           key={`notification_${Math.random()}`}
+          inline
           severity="information"
         >
           <Spinner
-            key={`deleteGroupSpinner_${Math.random()}`}
             text="Deleting Group..."
+            key={`deleteGroupSpinner_${Math.random()}`}
           />
         </Notification>
       ) : (
@@ -89,7 +90,7 @@ export const DeleteGroupForm = ({
           onSuccess={() => {
             onClose();
           }}
-          savedRedirect={tagsURLs.index}
+          savedRedirect={tagsURLs.tags.index}
           submitAppearance="negative"
           submitLabel="Delete"
         >

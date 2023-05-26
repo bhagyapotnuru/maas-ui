@@ -14,12 +14,10 @@ import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
 import TextField from "@mui/material/TextField";
 import { styled, ThemeProvider } from "@mui/material/styles";
-import { fetchData, postData } from "app/drut/config";
-import customDrutTheme from "app/utils/Themes/Themes";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom-v5-compat";
 
-import classess from "../MonitorDashboardConfig.module.css";
+import classess from "../MonitorDashboardConfig.module.scss";
 import {
   SHELL_IN_A_BOX_CLUSTER_TYPES,
   OTHER_TYPES,
@@ -27,6 +25,9 @@ import {
 } from "../ShellInABoxWidget/constants";
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 import monitorUrls from "../url";
+
+import { fetchData, postData } from "app/drut/config";
+import customDrutTheme from "app/utils/Themes/Themes";
 
 interface State {
   clusterTypes: string[];
@@ -66,7 +67,7 @@ const isValidUrl = (urlString: string) => {
   return urlString !== "" && !!urlPattern.test(urlString);
 };
 
-const FormControl = styled(MuiFormControl)(() => ({
+const FormControl = styled(MuiFormControl)(({ theme }) => ({
   "&.MuiFormControl-root": {
     width: "-webkit-fill-available",
   },
@@ -252,11 +253,9 @@ const password = (values: State, setValues: (values: State) => void) => (
         </InputAdornment>
       }
       id="standard-adornment-password"
-      onChange={(e) => {
-        {
-          setValues({ ...values, password: e.target.value as string });
-        }
-      }}
+      onChange={(e) =>
+        setValues({ ...values, password: e.target.value as string })
+      }
       type={values.showPassword ? "text" : "password"}
       value={values.password}
     />

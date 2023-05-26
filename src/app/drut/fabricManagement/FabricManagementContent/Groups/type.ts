@@ -8,6 +8,7 @@ export type Group = {
   createdDate: string;
   parentGroupId: string;
   inUse?: boolean;
+  categoryName: string;
 };
 
 export const DEFAULT_GROUP_NAMES = ["drut", "default_rack", "default_zone"];

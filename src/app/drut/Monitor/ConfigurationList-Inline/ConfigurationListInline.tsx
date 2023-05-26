@@ -24,12 +24,13 @@ import {
 } from "@mui/material";
 import MuiTableCell from "@mui/material/TableCell";
 import { styled, ThemeProvider, createTheme } from "@mui/material/styles";
-import { fetchData } from "app/drut/config";
 
-import classess from "../MonitorDashboardConfig.module.css";
+import classess from "../MonitorDashboardConfig.module.scss";
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 
-const TableCell = styled(MuiTableCell)(() => ({
+import { fetchData } from "app/drut/config";
+
+const TableCell = styled(MuiTableCell)(({ theme }) => ({
   "&.MuiTableCell-root": {
     wordBreak: "break-all",
   },
@@ -139,31 +140,30 @@ const editableTableRow = (
     <TableCell>
       <TextField
         className={classess.config_input}
-        defaultValue={appName}
+        required
         // error
         id="standard-error-helper-text"
-        onChange={(e) => onAppNameChange(e, setAppName)}
+        defaultValue={appName}
         // helperText=""
-        required
         variant="standard"
+        onChange={(e) => onAppNameChange(e, setAppName)}
       />
     </TableCell>
     <TableCell>
       <TextField
         className={classess.config_input}
-        defaultValue={appUrl}
+        required
         // error
         id="standard-error-helper-text"
-        onChange={(e) => onAppUrlChange(e, setAppUrl)}
+        defaultValue={appUrl}
         // helperText=""
-        required
         variant="standard"
+        onChange={(e) => onAppUrlChange(e, setAppUrl)}
       />
     </TableCell>
     <TableCell align="left">
       <IconButton
         aria-label="close"
-        color="error"
         onClick={() =>
           onCloseRow(
             config,
@@ -173,6 +173,7 @@ const editableTableRow = (
             setIsEditInProgress
           )
         }
+        color="error"
       >
         <CloseIcon />
       </IconButton>
@@ -208,18 +209,18 @@ const nonEditableTableRow = (
     <TableCell align="left">
       <IconButton
         aria-label="delete"
-        color="error"
         disabled={isEditInProgress || isLoading}
+        color="error"
       >
         <DeleteIcon />
       </IconButton>
       <IconButton
-        aria-label="edit"
         color="primary"
-        disabled={isEditInProgress || isLoading}
+        aria-label="edit"
         onClick={() =>
           onEditRow(config, setAppName, setAppUrl, setIsEditInProgress)
         }
+        disabled={isEditInProgress || isLoading}
       >
         <EditIcon />
       </IconButton>
@@ -304,20 +305,20 @@ const ConfigurationList = (): JSX.Element => {
                 }}
               >
                 <Typography
-                  component="div"
-                  id="tableTitle"
                   sx={{ flex: "1 1 100%" }}
                   variant="h6"
+                  id="tableTitle"
+                  component="div"
                 >
                   Monitor Dashboard configs
                 </Typography>
                 <Tooltip title="Add new config.">
                   <Button
-                    disabled={isEditInProgress || isLoading}
+                    variant="outlined"
                     onClick={() =>
                       onClickAddNewConfig(setIsEditInProgress, setConfigList)
                     }
-                    variant="outlined"
+                    disabled={isEditInProgress || isLoading}
                   >
                     <AddIcon />
                   </Button>
@@ -325,9 +326,9 @@ const ConfigurationList = (): JSX.Element => {
               </Toolbar>
               <TableContainer>
                 <Table
-                  aria-label="simple table"
                   stickyHeader
                   sx={{ minWidth: 650 }}
+                  aria-label="simple table"
                 >
                   <TableHead>
                     <TableRow>

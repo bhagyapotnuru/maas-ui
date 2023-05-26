@@ -32,17 +32,17 @@ const Resources = (): JSX.Element => {
 
   return (
     <Section
+      key={location.key}
       className="u-no-padding--bottom"
       header={
         <ResourceListHeader
-          currentTab="All"
-          isDetails={isDetails}
-          onclickTab={onclickTab}
           resourceType={rsTypeUI}
           stats={stats}
+          isDetails={isDetails}
+          onclickTab={onclickTab}
+          currentTab="All"
         />
       }
-      key={location.key}
     >
       <Switch>
         <Route exact path={resourceUrl.resources.index}>
@@ -53,7 +53,7 @@ const Resources = (): JSX.Element => {
             selected={selected}
           />
         </Route>
-        <Route exact path={resourceUrl.resources.resourceDetails(null)}>
+        <Route exact path={resourceUrl.resources.resourceDetails(null, false)}>
           <ResourceList
             onChangeContent={(nd: any, flag: boolean) =>
               handleContentChange(nd, flag)

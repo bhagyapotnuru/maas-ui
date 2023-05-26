@@ -9,20 +9,21 @@ import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 import TextField from "@mui/material/TextField";
 import { ThemeProvider } from "@mui/material/styles";
-import Meter from "app/base/components/Meter";
-import { COLOURS } from "app/base/constants";
-import { fetchData } from "app/drut/config";
-import customDrutTheme from "app/utils/Themes/Themes";
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import WidgetHeader from "../MonitorWidgetHeader/MonitorWidgetHeader";
 import type {
   MonitorAppTypes,
   MonitorConfiguration,
 } from "../Types/MonitorConfiguration";
-import classess from "../monitor.module.css";
+import classess from "../monitor.module.scss";
 
 import { CEPH_STATUS_FILTERS } from "./constants";
+
+import Meter from "app/base/components/Meter";
+import { COLOURS } from "app/base/constants";
+import { fetchData } from "app/drut/config";
+import customDrutTheme from "app/utils/Themes/Themes";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
   resizedWidget: MonitorConfiguration | undefined;
@@ -53,7 +54,7 @@ const MachineDetails = ({ machineData }: { machineData: any }) => {
 
 const MachineDetailsMeterChart = ({ machineData }: { machineData: any }) => {
   const colorCode = {
-    AVALIABLE: { color: COLOURS.POSITIVE, link: "positive" },
+    AVAILABLE: { color: COLOURS.POSITIVE, link: "positive" },
     FAILED: { color: COLOURS.NEGATIVE, link: "negative" },
     INTRANSITION: { color: COLOURS.CAUTION, link: "caution" },
     UNKNOWN: { color: COLOURS.LINK_FADED, link: "link-faded" },
@@ -106,18 +107,18 @@ const StatusFilterChips = ({
   appendQueryParamsToIframeUrl: (selectedChip: string) => void;
 }) => {
   return (
-    <Stack className={classess.ceph_chip_stack} direction="row" spacing={1}>
+    <Stack direction="row" spacing={1} className={classess.ceph_chip_stack}>
       {["All", ...CEPH_STATUS_FILTERS].map((label: string) => (
         <Chip
-          color="primary"
-          key={label}
+          size="small"
           label={label}
+          color="primary"
+          variant={selectedChip === label ? "filled" : "outlined"}
+          key={label}
           onClick={(event: any) => {
             setChipFilter(event?.target?.innerText);
             appendQueryParamsToIframeUrl(event?.target?.innerText);
           }}
-          size="small"
-          variant={selectedChip === label ? "filled" : "outlined"}
         />
       ))}
     </Stack>
@@ -135,11 +136,9 @@ const Iframe = ({
   url: string;
   refreshedKey: string;
 }): JSX.Element => {
-  console.log(refreshedKey);
   return (
     <div className={classess.widget_iframe} style={{ overflow: "hidden" }}>
       <iframe
-        src={url}
         style={{
           position: "relative",
           height: "100%",
@@ -147,6 +146,7 @@ const Iframe = ({
           width: "100%",
           overflow: "hidden",
         }}
+        src={url}
         // key={refreshedKey}
       />
     </div>
@@ -166,21 +166,22 @@ const ApplicationSelect = ({
   const checkedIcon = <CheckBoxIcon fontSize="small" />;
   return (
     <Autocomplete
-      className={classess.ceph_autocomplete}
-      disableCloseOnSelect
-      getOptionLabel={(value: MonitorAppTypes) => value.appname}
       id="checkboxes-apps"
       multiple
-      onBlur={(e) => {
-        e.preventDefault();
-        e.stopPropagation();
-        appendQueryParamsToIframeUrl("");
-      }}
-      onChange={(key, value: MonitorAppTypes[]) => {
-        setApplications(value);
-        console.log(key);
-      }}
+      disableCloseOnSelect
       options={applications}
+      getOptionLabel={(value: MonitorAppTypes) => value.appname}
+      renderOption={(props, option, { selected }) => (
+        <li {...props}>
+          <Checkbox
+            icon={icon}
+            checkedIcon={checkedIcon}
+            style={{ marginRight: 8 }}
+            checked={option.checked || selected}
+          />
+          {option?.appname}
+        </li>
+      )}
       renderInput={(params) => (
         <TextField
           className={classess.autocomplete_text_field}
@@ -189,28 +190,26 @@ const ApplicationSelect = ({
           variant="standard"
         />
       )}
-      renderOption={(props, option, { selected }) => (
-        <li {...props}>
-          <Checkbox
-            checked={option.checked || selected}
-            checkedIcon={checkedIcon}
-            icon={icon}
-            style={{ marginRight: 8 }}
-          />
-          {option?.appname}
-        </li>
-      )}
       renderTags={(list: MonitorAppTypes[]) => {
         const checkedApps: string = list.map((item) => item.appname).join(", ");
         return (
           <CustomizedTooltip
-            className={classess.ceph_autocomplete_text}
             title={checkedApps}
+            className={classess.ceph_autocomplete_text}
           >
             <span>{checkedApps}</span>
           </CustomizedTooltip>
         );
       }}
+      onChange={(key, value: MonitorAppTypes[]) => {
+        setApplications(value);
+      }}
+      onBlur={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        appendQueryParamsToIframeUrl("");
+      }}
+      className={classess.ceph_autocomplete}
     />
   );
 };
@@ -273,33 +272,33 @@ const ShellInABoxWidget = ({
       <ThemeProvider theme={customDrutTheme}>
         <WidgetHeader
           configData={configData}
-          onMinimizeWidget={onMinimizeWidget}
-          onPinWidgetHandler={onPinWidgetHandler}
           onRemoveWidget={onRemoveWidget}
+          onPinWidgetHandler={onPinWidgetHandler}
+          onMinimizeWidget={onMinimizeWidget}
         />
         <MachineDetails machineData={machineData} />
         <div>
           <div className={classess.ceph_actions_header}>
             <div className={classess.ceph_filters}>
               <StatusFilterChips
-                appendQueryParamsToIframeUrl={appendQueryParamsToIframeUrl}
-                selectedChip={selectedChip}
                 setChipFilter={setChipFilter}
+                selectedChip={selectedChip}
+                appendQueryParamsToIframeUrl={appendQueryParamsToIframeUrl}
               />
               <Divider style={{ height: "30px" }} />
               <ApplicationSelect
-                appendQueryParamsToIframeUrl={appendQueryParamsToIframeUrl}
                 applications={configData.apps || []}
                 setApplications={setApplications}
+                appendQueryParamsToIframeUrl={appendQueryParamsToIframeUrl}
               />
             </div>
             <div className={classess.ceph_redirect}>
-              <a href={iframeUrl} rel="noreferrer" target="_blank">
+              <a target="_blank" href={iframeUrl}>
                 <OpenInNewIcon />
               </a>
             </div>
           </div>
-          <Iframe refreshedKey={refreshedKey} url={iframeUrl} />
+          <Iframe url={iframeUrl} refreshedKey={refreshedKey} />
         </div>
       </ThemeProvider>
     </>

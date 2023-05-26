@@ -4,8 +4,8 @@ import { Route, Routes as ReactRouterRoutes } from "react-router-dom-v5-compat";
 import MonitorConfigurationAction from "./drut/Monitor/ConfigurationAction/ConfigurationAction";
 import Monitor from "./drut/Monitor/Monitor";
 import ConnectivityManagement from "./drut/fabricManagement/FabricManagementContent/ConnectivityManagement";
-import Managers from "./drut/fabricManagement/FabricManagementContent/Managers/Managers";
-import UnassignedManagers from "./drut/fabricManagement/FabricManagementContent/UnassignedManagers/UnassignedManagers";
+import Managers from "./drut/fabricManagement/FabricManagementContent/Managers";
+import UnassignedManagers from "./drut/fabricManagement/FabricManagementContent/UnassignedManagers";
 import DrutManageGroups from "./drut/manage/groups";
 import DrutManageSession from "./drut/manage/sessions";
 

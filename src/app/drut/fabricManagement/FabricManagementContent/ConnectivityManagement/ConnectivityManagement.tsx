@@ -13,11 +13,11 @@ import customDrutTheme from "app/utils/Themes/Themes";
 const Manager = (): JSX.Element => {
   return (
     <Section
+      key="managersHeader"
       className="u-no-padding--bottom"
       header={
         <FabricManagementHeader tag="oxcManagement" title="Fabric Management" />
       }
-      key="managersHeader"
     >
       <Switch>
         <Route

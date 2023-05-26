@@ -9,9 +9,19 @@ const jsonTheme = {
 const ROOT_API = "/MAAS/api/2.0/";
 const csrftoken: any = () => getCookie("csrftoken");
 
-function resourcesAPI(id = null): string {
+function resourcesAPI(
+  id = null,
+  computeBlockId = null,
+  isResourcesPage = false
+): string {
   if (id) {
     return `${ROOT_API}dfab/resourceblocks/${id}/`;
+  }
+  if (computeBlockId) {
+    if (isResourcesPage) {
+      return `${ROOT_API}dfab/resourceblocks/?ComputeBlockId=${computeBlockId}`;
+    }
+    return `${ROOT_API}dfab/resourceblocks/?op=get_new_schema&ComputeBlockId=${computeBlockId}`;
   }
   return `${ROOT_API}dfab/resourceblocks/`;
 }
@@ -24,8 +34,12 @@ const hdr: any = () => {
   });
 };
 
-function fetchResources(id = null): any {
-  return fetch(resourcesAPI(id), {
+function fetchResources(
+  id = null,
+  computeBlockId: any = null,
+  isResourcesPage = false
+): any {
+  return fetch(resourcesAPI(id, computeBlockId, isResourcesPage), {
     headers: hdr(),
   });
 }
@@ -78,6 +92,20 @@ function postData(
   });
 }
 
+function uploadFile(path: string, file: File | FormData): Promise<any> {
+  return fetch(`${ROOT_API}${path}`, {
+    method: "POST",
+    headers: {
+      // Accept: "application/json",
+      // "Content-Type": file.type,
+      // "content-length": `${file.size}`,
+      "X-CSRFToken": csrftoken(),
+      "X-Requested-With": "XMLHttpRequest",
+    },
+    body: file,
+  });
+}
+
 function deleteData(path: string): Promise<any> {
   return fetch(`${ROOT_API}${path}`, {
     method: "DELETE",
@@ -87,7 +115,8 @@ function deleteData(path: string): Promise<any> {
 
 async function throwHttpMessage(
   response: Response,
-  setError: (value: string) => void
+  // eslint-disable-next-line @typescript-eslint/no-empty-function
+  setError: (value: string) => void = () => {}
 ): Promise<any> {
   if (!response.ok) {
     await response.text().then((text: any) => {
@@ -102,6 +131,7 @@ async function throwHttpMessage(
 export {
   fetchResources,
   postData,
+  uploadFile,
   deleteData,
   fetchData,
   fetchDataPromise,

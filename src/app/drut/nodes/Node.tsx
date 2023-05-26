@@ -15,10 +15,12 @@ import NotFound from "app/base/views/NotFound";
 
 const Compose = (): JSX.Element => {
   const [node, setNode] = useState(null);
+  const [selectedNode, setSelectedNode] = useState(null);
   const [tabId, setTabId] = useState("sum");
   const [refresh, setRefresh] = useState(false);
   const [isDataPathOrdersTab, setIsDataPathOrdersTab] = useState(false);
   const [isUserOperation, setIsUserOperation] = useState(false);
+  const [openResetForm, setOpenResetForm] = useState(false);
   const nodeDetails = (node: any) => {
     setNode(node);
   };
@@ -26,6 +28,9 @@ const Compose = (): JSX.Element => {
   useWindowTitle("MATRIX-Nodes");
 
   const onclickTab = (id: any) => {
+    if (id !== "dpo") {
+      setIsDataPathOrdersTab(false);
+    }
     setTabId(id);
   };
 
@@ -42,43 +47,51 @@ const Compose = (): JSX.Element => {
       <Route exact path={nodeUrl.nodes.index}>
         <Section
           className="u-no-padding--bottom"
+          key="nodehSecetion"
           header={
             <NodeHeader
-              isListView={true}
               node_data={node}
               onClickTab={onclickTab}
+              isListView={true}
             />
           }
-          key="nodehSecetion"
         >
-          <NodeList dataId={tabId} onNodeDetail={nodeDetails} page="list" />
+          <NodeList
+            dataId={tabId}
+            page="list"
+            onNodeDetail={nodeDetails}
+            setOpenResetForm={setOpenResetForm}
+            setSelectedNode={setSelectedNode}
+            openResetForm={openResetForm}
+            selectedNode={selectedNode}
+          />
         </Section>
       </Route>
-      <Route exact path={nodeUrl.nodes.nodeDetails(null)}>
+      <Route exact path={nodeUrl.nodes.nodeDetails(null, true)}>
         <Section
           className={`u-no-padding--bottom ${classess.node_details_tab}`}
+          key="nodeSection"
           header={
             <NodeHeader
-              isDataPathOrdersTab={isDataPathOrdersTab}
-              isListView={false}
-              isUserAction={toggleUserAction}
               node_data={node}
-              onClickRefresh={toggleRefreshAction}
               onClickTab={onclickTab}
+              isListView={false}
+              onClickRefresh={toggleRefreshAction}
+              isUserAction={toggleUserAction}
+              isDataPathOrdersTab={isDataPathOrdersTab}
             />
           }
-          key="nodeSection"
         >
           <NodeInfo
             isDataPathOrdersTab={setIsDataPathOrdersTab}
-            isUserOperation={isUserOperation}
+            tabId={tabId}
             onNodeDetail={nodeDetails}
             refresh={refresh}
-            tabId={tabId}
             toggleRefresh={() => {
               toggleRefreshAction();
               toggleUserAction();
             }}
+            isUserOperation={isUserOperation}
           ></NodeInfo>
         </Section>
       </Route>

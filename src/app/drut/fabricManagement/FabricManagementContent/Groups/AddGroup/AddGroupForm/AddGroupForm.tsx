@@ -1,14 +1,15 @@
 import { useState } from "react";
 
 import { Spinner, Notification } from "@canonical/react-components";
-import FormikForm from "app/base/components/FormikForm";
-import type { ClearHeaderContent } from "app/base/types";
 import * as Yup from "yup";
 
 import { postData } from "../../../../../config";
 import type { Group } from "../../type";
 import AddGroupFormFields from "../AddGroupFormFields";
 import type { AddGroupValues } from "../type";
+
+import FormikForm from "app/base/components/FormikForm";
+import type { ClearHeaderContent } from "app/base/types";
 
 type Props = {
   clearHeaderContent: ClearHeaderContent;
@@ -42,9 +43,10 @@ export const AddGroupForm = ({
   ) => {
     delete groupToAddorUpdate["fqgn"];
     const parentGroup = groupList.find(
-      (group) => group.name === groupToAddorUpdate.parentGroupName
+      (group) => group.fqgn === groupToAddorUpdate.parentGroupName
     );
     groupToAddorUpdate.parentGroupId = parentGroup?.id;
+    groupToAddorUpdate.type = "Physical";
     setLoading(true);
     postData(url, groupToAddorUpdate, isUpdateOperation)
       .then((response: any) => {
@@ -59,7 +61,7 @@ export const AddGroupForm = ({
               "ConstraintViolationException"
             );
             const errorMsg = isUpdateOperation
-              ? "Group name already exists. Cannot be update with a duplicate name."
+              ? "Group name already exists. Cannot be updated with a duplicate name."
               : "Group name already exists. Cannot be created with a duplicate name.";
             setError(isConstraintViolation ? errorMsg : text);
           });
@@ -72,15 +74,15 @@ export const AddGroupForm = ({
     <>
       {loading ? (
         <Notification
-          inline
           key={`notification_${Math.random()}`}
+          inline
           severity="information"
         >
           <Spinner
-            key={`Add_groups_spinner_${Math.random()}`}
             text={`${
               groupToUpdate?.id ? "Updating Group..." : "Adding Group..."
             }`}
+            key={`Add_groups_spinner_${Math.random()}`}
           />
         </Notification>
       ) : (

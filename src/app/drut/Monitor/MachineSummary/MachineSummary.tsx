@@ -14,17 +14,18 @@ import type { SelectChangeEvent } from "@mui/material/Select";
 import Tooltip, { tooltipClasses } from "@mui/material/Tooltip";
 import type { TooltipProps } from "@mui/material/Tooltip";
 import { ThemeProvider, styled } from "@mui/material/styles";
-import DoughnutChart from "app/base/components/DoughnutChart";
-import { fetchData } from "app/drut/config";
-import customDrutTheme from "app/utils/Themes/Themes";
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 import { NavLink } from "react-router-dom";
 
 import { MACHINE_SUMMARY_PIE_COLOR_CODES as MSPCOLOR_CODES } from "../Constants/Constants";
 import { MACHINE_SUMMARY } from "../Enums/MachineSummary.enum";
 import { MACHINE_SUMMARY_OTHERS } from "../Enums/MachineSummaryOthers.enum";
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
-import classess from "../monitor.module.css";
+import classess from "../monitor.module.scss";
+
+import DoughnutChart from "app/base/components/DoughnutChart";
+import { fetchData } from "app/drut/config";
+import customDrutTheme from "app/utils/Themes/Themes";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
   configData: MonitorConfiguration | MonitorConfiguration[];
@@ -82,14 +83,16 @@ const MachineSummary = ({
   };
 
   const getTootltipData = (machineData: any) => {
-    return Object.keys(MACHINE_SUMMARY_OTHERS).map((key: string) => {
-      const machineSummaryKey = key as keyof typeof MACHINE_SUMMARY_OTHERS;
-      return (
-        <li
-          key={`${MACHINE_SUMMARY_OTHERS[machineSummaryKey]}`}
-        >{`${MACHINE_SUMMARY_OTHERS[machineSummaryKey]} (${machineData[machineSummaryKey]})`}</li>
-      );
-    });
+    return Object.keys(MACHINE_SUMMARY_OTHERS).map(
+      (key: string, index: any) => {
+        const machineSummaryKey = key as keyof typeof MACHINE_SUMMARY_OTHERS;
+        return (
+          <li
+            key={`${MACHINE_SUMMARY_OTHERS[machineSummaryKey]}`}
+          >{`${MACHINE_SUMMARY_OTHERS[machineSummaryKey]} (${machineData[machineSummaryKey]})`}</li>
+        );
+      }
+    );
   };
 
   const getSegmentLabelData = (machineData: any) => {
@@ -138,8 +141,8 @@ const MachineSummary = ({
       });
       labels.push(
         <tr
-          className={classess.machine_summary_others}
           key={"" + Math.random()}
+          className={classess.machine_summary_others}
         >
           <td className={classess.machine_summary_others_td}>
             <span className={classess.machine_summary_label}>
@@ -148,12 +151,12 @@ const MachineSummary = ({
             <HtmlTooltip
               disableFocusListener
               disableTouchListener
-              placement="top"
               title={
                 <div className="others-tool-tip">
                   {getTootltipData(machineData)}
                 </div>
               }
+              placement="top"
             >
               <InfoOutlinedIcon />
             </HtmlTooltip>
@@ -205,20 +208,20 @@ const MachineSummary = ({
                 <ThemeProvider theme={customDrutTheme}>
                   <FormControl
                     id="power-type-simple-select-standard"
-                    size="small"
-                    sx={{ m: 1, minWidth: 120 }}
                     variant="standard"
+                    sx={{ m: 1, minWidth: 120 }}
+                    size="small"
                   >
                     <Select
-                      className={classess.power_type_select}
-                      onChange={handlePowerTypeChange}
                       value={selectedPowerType}
+                      onChange={handlePowerTypeChange}
+                      className={classess.power_type_select}
                     >
                       {Object.keys(machineSummaryResponse)
                         .sort()
                         .map((powerTypeKey: string) => {
                           return (
-                            <MenuItem key={powerTypeKey} value={powerTypeKey}>
+                            <MenuItem value={powerTypeKey} key={powerTypeKey}>
                               <span className={classess.power_type_menu_item}>
                                 {`${powerTypeKey} (${machineSummaryResponse[powerTypeKey]["TOTAL_MACHINES"]})`}
                               </span>
@@ -233,9 +236,10 @@ const MachineSummary = ({
             <div className="actions-container">
               <CustomizedTooltip title={configDataObj.pinned ? `Unpin` : `Pin`}>
                 <IconButton
-                  aria-label="open_new"
                   className={`${classess.monitor_pin_icon}`}
+                  aria-label="open_new"
                   color="error"
+                  type="button"
                   disableRipple
                   disableTouchRipple
                   onClick={(e) => {
@@ -243,7 +247,6 @@ const MachineSummary = ({
                     e.stopPropagation();
                     onPinWidgetHandler(+configDataObj.id);
                   }}
-                  type="button"
                 >
                   {configDataObj.pinned ? (
                     <PushPinIcon />
@@ -254,8 +257,8 @@ const MachineSummary = ({
               </CustomizedTooltip>
               <CustomizedTooltip title={`Minimize`}>
                 <IconButton
-                  aria-label="open_new"
                   className={`${classess.monitor_minimize_icon}`}
+                  aria-label="open_new"
                   color="primary"
                   onClick={(e) => {
                     e.preventDefault();
@@ -267,8 +270,8 @@ const MachineSummary = ({
               </CustomizedTooltip>
               <CustomizedTooltip title={`Close`}>
                 <IconButton
-                  aria-label="open_new"
                   className={`${classess.monitor_close_icon}`}
+                  aria-label="open_new"
                   color="error"
                   onClick={(e) => {
                     e.preventDefault();
@@ -285,10 +288,10 @@ const MachineSummary = ({
             <div className="dspie-chart-body">
               <DoughnutChart
                 label={totalMachinesCount}
-                segmentHoverWidth={40}
-                segmentWidth={30}
                 segments={segments}
-                size={200}
+                segmentHoverWidth={20}
+                segmentWidth={15}
+                size={120}
               />
             </div>
             <div className="labels_2">{labels.slice(half)}</div>

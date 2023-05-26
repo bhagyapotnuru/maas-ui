@@ -1,5 +1,3 @@
-import { Fragment } from "react";
-
 import {
   Card,
   Col,
@@ -25,8 +23,8 @@ const NodeSummary = (props: Props): JSX.Element => {
     const external = node?.NetworkSummary?.External || [];
 
     sd.push(
-      <Col size={7}>
-        <Card key={`fnc${Math.random()}`}>
+      <Col size={7} key="NetworkSummary">
+        <Card>
           <strong className="p-muted-heading">
             {node?.NetworkSummary?.Count || "NA"} Network Card
           </strong>
@@ -80,8 +78,8 @@ const NodeSummary = (props: Props): JSX.Element => {
     const external = node?.StorageSummary?.External || [];
 
     sd.push(
-      <Col size={5}>
-        <Card key={`sc_${Math.random()}`}>
+      <Col size={5} key="StorageSummary">
+        <Card>
           <strong className="p-muted-heading">
             {node?.StorageSummary?.Count || "NA"} Storage{" "}
             {node?.StorageSummary?.TotalCapacityGigaBytes || "0"} GB
@@ -127,8 +125,8 @@ const NodeSummary = (props: Props): JSX.Element => {
     const external = node?.OffloadSummary?.External || [];
 
     sd.push(
-      <Col size={7}>
-        <Card key={`card_${Math.random()}`}>
+      <Col size={7} key="OffloadSummary">
+        <Card>
           <strong className="p-muted-heading">
             {node?.OffloadSummary?.Count || "NA"} Offloads
           </strong>
@@ -178,77 +176,29 @@ const NodeSummary = (props: Props): JSX.Element => {
   const generateNodeDetails = (node: any) => {
     const nodeInfo = [];
     const procesorInfo = [];
-    const virtualInfo = [];
     if (node !== null && node !== undefined) {
-      Object.keys(node).forEach((key) => {
-        if (
-          !(key === "Id") &&
-          !(key === "MachineId") &&
-          !(typeof node[key] === "object")
-        ) {
-          nodeInfo.push(
-            <Col key={`n_${Math.random()}`} size={4}>
-              <div className="drut-node-info-box-1">
-                <strong className="p-muted-heading">
-                  {key.replace(/([A-Z])/g, " $1").trim()}
-                </strong>
-                <br />
-                {key === "MachineName" && node[key] ? (
-                  <div>
-                    <NavLink
-                      key={`lsummary_${Math.random()}`}
-                      to={`/machine/${node?.MachineId}/summary`}
-                    >
-                      {node?.MachineName || "NA"}
-                    </NavLink>
-                  </div>
-                ) : (
-                  <span>{node[key] || "NA"}</span>
-                )}
-              </div>
-            </Col>
-          );
-        }
-      });
-
-      procesorInfo.push(
-        <Col key={`p_${Math.random()}`} size={5}>
+      nodeInfo.push(
+        <Col size={3} key="Id">
           <div className="drut-node-info-box-1">
-            <strong className="p-muted-heading">Device Model</strong>
+            <strong className="p-muted-heading">ID</strong>
             <br />
-            {node?.ProcessorSummary?.Model || "Model info not available!"}
-          </div>
-        </Col>
-      );
-      procesorInfo.push(
-        <Col key={`p_${Math.random()}`} size={2}>
-          <div className="drut-node-info-box-1">
-            <strong className="p-muted-heading">Cores </strong>
-            <br />
-            {node?.ProcessorSummary?.TotalCores || "NA"}
-          </div>
-        </Col>
-      );
-      procesorInfo.push(
-        <Col key={`p_${Math.random()}`} size={2}>
-          <div className="drut-node-info-box-1">
-            <strong className="p-muted-heading">Threads </strong>
-            <br />
-            {node?.ProcessorSummary?.TotalThreads || "NA"}
-          </div>
-        </Col>
-      );
-      procesorInfo.push(
-        <Col key={`p_${Math.random()}`} size={3}>
-          <div className="drut-node-info-box-1">
-            <strong className="p-muted-heading">Memory </strong>
-            <br />
-            {node?.MemorySummary?.TotalSystemMemoryGiB || "NA"}&nbsp;GB
+            {node?.Id || "-"}
           </div>
         </Col>
       );
       nodeInfo.push(
-        <Col key={`n_${Math.random()}`} size={4}>
+        <Col size={3} key="DataPathCreationOrderStatus">
+          <div className="drut-node-info-box-1">
+            <strong className="p-muted-heading">
+              Data Path Creation Order Status
+            </strong>
+            <br />
+            {node?.DataPathCreationOrderStatus || "-"}
+          </div>
+        </Col>
+      );
+      nodeInfo.push(
+        <Col size={2} key="Health">
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">Health Status</strong>
             <br />
@@ -257,7 +207,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         </Col>
       );
       nodeInfo.push(
-        <Col key={`n_${Math.random()}`} size={4}>
+        <Col size={2} key="State">
           <div className="drut-node-info-box-1">
             <strong className="p-muted-heading">State</strong>
             <br />
@@ -265,60 +215,66 @@ const NodeSummary = (props: Props): JSX.Element => {
           </div>
         </Col>
       );
-      virtualInfo.push(
-        <Col key={`v_${Math.random()}`} size={3}>
+      nodeInfo.push(
+        <Col size={2} key="MachineName">
+          <strong className="p-muted-heading">Machine Name</strong>
+          <br />
+          {node?.MachineName ? (
+            <div>
+              <NavLink to={`/machine/${node?.MachineId}/summary`}>
+                {node?.MachineName || "NA"}
+              </NavLink>
+            </div>
+          ) : (
+            <span>NA</span>
+          )}
+        </Col>
+      );
+      procesorInfo.push(
+        <Col size={5} key="Model">
           <div className="drut-node-info-box-1">
-            <strong className="p-muted-heading">Owner </strong>
+            <strong className="p-muted-heading">Device Model</strong>
             <br />
-            Drut
+            {node?.ProcessorSummary?.Model || "Model info not available!"}
           </div>
         </Col>
       );
-      virtualInfo.push(
-        <Col key={`v_${Math.random()}`} size={3}>
+      procesorInfo.push(
+        <Col size={2} key="TotalCores">
           <div className="drut-node-info-box-1">
-            <strong className="p-muted-heading">Zone </strong>
+            <strong className="p-muted-heading">Cores </strong>
             <br />
-            Default
+            {node?.ProcessorSummary?.TotalCores || "NA"}
           </div>
         </Col>
       );
-      virtualInfo.push(
-        <Col key={`v_${Math.random()}`} size={3}>
+      procesorInfo.push(
+        <Col size={2} key="TotalThreads">
           <div className="drut-node-info-box-1">
-            <strong className="p-muted-heading">Resource pool </strong>
+            <strong className="p-muted-heading">Threads </strong>
             <br />
-            Default
+            {node?.ProcessorSummary?.TotalThreads || "NA"}
           </div>
         </Col>
       );
-      virtualInfo.push(
-        <Col key={`v_${Math.random()}`} size={3}>
+      procesorInfo.push(
+        <Col size={3} key="TotalSystemMemoryGiB">
           <div className="drut-node-info-box-1">
-            <strong className="p-muted-heading">Power Type </strong>
+            <strong className="p-muted-heading">Memory </strong>
             <br />
-            drutfabric
+            {node?.MemorySummary?.TotalSystemMemoryGiB || "NA"}&nbsp;GB
           </div>
         </Col>
       );
     } else {
       nodeInfo.push(null);
       procesorInfo.push(null);
-      virtualInfo.push(null);
     }
     return (
-      <Fragment key={`fm_${Math.random()}`}>
-        <Row>
-          <Col size={12}>
-            <div style={{ border: "1px solid #d8dbe0" }}>
-              <Row style={{ padding: "3px 10px" }}>{nodeInfo}</Row>
-              <hr
-                style={{ marginTop: "10px", borderTop: "1px solid #d8dbe0" }}
-              />
-              <Row style={{ padding: "3px 10px" }}>{virtualInfo}</Row>
-            </div>
-          </Col>
-        </Row>
+      <>
+        <div style={{ border: "1px solid #d8dbe0" }}>
+          <Row style={{ padding: "3px 10px" }}>{nodeInfo}</Row>
+        </div>
         <Row style={{ marginTop: "15px" }}>
           <Col size={12}>
             <Card>
@@ -331,7 +287,7 @@ const NodeSummary = (props: Props): JSX.Element => {
         <Row>
           {networkData(node)} {strorageData(node)} {offloadData(node)}
         </Row>
-      </Fragment>
+      </>
     );
   };
 
@@ -346,9 +302,8 @@ const NodeSummary = (props: Props): JSX.Element => {
       )}
       {props.notFoundError && (
         <Notification
-          inline
-          key={`notification_${Math.random()}`}
           onDismiss={props.onDismissError}
+          inline
           severity="negative"
         >
           {props.notFoundError}

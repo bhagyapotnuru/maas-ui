@@ -2,6 +2,10 @@ import { useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 
 import { Form, Notification } from "@canonical/react-components";
+import { useFormikContext } from "formik";
+import { useDispatch } from "react-redux";
+import { Redirect } from "react-router";
+
 import type { FormikFormButtonsProps } from "app/base/components/FormikFormButtons";
 import FormikFormButtons from "app/base/components/FormikFormButtons";
 import {
@@ -11,10 +15,6 @@ import {
   useSendAnalyticsWhen,
 } from "app/base/hooks/index";
 import type { APIError } from "app/base/types";
-import { useFormikContext } from "formik";
-import { useDispatch } from "react-redux";
-import { Redirect } from "react-router";
-import type { AnyAction } from "redux";
 
 export type Props<V, E> = {
   allowAllEmpty?: boolean;
@@ -22,7 +22,7 @@ export type Props<V, E> = {
   allowValidate?: boolean;
   children?: ReactNode;
   className?: string;
-  cleanup?: () => AnyAction;
+  cleanup?: () => void;
   editable?: boolean;
   errors?: APIError<E>;
   inline?: boolean;
@@ -41,7 +41,7 @@ export type Props<V, E> = {
   submitDisabled?: boolean;
 } & FormikFormButtonsProps<V>;
 
-const generateNonFieldError = <V extends {}, E = null>(
+const generateNonFieldError = <V, E = null>(
   values: V,
   errors?: APIError<E>
 ) => {
@@ -67,7 +67,7 @@ const generateNonFieldError = <V extends {}, E = null>(
   return null;
 };
 
-const FormikFormContent = <V extends {}, E = null>({
+const FormikFormContent = <V, E = null>({
   allowAllEmpty,
   allowUnchanged,
   allowValidate,

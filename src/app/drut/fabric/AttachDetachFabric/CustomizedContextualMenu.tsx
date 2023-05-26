@@ -7,10 +7,11 @@ import Divider from "@mui/material/Divider";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { styled, alpha } from "@mui/material/styles";
-import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 import classess from "./AttachDetachFabric.module.css";
 import NestedList from "./TakeActionList";
+
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
   onRefresh: any;
@@ -26,11 +27,11 @@ type Props = {
 export default function CustomizedMenus(props: Props): JSX.Element {
   const StyledMenu = styled((props: any) => (
     <Menu
+      elevation={0}
       anchorOrigin={{
         vertical: "bottom",
         horizontal: "right",
       }}
-      elevation={0}
       transformOrigin={{
         vertical: "top",
         horizontal: "right",
@@ -101,26 +102,26 @@ export default function CustomizedMenus(props: Props): JSX.Element {
   return (
     <div>
       <Button
-        aria-controls={open ? "demo-customized-menu" : undefined}
-        aria-expanded={open ? "true" : undefined}
-        aria-haspopup="true"
         className="p-button--positive"
-        disableElevation
-        endIcon={<KeyboardArrowDownIcon />}
         id="demo-customized-button"
-        onClick={handleClick}
+        aria-controls={open ? "demo-customized-menu" : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? "true" : undefined}
         variant="contained"
+        disableElevation
+        onClick={handleClick}
+        endIcon={<KeyboardArrowDownIcon />}
       >
         Take Action
       </Button>
       <StyledMenu
+        id="demo-customized-menu"
         MenuListProps={{
           "aria-labelledby": "demo-customized-button",
         }}
         anchorEl={anchorEl}
-        id="demo-customized-menu"
-        onClose={handleClose}
         open={open}
+        onClose={handleClose}
       >
         {props.isResourceBlocksTab && (
           <>
@@ -132,16 +133,16 @@ export default function CustomizedMenus(props: Props): JSX.Element {
               }
             >
               <MenuItem
-                className={classess["attach_action_list_menu"]}
-                disableRipple
                 disabled={!props.hasDownStreamPorts || props.hasCheckedItems}
+                disableRipple
+                className={classess["attach_action_list_menu"]}
               >
                 <NestedList
-                  hasCheckedItems={props.hasCheckedItems}
-                  hasDownStreamPorts={props.hasDownStreamPorts}
                   onResourceBlockTypeSelection={(resourceBlockType: string) =>
                     handleResourceBlockTypeSelection(resourceBlockType)
                   }
+                  hasDownStreamPorts={props.hasDownStreamPorts}
+                  hasCheckedItems={props.hasCheckedItems}
                 ></NestedList>
               </MenuItem>
             </CustomizedTooltip>
@@ -156,9 +157,9 @@ export default function CustomizedMenus(props: Props): JSX.Element {
               }
             >
               <MenuItem
+                onClick={handleDetach}
                 disableRipple
                 disabled={!props.hasCheckedItems}
-                onClick={handleDetach}
               >
                 Detach
               </MenuItem>
@@ -169,9 +170,9 @@ export default function CustomizedMenus(props: Props): JSX.Element {
         )}
         {props.isMachinesPage && (
           <MenuItem
+            onClick={handleRefresh}
             disableRipple
             disabled={props.hasCheckedItems}
-            onClick={handleRefresh}
           >
             <RefreshIcon />
             Refresh

@@ -20,11 +20,23 @@ export type Rack = {
   rack_id: number;
   rack_name: string;
   rack_fqgn?: string;
+  managers?: RackManager[];
+};
+
+export type RackByType = {
+  ific: Rack[];
+  tfic: Rack[];
 };
 
 export type Zone = {
   zone_id: number;
   zone_name: string;
   zone_fqgn?: string;
-  racks: Rack[];
+  racks: Rack[] | RackByType;
+};
+
+export type RackManager = {
+  uuid: string;
+  fqnn: string;
+  name: string;
 };

@@ -208,14 +208,14 @@ const ManageSessionMain = (): JSX.Element => {
         </Col>
         <Col size={2}></Col>
         <Col size={4}>
-          <Button onClick={() => getSessionData()} style={{ float: "right" }}>
+          <Button style={{ float: "right" }} onClick={() => getSessionData()}>
             Refresh
           </Button>
           <CSVLink
-            data={sessionEData}
-            filename={`SessionData-${new Date().toLocaleString()}.csv`}
-            separator={";"}
             style={{ float: "right", marginRight: "4px" }}
+            data={sessionEData}
+            separator={";"}
+            filename={`SessionData-${new Date().toLocaleString()}.csv`}
           >
             <Button>Export Data</Button>
           </CSVLink>
@@ -226,11 +226,11 @@ const ManageSessionMain = (): JSX.Element => {
               <Spinner text="loading ..." />
             ) : (
               <MainTable
-                className={"event-logs-table"}
-                emptyStateMsg="Data not available."
                 headers={sessions_header}
+                className={"event-logs-table"}
                 rows={getSessionIformation(sessionData)}
                 sortable
+                emptyStateMsg="Data not available."
               />
             )}
           </div>

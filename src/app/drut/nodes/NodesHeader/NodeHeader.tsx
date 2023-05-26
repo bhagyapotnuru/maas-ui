@@ -116,8 +116,11 @@ const NodeHeader = ({
   return (
     <>
       <SectionHeader
-        buttons={getHeaderButtons(node)}
         key="nodeHeades"
+        buttons={getHeaderButtons(node)}
+        title={
+          isListView ? "Node List" : `Details of Node : ${node?.Name || ""}`
+        }
         subtitle={
           isListView ? (
             "Composed nodes"
@@ -135,9 +138,6 @@ const NodeHeader = ({
           )
         }
         tabLinks={isListView ? [] : tabs}
-        title={
-          isListView ? "Node List" : `Details of Node : ${node?.Name || ""}`
-        }
       />
     </>
   );

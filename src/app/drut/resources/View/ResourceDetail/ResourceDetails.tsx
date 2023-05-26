@@ -83,15 +83,15 @@ const ResourceDetails = ({
   const getJSONData = (data: any) => {
     return (
       <JSONTree
-        data={data}
         key={"jsonModal"}
-        keyPath={[]}
-        shouldExpandNodeInitially={() => true}
+        data={data}
         theme={{
           scheme: "monokai",
           author: "Indu",
           base00: "#000000",
         }}
+        keyPath={[]}
+        shouldExpandNode={() => true}
       />
     );
   };
@@ -106,14 +106,13 @@ const ResourceDetails = ({
               <hr />
               {genObjAccord(data) ? (
                 <Accordion
-                  className=""
                   expanded={deviceInformationOpen}
                   externallyControlled={true}
+                  className=""
+                  sections={genObjAccord(data)}
                   onExpandedChange={(id: any, title: string) => {
-                    console.log(id);
                     setDeviceInformationOpen(title);
                   }}
-                  sections={genObjAccord(data)}
                 />
               ) : (
                 <p>Device data not available.</p>
@@ -122,17 +121,16 @@ const ResourceDetails = ({
               <hr />
               {arrayObjectArray(getFabricData(data), "FabricInfo").length ? (
                 <Accordion
-                  className=""
                   expanded={fabricInformationOpen}
                   externallyControlled={true}
-                  onExpandedChange={(id: any, title: string) => {
-                    console.log(id);
-                    setFabricInformation(title);
-                  }}
+                  className=""
                   sections={arrayObjectArray(
                     getFabricData(data),
                     "Switch Port"
                   )}
+                  onExpandedChange={(id: any, title: string) => {
+                    setFabricInformation(title);
+                  }}
                 />
               ) : (
                 <p>Fabric data not available!</p>

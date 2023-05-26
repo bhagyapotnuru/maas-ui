@@ -1,3 +1,5 @@
+@use 'defaults';
+
 .select_value > div {
   font-size: 0.875rem !important;
 }
@@ -77,32 +79,32 @@
 
 .contained_button button {
   text-transform: capitalize !important;
-  background-color: #e73594;
-  border-color: #e73594;
-  color: white;
+  background-color: defaults.$button-background;
+  border-color: defaults.$button-background;
+  color: defaults.$text-white;
 }
 
 .contained_button button:hover {
-  background-color: #e73594;
-  border-color: #e73594;
+  background-color: defaults.$button-background;
+  border-color: defaults.$button-background;
 }
 
 .contained_button button:disabled {
-  background-color: #e73594;
-  color: white;
-  border-color: #e73594;
+  background-color: defaults.$button-background;
+  color: defaults.$text-white;
+  border-color: defaults.$button-background;
 }
 
 .text_button button {
-  color: #e73594;
+  color: defaults.$button-background;
 }
 
 .text_button button:hover {
-  color: #e73594;
+  color: defaults.$button-background;
 }
 
 .text_button button:disabled {
-  color: #e73594;
+  color: defaults.$button-background;
 }
 
 .node_details_box {
@@ -131,7 +133,7 @@
 
 .node_details_resource_block {
   padding: 6px;
-  background: #e7f1ee;
+  background: defaults.$section-header-bg;
   font-size: 0.875rem;
   margin-top: 6px;
   box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%),
@@ -177,7 +179,7 @@
 .node_details_target_block_content {
   display: flex;
   flex-direction: column;
-  background: #e7f1ee;
+  background: defaults.$section-header-bg;
   padding: 8px;
   border-radius: 6px;
   box-shadow: 0px 2px 4px -1px rgb(0 0 0 / 20%),
@@ -219,4 +221,8 @@
   display: flex;
   justify-content: flex-end;
   gap: 1rem;
+}
+
+.autocomplete input {
+  box-shadow: none;
 }

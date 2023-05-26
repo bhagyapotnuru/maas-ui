@@ -11,7 +11,7 @@ const generateObjData = (node: any = null, size: any = 4): any => {
     Object.keys(node).forEach((key, index) => {
       if (!(key === "Id") && !(typeof node[key] === "object")) {
         fnd.push(
-          <Col key={"objcol" + index + Math.random()} size={size}>
+          <Col size={size} key={"objcol" + index + Math.random()}>
             <div className="drut-node-info-box-1">
               <strong className="p-muted-heading">{key}</strong>
               <br />
@@ -25,7 +25,7 @@ const generateObjData = (node: any = null, size: any = 4): any => {
     });
   } else {
     fnd.push(
-      <Col key={"nodata-obj" + Math.random()} size={6}>
+      <Col size={6} key={"nodata-obj" + Math.random()}>
         <p>Data not available!</p>
       </Col>
     );
@@ -115,17 +115,17 @@ const arrayObject = (data: Array<any> = [], colSize: any = 4): any => {
         } else {
           fndObj.push(
             <JSONTree
-              data={dataElm[dtKey]}
               key={"json" + index + Math.random()}
-              keyPath={[dtKey]}
-              shouldExpandNodeInitially={() => true}
+              data={dataElm[dtKey]}
               theme={jsonTheme}
+              keyPath={[dtKey]}
+              shouldExpandNode={() => true}
             />
           );
         }
       });
       colFnd.push(
-        <Col key={"final" + Math.random()} size={colSize}>
+        <Col size={colSize} key={"final" + Math.random()}>
           <Card className="drut-node-summary-card">{fnd.concat(fndObj)}</Card>
         </Col>
       );
@@ -192,7 +192,7 @@ const mainTablePorts = (ports: any) => {
 
   return { len, colFnd };
 };
-// dsfsdf
+
 const arrayObjectArray = (data: Array<any> = [], label: string): any => {
   const accData: Array<any> = [];
   let colm: any = { len: 0, colFnd: null };
@@ -211,10 +211,12 @@ const arrayObjectArray = (data: Array<any> = [], label: string): any => {
           key: `${switchDt?.Name} (${label} Count: ${colm.len})`,
           content: (
             <>
-              <Row> {generateObjData(switchDt)}</Row>
+              <Row style={{ fontSize: "0.875rem", marginBottom: "1rem" }}>
+                {generateObjData(switchDt)}
+              </Row>
               <strong className="p-muted-heading">{label}</strong>
               <br />
-              <Row>{colm.colFnd}</Row>
+              <Row style={{ fontSize: "0.875rem" }}>{colm.colFnd}</Row>
             </>
           ),
         });
@@ -250,7 +252,9 @@ const resourceData: any = (
       DPU: { ability: [] },
     },
   };
-  result.Links.Members.forEach((elm: any, index: any) => {
+  result.Links.Members.filter(
+    (elm: any) => elm.ResourceBlockType?.length > 0
+  ).forEach((elm: any, index: any) => {
     elm.ResourceBlockType = translateUIType(elm.ResourceBlockType);
     elm["RTypes"] =
       elm.ResourceBlockType && elm.ResourceBlockType.length
@@ -473,7 +477,7 @@ const resourcesByType = (resources: any = null, selected: any = "All"): any => {
       });
       const temp: any = [];
       res = res.filter((item: any) => {
-        if (!temp.includes(item.Id)) {
+        if (item?.Id && !temp.includes(item.Id)) {
           temp.push(item.Id);
           return true;
         }
@@ -481,6 +485,7 @@ const resourcesByType = (resources: any = null, selected: any = "All"): any => {
       });
     }
   } catch (err) {
+    console.log(err);
     res = [];
   }
 

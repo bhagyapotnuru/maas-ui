@@ -8,6 +8,8 @@ import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import { styled } from "@mui/material/styles";
 
+import { COLOURS } from "../../../base/constants";
+
 import DataPathOrderDetailsTable from "./DataPathOrderDetailsTable";
 import classess from "./NodeList.module.css";
 
@@ -36,7 +38,7 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
       return "p-icon--error";
     } else if (orderStatus === "PENDING") {
       return "p-icon--status-waiting";
-    } else return;
+    }
   };
 
   const Accordion = styled((props: any) => (
@@ -67,8 +69,8 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
   ))(({ theme }) => ({
     backgroundColor:
       theme.palette.mode === "dark"
-        ? "rgba(255, 255, 255, .05)"
-        : "rgba(0, 0, 0, .03)",
+        ? COLOURS.ACCORDIAN_BG_TRUE
+        : COLOURS.ACCORDIAN_BG_FALSE,
     flexDirection: "row-reverse",
     "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
       transform: "rotate(90deg)",
@@ -127,12 +129,10 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
   };
 
   const handleParentChange = (panel: any) => (event: any, newExpanded: any) => {
-    console.log(event);
     setParentExpanded(newExpanded ? panel : false);
   };
 
   const handleChildChange = (panel: any) => (event: any, newExpanded: any) => {
-    console.log(event);
     setChildExpanded(newExpanded ? panel : false);
   };
 
@@ -182,8 +182,8 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
                           id={`${dpo?.TargetEndpoint?.["@odata.id"]}_${childIndex}_header`}
                         >
                           <CustomizedTooltip
-                            style={{ "margin-right": "1%" }}
                             title={dpo?.DataPathOrderStatus}
+                            style={{ "margin-right": "1%" }}
                           >
                             <i
                               className={getDpOrderStatusIcon(

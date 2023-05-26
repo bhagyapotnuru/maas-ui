@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 import {
   Button,
@@ -21,10 +21,13 @@ import TableHead from "@mui/material/TableHead";
 import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { styled, ThemeProvider } from "@mui/material/styles";
-import { fetchData } from "app/drut/config";
-import customDrutTheme from "app/utils/Themes/Themes";
+
+import { COLOURS } from "../../../base/constants";
 
 import classess from "./FabricDataPath.module.css";
+
+import { fetchData } from "app/drut/config";
+import customDrutTheme from "app/utils/Themes/Themes";
 
 interface Props {
   data: any;
@@ -64,8 +67,8 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
   ))(({ theme }) => ({
     backgroundColor:
       theme.palette.mode === "dark"
-        ? "rgba(255, 255, 255, .05)"
-        : "rgba(0, 0, 0, .03)",
+        ? COLOURS.ACCORDIAN_BG_TRUE
+        : COLOURS.ACCORDIAN_BG_FALSE,
     flexDirection: "row-reverse",
     "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
       transform: "rotate(90deg)",
@@ -86,7 +89,7 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
     borderTop: "1px solid rgba(0, 0, 0, .125)",
   }));
 
-  const TableCell = styled(MuiTableCell)(() => ({
+  const TableCell = styled(MuiTableCell)(({ theme }) => ({
     "&.MuiTableCell-root": {
       wordBreak: "break-all",
     },
@@ -102,7 +105,6 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
   }, []);
 
   const handleParentChange = (panel: any) => (event: any, newExpanded: any) => {
-    console.log(event);
     setParentExpanded((prev: any) =>
       newExpanded
         ? [...prev, panel]
@@ -152,14 +154,14 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
 
   const dataPathAccordionDoM =
     typeof data !== "string" &&
-    data?.ConnectedResourceBlocks.map((connectedRB: any, pIndex: number) => (
+    data?.ConnectedResourceBlocks?.map((connectedRB: any, pIndex: number) => (
       <Accordion
         expanded={parentExpanded.includes(connectedRB?.TargetResourceBlock?.Id)}
         onChange={handleParentChange(connectedRB?.TargetResourceBlock?.Id)}
       >
         <AccordionSummary
-          aria-controls={`_${pIndex}_content`}
           className={isList ? classess.list_view : ""}
+          aria-controls={`_${pIndex}_content`}
           id={`_${pIndex}_header`}
         >
           <Typography>{`${connectedRB?.InitiatorResourceBlock?.Name} > ${connectedRB?.TargetResourceBlock?.Name}`}</Typography>
@@ -167,18 +169,18 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
         <AccordionDetails>
           <TableContainer component={Paper}>
             <Table
-              aria-label="simple table"
-              size="small"
               sx={{ minWidth: 650, margin: 0 }}
+              size="small"
+              aria-label="simple table"
             >
               <TableHead className={isList ? classess.list_view : ""}>
                 <TableRow>
-                  <TableCell align="center" className={classess.status_col}>
+                  <TableCell className={classess.status_col} align="center">
                     Health
                   </TableCell>
                   <TableCell
-                    align="center"
                     className={classess.datapath_id_col}
+                    align="center"
                   >
                     Data Path ID
                   </TableCell>
@@ -218,23 +220,23 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
                             }`}
                           >
                             <TableCell
-                              align="center"
                               className={`${classess.status_col} ${classess.border_right}`}
+                              align="center"
                               key={`drut-dp-${c1Index}_${Math.random()}`}
                             >
                               <Tooltip
+                                key={`tp_${Math.random()}`}
                                 className="doughnut-chart__tooltip"
                                 followMouse={true}
-                                key={`tp_${Math.random()}`}
                                 message={`Health Status: ${cRbDpEP?.PathToRemoteEndpoint?.Status?.Health}`}
                                 position="btm-center"
                               >
                                 <i
+                                  style={{ height: "1.8rem", width: "1.8rem" }}
                                   className={getStatusIcon(
                                     cRbDpEP?.PathToRemoteEndpoint?.Status
                                       ?.Health
                                   )}
-                                  style={{ height: "1.8rem", width: "1.8rem" }}
                                 ></i>
                               </Tooltip>
                             </TableCell>
@@ -474,20 +476,20 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
         }}
       >
         <div
-          aria-describedby="modal-description"
-          aria-labelledby="modal-title"
-          aria-modal="true"
           className=""
           role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+          aria-describedby="modal-description"
         >
           <header className="p-modal__header">
             <h2 className="p-modal__title" id="modal-title">
               {"Power Information"}
             </h2>
             <Button
-              aria-controls="modal"
-              aria-label="Close active modal"
               className="p-modal__close"
+              aria-label="Close active modal"
+              aria-controls="modal"
               onClick={() => {
                 setModalState(!modalState);
               }}

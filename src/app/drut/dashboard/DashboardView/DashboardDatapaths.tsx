@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 
 import { Col, Row, Card, Spinner } from "@canonical/react-components";
-import { COLOURS } from "app/base/constants";
-import DataPathInfo from "app/drut/fabric/FabricDataPath/DataPathInfo";
 import { NavLink } from "react-router-dom";
 
 import { fetchData, throwHttpMessage } from "../../config";
 // import FabricDataPath from "../../fabric/FabricDataPath/FabricDataPath";
 import DSPieChart from "../View/DSPieChart";
+
+import { COLOURS } from "app/base/constants";
+import DataPathInfo from "app/drut/fabric/FabricDataPath/DataPathInfo";
 
 const DashboardDatapaths = (): JSX.Element => {
   const dp: any = {};
@@ -97,23 +98,23 @@ const DashboardDatapaths = (): JSX.Element => {
       // const dt: any = { 1: true, 2: true, 3: true, 4: true, 5: true, 6: true };
       dataPath.push(
         <li
-          className="p-accordion__group111"
           key={`dsdp_${midx}_key_${Math.random()}`}
+          className="p-accordion__group111"
         >
           <div
-            aria-level={1}
-            className="p-accordion__heading"
             key={`divdp_${midx}_key_${Math.random()}`}
             role="heading"
+            aria-level={1}
+            className="p-accordion__heading"
           >
             <button
-              aria-controls={`${midx}_id_sec`}
-              aria-expanded={getExpSTatus(midx + 1)}
+              key={`btndp_${midx}_key_${Math.random()}`}
+              type="button"
               className="p-accordion__tab"
               id={`${midx}_id`}
-              key={`btndp_${midx}_key_${Math.random()}`}
+              aria-controls={`${midx}_id_sec`}
+              aria-expanded={getExpSTatus(midx + 1)}
               onClick={() => changeSate(midx + 1)}
-              type="button"
             >
               <b>Node Name:</b>&nbsp;
               <NavLink
@@ -128,16 +129,16 @@ const DashboardDatapaths = (): JSX.Element => {
             </button>
           </div>
           <section
+            key={`dpsec_${Math.random()}`}
+            className="p-accordion__panel"
+            style={{ paddingLeft: "1rem" }}
+            id={`${midx}_id_sec`}
             aria-hidden={!activeState[midx + 1]}
             aria-labelledby={`${midx}_id`}
-            className="p-accordion__panel"
-            id={`${midx}_id_sec`}
-            key={`dpsec_${Math.random()}`}
-            style={{ paddingLeft: "1rem" }}
           >
             <div
-              className="drut-dashboard-summary-card-ns"
               key={`dsdivdp_${midx}_key_${Math.random()}`}
+              className="drut-dashboard-summary-card-ns"
             >
               <DataPathInfo data={rs} isList={true}></DataPathInfo>
               {/* <FabricDataPath
@@ -206,8 +207,7 @@ const DashboardDatapaths = (): JSX.Element => {
         <Col size={12}>
           <div className="overall-dashboard-card">
             <DSPieChart
-              box={"box1"}
-              colorCode={colorCode}
+              key={`pathStatus_node`}
               data={{
                 chart: "PIE",
                 counters: {
@@ -222,11 +222,11 @@ const DashboardDatapaths = (): JSX.Element => {
                 totalTitle: "Nodes",
                 unit: "",
               }}
-              key={`pathStatus_node`}
+              box={"box1"}
+              colorCode={colorCode}
             />
             <DSPieChart
-              box={"box2"}
-              colorCode={colorCode}
+              key={`pathStatus_resource`}
               data={{
                 chart: "PIE",
                 counters: {
@@ -241,11 +241,11 @@ const DashboardDatapaths = (): JSX.Element => {
                 totalTitle: "Attached",
                 unit: "",
               }}
-              key={`pathStatus_resource`}
+              box={"box2"}
+              colorCode={colorCode}
             />
             <DSPieChart
-              box={"box3"}
-              colorCode={colorCode}
+              key={`pathStatus_dp`}
               data={{
                 chart: "PIE",
                 counters: {
@@ -265,7 +265,8 @@ const DashboardDatapaths = (): JSX.Element => {
                 ),
                 unit: "",
               }}
-              key={`pathStatus_dp`}
+              box={"box3"}
+              colorCode={colorCode}
             />
           </div>
         </Col>

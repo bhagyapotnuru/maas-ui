@@ -10,7 +10,6 @@ import {
   Tooltip,
   Spinner,
 } from "@canonical/react-components";
-import { useDispatch, useSelector } from "react-redux";
 import { NavLink, useParams } from "react-router-dom";
 
 import { fetchData, deleteData, throwHttpMessage } from "../../config";
@@ -18,82 +17,43 @@ import { nodeStatus, nStatus } from "../../nodeStatus";
 import RegisterMachineForm from "../RegisterNode/RegisterNode";
 
 import classess from "./NodeList.module.css";
+import ResetForm from "./ResetForm";
 
-import { actions as machineActions } from "app/store/machine";
-import machineSelectors from "app/store/machine/selectors";
-import type { RootState } from "app/store/root/types";
+import { getIconByStatus } from "app/drut/fabricManagement/FabricManagementContent/Managers/type";
 
 type Props = {
   page: any;
   onNodeDetail: any;
   dataId: any;
+  setOpenResetForm?: any;
+  setSelectedNode?: any;
+  openResetForm?: boolean;
+  selectedNode?: any;
 };
 
-const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
-  const dispatch = useDispatch();
+const NodeList = ({
+  page,
+  onNodeDetail,
+  setOpenResetForm,
+  setSelectedNode,
+  openResetForm,
+  selectedNode,
+}: Props): JSX.Element => {
+  // const dispatch = useDispatch();
   const abortController = new AbortController();
-  const abcFabric = new AbortController();
-  const abcDataPath = new AbortController();
-  const abcEvent = new AbortController();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const [searchText, setSearchText] = useState("");
   const [error, setError] = useState("");
   const [nodeFullData, setNodeFullData] = useState([]);
   const [nodes, setNodes] = useState([]);
-  const filteredMachines = useSelector((state: RootState) => {
-    return machineSelectors.search(state, "", []);
-  });
-
-  localStorage.setItem("myFavoriteSandwich", "tuna");
-  if (localStorage.getItem("matching-machine") === null) {
-    localStorage.setItem("matching-machine", JSON.stringify([]));
-  }
-
-  filteredMachines.forEach((element: any) => {
-    if (element.hardware_uuid && element.hardware_uuid !== null) {
-      const dt: any = localStorage.getItem("matching-machine");
-      const ls: any = JSON.parse(dt);
-      const chk = ls.find(
-        (dt: any) =>
-          dt.hardware_uuid.toLowerCase() === element.hardware_uuid.toLowerCase()
-      );
-      if (!chk) {
-        ls.push({
-          hardware_uuid: element.hardware_uuid,
-          system_id: element.system_id,
-          fqdn: element.fqdn,
-        });
-        localStorage.setItem("matching-machine", JSON.stringify(ls));
-      }
-    }
-  });
-
-  useEffect(() => {
-    filteredMachines.forEach((dt: any) => {
-      dispatch(machineActions.get(dt.system_id, ""));
-      dispatch(machineActions.setActive(dt.system_id));
-    });
-
-    // Unset active machine on cleanup.
-    return () => {
-      dispatch(machineActions.setActive(null));
-      // Clean up any machine errors etc. when closing the details.
-      dispatch(machineActions.cleanup());
-    };
-  }, [dispatch]);
 
   const parms: any = useParams();
   let setTimeOut: any;
   const [rData, setrData] = useState({
-    rfu: "",
-    user: "",
-    pass: "",
-    protocol: "",
     details: { id: "", name: "", mac: [] },
   });
-  // const [nodeData, setNodeData] = useState(null);
+
   const [loading, setLoading] = useState(true);
-  const [fabrics, setFabrics]: [any, any] = useState([]);
   const [isRegister, setIsRegister] = useState(false);
 
   const getNodesData = (fetch = false) => {
@@ -128,7 +88,6 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
             setNodes(result);
             setNodeFullData(result);
             if (!parms || !parms.id) {
-              //  nodeDetails(parms.id);
               onNodeDetail(null);
             }
           } else {
@@ -142,24 +101,6 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
         }
       );
   };
-
-  async function getFabricsData() {
-    await fetchData("dfab/fabrics/", false, abcFabric.signal)
-      .then((response: any) => {
-        return throwHttpMessage(response, setError);
-      })
-      .then(
-        (result: any) => {
-          if (result) {
-            setFabrics(result);
-          }
-        },
-        (error: any) => {
-          setLoading(false);
-          console.log(error);
-        }
-      );
-  }
 
   const deleteNode = (node: any) => {
     setLoading(true);
@@ -179,16 +120,9 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
       );
   };
 
-  const getDpCreationOrderStatusIcon = (composedNodeState: string) => {
-    if (composedNodeState === "COMPLETED") {
-      return "p-icon--success";
-    } else if (composedNodeState === "IN_PROGRESS") {
-      return "p-icon--status-in-progress";
-    } else if (composedNodeState === "FAILED") {
-      return "p-icon--error";
-    } else if (composedNodeState === "PENDING") {
-      return "p-icon--status-waiting";
-    } else return;
+  const resetNode = (node: any) => {
+    setSelectedNode(node);
+    setOpenResetForm(true);
   };
 
   const getStatusIcon = (node: any) =>
@@ -207,15 +141,15 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
               key: `HealthStatus_${index}_${Math.random()}`,
               content: (
                 <Tooltip
+                  key={`tp_${Math.random()}`}
                   className="doughnut-chart__tooltip"
                   followMouse={true}
-                  key={`tp_${Math.random()}`}
                   message={`Health Status: ${node?.Status?.Health}`}
                   position="btm-center"
                 >
                   <i
-                    className={getStatusIcon(node)}
                     style={{ height: "1.8rem", width: "1.8rem" }}
+                    className={getStatusIcon(node)}
                   ></i>
                 </Tooltip>
               ),
@@ -226,14 +160,14 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
               content: (
                 <span className={classess["datapath-creation-order-status"]}>
                   <Tooltip
+                    key={`tp_${Math.random()}`}
                     className="doughnut-chart__tooltip"
                     followMouse={true}
-                    key={`tp_${Math.random()}`}
                     message={`Datapath Creation Order Status: ${node?.DataPathCreationOrderStatus}`}
                     position="btm-center"
                   >
                     <i
-                      className={getDpCreationOrderStatusIcon(
+                      className={getIconByStatus(
                         node?.DataPathCreationOrderStatus
                       )}
                     ></i>
@@ -358,9 +292,9 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
     } else {
       return (
         <ContextualMenu
+          key={`cmenu_${Math.random()}`}
           data-testid="row-menu"
           hasToggleIcon={true}
-          key={`cmenu_${Math.random()}`}
           links={[
             {
               children: "Delete Node",
@@ -371,6 +305,11 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
               children: "Register Node",
               "data-test": "register-node-link",
               onClick: () => registerNode(node),
+            },
+            {
+              children: "Reset Node",
+              "data-test": "register-node-link",
+              onClick: () => resetNode(node),
             },
           ]}
         />
@@ -448,10 +387,6 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
     if (type === "CLOSE") {
       setIsRegister(false);
       setrData({
-        rfu: "",
-        protocol: "",
-        user: "",
-        pass: "",
         details: { name: "", mac: [], id: "" },
       });
     }
@@ -464,44 +399,17 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
     details.name = node.Name;
     details.mac = node.MACAddress || ["00:00:00:00:00:00"];
 
-    if (fabrics && fabrics.length) {
-      setrData({
-        rfu: parseURL(fabrics[0].url),
-        protocol: getProtocol(fabrics[0].url),
-        user: fabrics[0].user,
-        pass: fabrics[0].password,
-        details,
-      });
-    }
-  };
-
-  const parseURL = (url: string) => {
-    const ip = url.split("/")[2].split(":")[0];
-    const port = url.split("/")[2].split(":")[1];
-    return `${ip}:${port}`;
-  };
-
-  const getProtocol = (url: string) => {
-    if (url.includes("https")) {
-      return "https";
-    }
-    return "http";
+    setrData({ details: details });
   };
 
   useEffect(() => {
     setError("");
     getNodesData();
 
-    getFabricsData();
     // Clearing timeout if pending on unmount
     return () => {
-      // clearing settimeout
-      console.log("clearing settimeout: Stop refreshing!!!");
       clearTimeout(setTimeOut);
       abortController.abort();
-      abcDataPath.abort();
-      abcFabric.abort();
-      abcEvent.abort();
     };
   }, [page]);
 
@@ -509,9 +417,9 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
     <Fragment key={`${Math.random()}`}>
       {error && error.length && (
         <Notification
-          inline
           key={`notification_${Math.random()}`}
           onDismiss={() => setError("")}
+          inline
           severity="negative"
         >
           {error}
@@ -524,11 +432,19 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
             Registering Node: <b>{rData?.details?.name}</b>
           </h3>
           <RegisterMachineForm
-            data={rData}
             key={`RegisterMachine_${Math.random()}`}
+            data={rData}
             onRegisterNodeAction={onRegisterNodeAction}
           />
         </Fragment>
+      )}
+
+      {openResetForm && (
+        <ResetForm
+          setOpenResetForm={setOpenResetForm}
+          selectedNode={selectedNode}
+          setError={setError}
+        />
       )}
 
       {!parms.id && (
@@ -556,14 +472,14 @@ const NodeList = ({ page, onNodeDetail }: Props): JSX.Element => {
                   </Row>
                   <hr />
                   <MainTable
+                    key={`nodeListTable_${Math.random()}`}
                     className="p-table--network-node p-table-expanding--light"
                     defaultSort="Name"
                     defaultSortDirection="ascending"
-                    emptyStateMsg="No node created yet or Node data not available."
                     headers={headers}
-                    key={`nodeListTable_${Math.random()}`}
                     rows={generateRows(nodes)}
                     sortable
+                    emptyStateMsg="No node created yet or Node data not available."
                   />
                 </Fragment>
               )}

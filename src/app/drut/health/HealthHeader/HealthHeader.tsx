@@ -20,26 +20,6 @@ const HealthHeader = ({ onRefresh }: Props): JSX.Element => {
       <Button element={Link} key="dashboard" to="/drut-cdi">
         Dashboard
       </Button>,
-      // <ContextualMenu
-      //   hasToggleIcon
-      //   className="drut-button"
-      //   links={[
-      //     {
-      //       children: "Resources",
-      //       onClick: () => history.push("resources"),
-      //     },
-      //     {
-      //       children: "Nodes",
-      //       onClick: () => history.push("nodes"),
-      //     },
-      //     {
-      //       children: "Events",
-      //       onClick: () => history.push("dfab-events"),
-      //     },
-      //   ]}
-      //   position="right"
-      //   toggleLabel="dFabric"
-      // />,
       <Button key="refresh" onClick={() => refreshData()}>
         Refresh
       </Button>,
@@ -48,10 +28,10 @@ const HealthHeader = ({ onRefresh }: Props): JSX.Element => {
 
   return (
     <SectionHeader
-      buttons={getHeaderButtons()}
       key="healthHeades"
-      subtitle={"Details of all Fabric Manager services."}
+      buttons={getHeaderButtons()}
       title="Fabric Manager"
+      subtitle={"Details of all Fabric Manager services."}
     />
   );
 };

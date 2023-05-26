@@ -21,10 +21,10 @@ export interface Member {
   Chassis: Chassis;
   Manager: Manager;
   FabricInfo: Array<FabricInfo | null>;
-  NodeId: null;
-  NodeName: null;
-  MachineId: null;
-  MachineName: null;
+  NodeId: string;
+  NodeName: string;
+  MachineId: string;
+  MachineName: string;
   ComputerSystems?: ComputerSystem[];
   checked: boolean;
   capacity: string[];

@@ -111,6 +111,14 @@ export const PowerTypeFields = <V extends AnyObject>({
           disabled={disableSelect}
           label="Power type"
           name={powerTypeValueName}
+          options={[
+            { label: "Select power type", value: "", disabled: false },
+            ...powerTypes.map((powerType) => ({
+              key: `power-type-${powerType.name}`,
+              label: powerType.description,
+              value: powerType.name,
+            })),
+          ]}
           onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
             // Reset errors and touched formik state when selecting a new power
             // type, in order to start validation from new.
@@ -134,14 +142,6 @@ export const PowerTypeFields = <V extends AnyObject>({
               });
             }
           }}
-          options={[
-            { label: "Select power type", value: "", disabled: false },
-            ...powerTypes.map((powerType) => ({
-              key: `power-type-${powerType.name}`,
-              label: powerType.description,
-              value: powerType.name,
-            })),
-          ]}
           required
         />
       )}

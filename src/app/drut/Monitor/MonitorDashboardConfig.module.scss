@@ -1,0 +1,76 @@
+@use "defaults";
+
+.config_input {
+  box-shadow: none;
+  width: 100%;
+  font-size: 0.875rem;
+  font-weight: 300;
+  border: none;
+  outline: none;
+}
+
+.config_input input {
+  box-shadow: none;
+  width: 100%;
+  font-size: 0.875rem;
+  font-weight: 300;
+  border: none;
+  outline: none;
+}
+
+.config_input textarea {
+  box-shadow: none;
+  width: 100%;
+  font-size: 0.875rem;
+  font-weight: 300;
+  border: none;
+  outline: none;
+}
+
+.form_btn {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1%;
+  margin-top: 2%;
+}
+
+.config_box {
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  border-radius: 4px;
+  box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%),
+    0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+  padding: 2%;
+  margin: 0 !important;
+  width: 100% !important;
+}
+
+.primay_btn {
+  background-color: defaults.$button-background !important;
+  border-color: defaults.$button-border !important;
+}
+
+.default_btn {
+  color: black !important;
+}
+
+.config_input_error {
+  font-size: 10px;
+  color: #d32f2f;
+}
+
+.widget_name_block {
+  padding-top: 2px;
+  width: 100%;
+}
+
+.error_field {
+  margin: 0 8px;
+}
+
+.row_1 {
+  display: flex;
+}
+
+.username_password {
+  display: flex;
+}

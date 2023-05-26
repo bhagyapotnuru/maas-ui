@@ -15,9 +15,9 @@ const ComposeNode = (): JSX.Element => {
 
   return (
     <Section
+      key="composeHeader"
       className="u-no-padding--bottom"
       header={<ComposeNodeHeader />}
-      key="composeHeader"
     >
       <Switch>
         <Route exact path={composeUrl.compose.index}>

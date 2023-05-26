@@ -1,13 +1,13 @@
 import { useEffect, useState, useLayoutEffect } from "react";
 
 import { Spinner } from "@canonical/react-components";
-//import { useHistory } from "react-router-dom";
-// import FormikForm from "app/base/components/FormikForm";
 import { useDispatch, useSelector } from "react-redux";
+//import { useHistory } from "react-router-dom";
 import * as Yup from "yup";
 
 import AddMachineFormFields from "./AddMachineFormFields";
 import FormCard from "./FormCard";
+// import FormikForm from "app/base/components/FormikForm";
 import FormikForm from "./FormikForm";
 
 import { useAddMessage, useWindowTitle } from "app/base/hooks/index";
@@ -194,6 +194,8 @@ export const RegisterMachineForm: any = ({
               };
               console.log("Payload ", params);
               dispatch(machineActions.create(params));
+              window.scrollTo(0, 0);
+
               setSavingMachine(values.hostname || "Machine");
             }}
             onValuesChanged={(values) => {
@@ -203,9 +205,9 @@ export const RegisterMachineForm: any = ({
               setPowerType(powerType);
             }}
             resetOnSave={resetOnSave}
-            saved={machineSaved}
-            savedRedirect={resetOnSave ? undefined : machineURLs.index}
             saving={machineSaving}
+            saved={machineSaved}
+            savedRedirect={resetOnSave ? undefined : machineURLs.machines.index}
             secondarySubmit={(_, { submitForm }) => {
               setResetOnSave(true);
               submitForm();
@@ -214,7 +216,7 @@ export const RegisterMachineForm: any = ({
             submitLabel="Save machine"
             validationSchema={AddMachineSchema}
           >
-            <AddMachineFormFields macs={aditionalMacs} saved={machineSaved} />
+            <AddMachineFormFields saved={machineSaved} macs={aditionalMacs} />
           </FormikForm>
         </FormCard>
       )}

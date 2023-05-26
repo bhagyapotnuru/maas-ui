@@ -15,8 +15,8 @@ const DrutManageSession = (): JSX.Element => {
   return (
     <Section
       className="u-no-padding--bottom"
-      header={<ManageSessionMainHeader />}
       key="nodehSecetion"
+      header={<ManageSessionMainHeader />}
     >
       <Switch>
         <Route exact path={manageUrls.manage.session}>

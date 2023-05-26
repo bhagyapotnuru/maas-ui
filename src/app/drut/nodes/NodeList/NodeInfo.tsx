@@ -82,9 +82,9 @@ const NodeInfo = (props: Props): JSX.Element => {
     <>
       {error && error.length && (
         <Notification
-          inline
           key={`notification_${Math.random()}`}
           onDismiss={() => setError("")}
+          inline
           severity="negative"
         >
           {error}
@@ -93,30 +93,30 @@ const NodeInfo = (props: Props): JSX.Element => {
 
       {props.tabId === "sum" && (
         <NodeSummary
-          isLoadingInProgress={isLoading}
           isRefreshInProgress={isRefreshInProgress}
-          notFoundError={notFoundError}
-          onDismissError={() => setError("")}
+          isLoadingInProgress={isLoading}
           onNodeDetail={props.onNodeDetail}
           selectedNode={selectedNode}
+          notFoundError={notFoundError}
+          onDismissError={() => setError("")}
         />
       )}
       {props.tabId === "dp" && (
         <AttachDetachFabricElement
-          isMachinesPage={false}
-          isRefreshAction={props.refresh}
           isRefreshInProgress={isRefreshInProgress}
+          isRefreshAction={props.refresh}
           nodeId={parms.id}
+          isMachinesPage={false}
         />
       )}
       {props.tabId === "dpo" && (
         <DataPathTabs
+          isRefreshInProgress={isRefreshInProgress}
+          isRefreshAction={props.refresh}
+          nodeId={parms.id}
           isDataPathOrdersTab={(value: boolean) =>
             props.isDataPathOrdersTab(value)
           }
-          isRefreshAction={props.refresh}
-          isRefreshInProgress={isRefreshInProgress}
-          nodeId={parms.id}
         />
       )}
       {props.tabId === "log" && <NodeEventLog nodeId={parms.id} />}

@@ -9,26 +9,32 @@ import {
   Row,
   Select,
 } from "@canonical/react-components";
+
+import classes from "./ManagerControls.module.css";
+
 import DebounceSearchBox from "app/base/components/DebounceSearchBox";
 import type { SetSearchFilter } from "app/base/types";
-
-import classess from "./ManagerControls.module.css";
+import { paginationOptions } from "app/drut/types";
 
 type Props = {
   searchText: string;
+  selectedItem: string;
   setSearchText: SetSearchFilter;
   pageSize: string;
   prev: number;
   next: number;
+  count: number;
   setNext: (value: number) => void;
   setPrev: (value: number) => void;
   setPageSize: (value: string) => void;
-
+  setFilterType: (value: string) => void;
+  setSelectedItem: (value: string) => void;
   managerCount: number;
   filterData: any;
 };
 
 const ManagerControls = ({
+  selectedItem,
   searchText,
   managerCount,
   setSearchText,
@@ -39,9 +45,11 @@ const ManagerControls = ({
   setNext,
   setPrev,
   setPageSize,
+  setFilterType,
+  setSelectedItem,
+  count,
 }: Props): JSX.Element => {
   const [expandedSection, setExpandedSection] = useState();
-  const [selectedItem, setSelectedItem] = useState();
   const previousNext = (type: any) => {
     if (type === "P") {
       setPrev(prev - 1);
@@ -53,29 +61,29 @@ const ManagerControls = ({
   };
 
   useEffect(() => {
-    // Going to the first page if the search text or filters are updated!
-    console.log(setExpandedSection);
+    // Going to the first page if the pageSize is updated!
     setPrev(0);
     setNext(1);
-  }, [searchText]);
+  }, [pageSize]);
 
-  const onItemClick = (item: any) => {
+  const onItemClick = (item: any, key: any) => {
     setSelectedItem(item);
     setSearchText(item);
+    setFilterType(key);
   };
 
-  const itemsData = (data: any) => {
+  const itemsData = (data: any, key: any) => {
     const listItems: Array<any> = [];
     if (data) {
       data.forEach((item: any) => {
         listItems.push(
           <Button
+            key={`btn${item.index}`}
             appearance="base"
             className={`u-align-text--left u-no-margin--bottom filter-accordion__item is-dense ${
               item === selectedItem ? "is-active" : "vcvc"
             }`}
-            key={`btn${item.index}`}
-            onClick={() => onItemClick(item)}
+            onClick={() => onItemClick(item, key)}
           >
             {item}
           </Button>
@@ -94,8 +102,8 @@ const ManagerControls = ({
           key: key,
           content: (
             <List
-              items={itemsData(items[key])}
               key={`filterItems${index}`}
+              items={itemsData(items[key], key)}
             ></List>
           ),
         };
@@ -121,7 +129,7 @@ const ManagerControls = ({
               className="filter-accordion__dropdown"
               expanded={expandedSection}
               externallyControlled
-              // onExpandedChange={setExpandedSection}
+              onExpandedChange={setExpandedSection}
               sections={getFilterItems(filterData)}
             />
           </ContextualMenu>
@@ -129,59 +137,47 @@ const ManagerControls = ({
 
         <Col size={6}>
           <DebounceSearchBox
-            onDebounced={(debouncedText) => setSearchText(debouncedText)}
+            onDebounced={(debouncedText) => {
+              console.log(debouncedText);
+              if (debouncedText === "") {
+                setFilterType("");
+                setSelectedItem("");
+              }
+              setSearchText(debouncedText);
+            }}
             searchText={searchText}
             setSearchText={setSearchText}
           />
         </Col>
-        <Col className={classess.show_select} size={3}>
-          <Col className={classess.select_label_name} size={1}>
-            <span>Show</span>
-          </Col>
+        <Col size={3} className={classes.show_select}>
           <Col size={1}>
             <Select
-              className={`u-auto-width ${classess.pagingation_select}`}
+              className={`u-auto-width ${classes.pagingation_select}`}
               defaultValue={pageSize.toString()}
               name="page-size"
               onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
                 setPageSize(evt.target.value);
               }}
-              options={[
-                {
-                  value: "25",
-                  label: "25",
-                },
-                {
-                  value: "50",
-                  label: "50",
-                },
-                {
-                  value: "100",
-                  label: "100",
-                },
-                {
-                  value: "200",
-                  label: "200",
-                },
-              ]}
+              options={paginationOptions}
               wrapperClassName="u-display-inline-block u-nudge-right"
             />
           </Col>
           <Col size={1}>
             <Button
+              hasIcon
               appearance="base"
               className="u-no-margin--right u-no-margin--bottom"
               disabled={prev === 0}
-              hasIcon
               onClick={() => previousNext("P")}
             >
               <i className="p-icon--chevron-up drut-prev-icon"></i>
             </Button>
+            <span>{next}</span>
             <Button
+              hasIcon
               appearance="base"
               className="u-no-margin--right u-no-margin--bottom"
               disabled={managerCount < next * +pageSize}
-              hasIcon
               onClick={() => previousNext("N")}
             >
               <i className="p-icon--chevron-up drut-next-icon"></i>
@@ -189,6 +185,18 @@ const ManagerControls = ({
           </Col>
         </Col>
       </Row>
+      {count > 0 && (
+        <Row className={classes.show_select}>
+          <span>
+            <b>
+              {`${+prev * +pageSize + 1} - ${
+                +next * +pageSize >= count ? count : +next * +pageSize
+              } `}
+            </b>
+            of <b>{count}</b>
+          </span>
+        </Row>
+      )}
     </>
   );
 };

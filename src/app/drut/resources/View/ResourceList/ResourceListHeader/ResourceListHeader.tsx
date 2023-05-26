@@ -60,6 +60,13 @@ const ResourceListHeader = ({
 
   const getHeaderButtons = (isDetails: boolean) => {
     const headerBtn = [
+      <Button
+        element={Link}
+        key="resource-block-re-config"
+        to="/drut-cdi/resource-block-re-config"
+      >
+        Reconfigure Resource Block
+      </Button>,
       <Button element={Link} key="node-list" to="/drut-cdi/nodes">
         Node List
       </Button>,
@@ -106,12 +113,19 @@ const ResourceListHeader = ({
 
   return (
     <SectionHeader
-      buttons={getHeaderButtons(isDetails)}
       subtitle={
-        isDetails ? "Resource Details" : `${total} resource blocks available`
+        isDetails
+          ? "Resource Details"
+          : `${total || 0} resource blocks available [ ${Object.keys(stats)
+              .filter((key) => key.toLowerCase() !== "total")
+              .reduce(
+                (acc: number, currVal: any) => acc + stats[currVal],
+                0
+              )} Resources ]`
       }
-      tabLinks={tabs}
+      buttons={getHeaderButtons(isDetails)}
       title="Resources"
+      tabLinks={tabs}
     />
   );
 };

@@ -17,15 +17,16 @@ import TableRow from "@mui/material/TableRow";
 import Toolbar from "@mui/material/Toolbar";
 import Typography from "@mui/material/Typography";
 import { styled, ThemeProvider } from "@mui/material/styles";
-import monitorDasboardUrls from "app/drut/Monitor/url";
-import { deleteData, fetchData } from "app/drut/config";
-import DeleteConfirmationModal from "app/utils/Modals/DeleteConfirmationModal";
-import customDrutTheme from "app/utils/Themes/Themes";
 import { Link } from "react-router-dom";
 
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 
-const TableCell = styled(MuiTableCell)(() => ({
+import monitorDasboardUrls from "app/drut/Monitor/url";
+import { deleteData, fetchData } from "app/drut/config";
+import DeleteConfirmationModal from "app/utils/Modals/DeleteConfirmationModal";
+import customDrutTheme from "app/utils/Themes/Themes";
+
+const TableCell = styled(MuiTableCell)(({ theme }) => ({
   "&.MuiTableCell-root": {
     whiteSpace: "nowrap",
     overflow: "hidden",
@@ -45,11 +46,11 @@ const getRows = (
       }}
     >
       <TableCell>{config.cluster_type}</TableCell>
-      <Tooltip arrow placement="top" title={config.url}>
+      <Tooltip title={config.url} arrow placement="top">
         <TableCell>{config.url}</TableCell>
       </Tooltip>
       <TableCell>{config.header}</TableCell>
-      <Tooltip arrow placement="top" title={config.description}>
+      <Tooltip title={config.description} arrow placement="top">
         <TableCell>{config.description}</TableCell>
       </Tooltip>
       <TableCell>{config.display ? "Yes" : "No"}</TableCell>
@@ -65,8 +66,8 @@ const getRows = (
           <DeleteIcon />
         </IconButton>
         <IconButton
-          aria-label="edit"
           color="primary"
+          aria-label="edit"
           component={Link}
           to={monitorDasboardUrls.monitorDashboardActions.eventDetails({
             id: config.id,
@@ -140,13 +141,13 @@ const ConfigurationList = (): JSX.Element => {
     <>
       {configToDelete && configToDelete.id && (
         <DeleteConfirmationModal
+          title="Delete Confirmation"
           message={`
           The "${configToDelete.cluster_type}" configuration "${configToDelete.header} " 
           will be deleted permanently. Are you sure ?`}
+          onConfirm={onConfirmHandler}
           onClickBackDrop={onBackDropClickHandler}
           onClickCancel={onCancelHandler}
-          onConfirm={onConfirmHandler}
-          title="Delete Confirmation"
         />
       )}
       {isLoading && (
@@ -165,19 +166,19 @@ const ConfigurationList = (): JSX.Element => {
                 }}
               >
                 <Typography
-                  component="div"
-                  id="tableTitle"
                   sx={{ flex: "1 1 100%" }}
                   variant="h6"
+                  id="tableTitle"
+                  component="div"
                 >
                   Monitor Dashboard configs
                 </Typography>
                 <Tooltip title="Add new config.">
                   <Button
-                    component={Link}
-                    disabled={isLoading}
-                    to={monitorDasboardUrls.monitorDashboardActions.index}
                     variant="outlined"
+                    component={Link}
+                    to={monitorDasboardUrls.monitorDashboardActions.index}
+                    disabled={isLoading}
                   >
                     <AddIcon />
                   </Button>
@@ -185,9 +186,9 @@ const ConfigurationList = (): JSX.Element => {
               </Toolbar>
               <TableContainer sx={{ maxHeight: "100%" }}>
                 <Table
-                  aria-label="configuration table"
                   stickyHeader
                   sx={{ minWidth: 650 }}
+                  aria-label="configuration table"
                 >
                   <TableHead>
                     <TableRow>

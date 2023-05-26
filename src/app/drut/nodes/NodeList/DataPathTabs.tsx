@@ -1,4 +1,3 @@
-/* eslint-disable react/no-multi-comp */
 import * as React from "react";
 
 import Box from "@mui/material/Box";
@@ -10,6 +9,7 @@ import DataPathOrderDetails from "./DataPathOrderDetails";
 import DataPaths from "./DataPaths";
 import classess from "./NodeList.module.css";
 
+import { COLOURS } from "app/base/constants";
 import customDrutTheme from "app/utils/Themes/Themes";
 
 interface TabPanelProps {
@@ -30,14 +30,14 @@ const TabPanel = (props: TabPanelProps) => {
 
   return (
     <div
-      aria-labelledby={`datapath-tab-${index}`}
+      role="tabpanel"
       hidden={value !== index}
       id={`datapath-tabpanel-${index}`}
-      role="tabpanel"
+      aria-labelledby={`datapath-tab-${index}`}
       {...other}
     >
       {value === index && (
-        <Box className={classess.datapath_tab_panel} sx={{ p: 3 }}>
+        <Box sx={{ p: 3 }} className={classess.datapath_tab_panel}>
           {children}
         </Box>
       )}
@@ -52,12 +52,12 @@ const a11yProps = (index: number) => {
   };
 };
 
-const Tabs = styled(MuiTabs)(() => ({
+const Tabs = styled(MuiTabs)(({ theme }) => ({
   "&.MuiTabs-root .MuiTabs-indicator": {
     backgroundColor: "currentcolor",
   },
   "&.MuiTabs-root .Mui-selected": {
-    backgroundColor: "white",
+    backgroundColor: COLOURS.BG_WHITE,
   },
   "&.MuiTabs-root .MuiButtonBase-root": {
     textTransform: "capitalize",
@@ -68,9 +68,7 @@ export default function DataPathTabs(props: Props): JSX.Element {
   const [value, setValue] = React.useState(0);
 
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    console.log(event);
     setValue(newValue);
-    console.log(newValue);
     props.isDataPathOrdersTab(newValue === 1);
   };
 
@@ -79,24 +77,24 @@ export default function DataPathTabs(props: Props): JSX.Element {
       <Box sx={{ width: "100%" }}>
         <Box sx={{ borderBottom: 1, borderColor: "divider", display: "flex" }}>
           <Tabs
-            aria-label="data path tabs"
-            onChange={handleChange}
             sx={{ width: "100%" }}
-            textColor="inherit"
             value={value}
+            onChange={handleChange}
+            aria-label="data path tabs"
+            textColor="inherit"
           >
             <Tab label="Data Path List" {...a11yProps(0)} />
             <Tab label="Data Path Orders" {...a11yProps(1)} />
           </Tabs>
         </Box>
-        <TabPanel index={0} value={value}>
+        <TabPanel value={value} index={0}>
           <DataPaths
+            nodeId={props.nodeId}
             isRefreshAction={props.isRefreshAction}
             isRefreshInProgress={props.isRefreshInProgress}
-            nodeId={props.nodeId}
           />
         </TabPanel>
-        <TabPanel index={1} value={value}>
+        <TabPanel value={value} index={1}>
           <DataPathOrderDetails nodeId={props.nodeId} />
         </TabPanel>
       </Box>

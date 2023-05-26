@@ -1,10 +1,14 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 
 import { Spinner, Notification } from "@canonical/react-components";
 import * as Yup from "yup";
 
-import type { Zone, Rack, Manager } from "../../Managers/AddManager/type";
+import type {
+  Zone,
+  Rack,
+  Manager,
+  RackByType,
+} from "../../Managers/AddManager/type";
 
 import SetZoneFormFields from "./SetZoneFormFields";
 
@@ -23,6 +27,7 @@ type Props = {
   setFetchManagers: (value: boolean) => void;
   managerToMove: Manager[];
   zones: Zone[];
+  setSelectedIDs: (value: []) => void;
 };
 
 export const AddManagerForm = ({
@@ -31,6 +36,7 @@ export const AddManagerForm = ({
   setFetchManagers,
   managerToMove,
   zones,
+  setSelectedIDs,
 }: Props): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const [racks, setRacks] = useState<Rack[] | undefined>([]);
@@ -44,7 +50,9 @@ export const AddManagerForm = ({
   ) => {
     const racks =
       zones.find((zone: Zone) => zone.zone_id === +zone_id)?.racks || [];
-    const rackObj = racks.find((rack: Rack) => rack.rack_id === +rack_id);
+    const rackObj = (racks as Rack[]).find(
+      (rack: Rack) => rack.rack_id === +rack_id
+    );
     const updateManagersPayoad: Manager[] = managersTobeUpdated.map(
       (manager: Manager) => {
         return {
@@ -63,6 +71,7 @@ export const AddManagerForm = ({
           setFetchManagers(true);
           setLoading(false);
           clearHeaderContent();
+          setSelectedIDs([]);
           return response.json();
         } else {
           response.text().then((text: string) => {
@@ -79,16 +88,16 @@ export const AddManagerForm = ({
   };
 
   useEffect(() => {
-    const racks: Rack[] | undefined = zones.find(
+    const racks: Rack[] | RackByType | undefined = zones.find(
       (zone: Zone) => zone.zone_id === +selectedZone
     )?.racks;
     if (racks) {
-      setRacks(racks);
+      setRacks(racks as Rack[]);
     }
   }, [selectedZone]);
 
   const SetZoneSchema = Yup.object().shape({
-    rack_id: Yup.string().required("Rack required"),
+    rack_id: Yup.string().required("Pool required"),
     zone_id: Yup.string().required("Zone required"),
   });
 
@@ -96,7 +105,8 @@ export const AddManagerForm = ({
     const racks =
       zones.find((zone: Zone) => zone.zone_id === +zoneId)?.racks || [];
     const rackName =
-      racks.find((rack: Rack) => rack.rack_id === +rackId)?.rack_name || "";
+      (racks as Rack[]).find((rack: Rack) => rack.rack_id === +rackId)
+        ?.rack_name || "";
     return rackName;
   };
 
@@ -104,16 +114,16 @@ export const AddManagerForm = ({
     <>
       {loading ? (
         <Notification
-          inline
           key={`notification_${Math.random()}`}
+          inline
           severity="information"
         >
           <Spinner
-            key={`Set_Zone_spinner_${Math.random()}`}
             text={`Adding managers to ${getRackName(
               selectedZone,
               selectedRack
             )}`}
+            key={`Set_Zone_spinner_${Math.random()}`}
           />
         </Notification>
       ) : (
@@ -139,11 +149,11 @@ export const AddManagerForm = ({
           validationSchema={SetZoneSchema}
         >
           <SetZoneFormFields
-            racks={racks}
-            selectedZone={selectedZone}
             setSelectedRack={setSelectedRack}
             setSelectedZone={setSelectedZone}
             zones={zones}
+            racks={racks}
+            selectedZone={selectedZone}
           />
         </FormikForm>
       )}

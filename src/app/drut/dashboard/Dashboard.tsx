@@ -18,8 +18,8 @@ const Dashboard = (): JSX.Element => {
   return (
     <Section
       className="u-no-padding--bottom"
-      header={<DashboardHeader onClickTab={onClickTab} />}
       key="nodehSecetion"
+      header={<DashboardHeader onClickTab={onClickTab} />}
     >
       <Switch>
         <Route exact path={dashboardURLs.dashboard.index}>

@@ -36,13 +36,13 @@ export default function NestedList(props: Props): JSX.Element {
 
   return (
     <List
-      aria-labelledby="nested-list-subheader"
-      component="nav"
       sx={{
         width: "100%",
         maxWidth: 360,
         bgcolor: "background.paper",
       }}
+      component="nav"
+      aria-labelledby="nested-list-subheader"
     >
       <ListItemButton onClick={handleClick}>
         <ListItemIcon>
@@ -56,10 +56,10 @@ export default function NestedList(props: Props): JSX.Element {
           {resourceBlockTypes.map((resourceBlockType) => {
             return (
               <ListItemButton
+                sx={{ pl: 4 }}
                 onClick={() =>
                   handleResourceBlockTypeSelection(resourceBlockType)
                 }
-                sx={{ pl: 4 }}
               >
                 <ListItemIcon>
                   <AddIcon />

@@ -17,10 +17,10 @@ const Health = (): JSX.Element => {
   return (
     <Section
       className="u-no-padding--bottom"
+      key="nodehSecetion"
       header={
         <HealthHeader onRefresh={(): void => setRf(Math.random().toString())} />
       }
-      key="nodehSecetion"
     >
       <Switch>
         <Route exact path={healthUrl.health.index}>

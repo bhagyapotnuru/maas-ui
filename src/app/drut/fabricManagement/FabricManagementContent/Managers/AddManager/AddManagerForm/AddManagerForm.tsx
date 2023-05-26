@@ -1,8 +1,6 @@
 import { useState } from "react";
 
 import { Spinner, Notification } from "@canonical/react-components";
-import FormikForm from "app/base/components/FormikForm";
-import type { ClearHeaderContent } from "app/base/types";
 import * as Yup from "yup";
 
 import { postData } from "../../../../../config";
@@ -10,12 +8,16 @@ import AddManagerFormFields from "../AddManagerFormFields";
 import { IP_ADDRESS_REGEX, PORT_REGEX, MANAGER_NAME_REGEX } from "../constants";
 import type { Manager, Zone, Rack } from "../type";
 
+import FormikForm from "app/base/components/FormikForm";
+import type { ClearHeaderContent } from "app/base/types";
+
 type Props = {
   clearHeaderContent: ClearHeaderContent;
   zoneRackPairs: any;
   setError: (value: string) => void;
   setFetchManagers: (value: boolean) => void;
   managerToUpdate?: Manager;
+  isUnassigned: boolean;
 };
 
 export const AddManagerForm = ({
@@ -24,36 +26,34 @@ export const AddManagerForm = ({
   setError,
   managerToUpdate,
   setFetchManagers,
+  isUnassigned,
 }: Props): JSX.Element => {
   const [loading, setLoading] = useState(false);
   const [selectedZone, setSelectedZone] = useState("");
   const [selectedManagerType, setSelectedManagerType] = useState(
     managerToUpdate?.manager_type || ""
   );
+  const [saveButtondisability, setSaveButtondisability] = useState(true);
 
   const AddManagerOXCSchema = Yup.object().shape({
     manager_type: Yup.string().required("Manager Type required"),
-    rack_id: Yup.string().required("Rack required"),
-    zone_id: Yup.string().required("Zone required"),
-    vendor: Yup.string().required("Vendor required"),
     name: Yup.string()
-      .matches(MANAGER_NAME_REGEX, "only - or _ is allowed")
+      .matches(MANAGER_NAME_REGEX, "only - _ and . is allowed")
       .required("Name required"),
-    protocol: Yup.string().required("Protocol required"),
-    user_name: Yup.string().required("User Name required"),
-    password: Yup.string().required("Password required"),
+    manufacturer: Yup.string().required("Vendor required"), //vendor
     ip_address: Yup.string()
       .matches(IP_ADDRESS_REGEX, "Invalid IP address")
       .required("IP address is required"),
+    protocol: Yup.string().required("Protocol required"),
     port: Yup.string()
       .matches(PORT_REGEX, "Invalid Port")
       .required("Port is required"),
+    user_name: Yup.string().required("User Name required"),
+    password: Yup.string().required("Password required"),
   });
 
   const AddManagerRedfishSchema = Yup.object().shape({
     manager_type: Yup.string().required("Manager Type required"),
-    rack_id: Yup.string().required("Rack required"),
-    zone_id: Yup.string().required("Zone required"),
     name: Yup.string()
       .matches(MANAGER_NAME_REGEX, "only - or _ is allowed")
       .required("Name required"),
@@ -64,10 +64,8 @@ export const AddManagerForm = ({
     port: Yup.string().matches(PORT_REGEX, "Invalid Port"),
   });
 
-  const UpdateManagerRedfishSchema = Yup.object().shape({
+  const UpdateManagerSchema = Yup.object().shape({
     manager_type: Yup.string().required("Manager Type required"),
-    rack_id: Yup.string().required("Rack required"),
-    zone_id: Yup.string().required("Zone required"),
     name: Yup.string()
       .matches(MANAGER_NAME_REGEX, "only - or _ is allowed")
       .required("Name required"),
@@ -134,7 +132,7 @@ export const AddManagerForm = ({
             const isConstraintViolation: boolean = text.includes(
               "ConstraintViolationException"
             );
-            const errorMsg = `Manager name already exists in rack ${getRackName(
+            const errorMsg = `Manager name already exists in pool ${getRackName(
               managerToAddorUpdate?.zone_id || "",
               managerToAddorUpdate?.rack_id || ""
             )}  Cannot be created with a duplicate name.`;
@@ -144,6 +142,16 @@ export const AddManagerForm = ({
       })
       .catch((e: any) => setError(e))
       .finally(() => clearHeaderContent());
+  };
+
+  const getValidationSchema = () => {
+    if (selectedManagerType === "OXC") {
+      return managerToUpdate ? UpdateManagerSchema : AddManagerOXCSchema;
+    } else if (managerToUpdate) {
+      return UpdateManagerSchema;
+    } else {
+      return AddManagerRedfishSchema;
+    }
   };
 
   let defaultProtocol = "";
@@ -161,15 +169,15 @@ export const AddManagerForm = ({
     <>
       {loading ? (
         <Notification
-          inline
           key={`notification_${Math.random()}`}
+          inline
           severity="information"
         >
           <Spinner
-            key={`Add_managers_spinner_${Math.random()}`}
             text={`${
               managerToUpdate?.id ? "Updating Manager..." : "Adding Manager..."
             }`}
+            key={`Add_managers_spinner_${Math.random()}`}
           />
         </Notification>
       ) : (
@@ -212,21 +220,18 @@ export const AddManagerForm = ({
           }}
           resetOnSave
           submitLabel="Save"
-          validationSchema={
-            selectedManagerType === "OXC "
-              ? AddManagerOXCSchema
-              : managerToUpdate
-              ? UpdateManagerRedfishSchema
-              : AddManagerRedfishSchema
-          }
+          validationSchema={getValidationSchema}
+          submitDisabled={saveButtondisability}
         >
           <AddManagerFormFields
-            managerToUpdate={managerToUpdate}
-            selectedManagerType={selectedManagerType}
-            selectedZone={selectedZone}
-            setSelectedManagerType={setSelectedManagerType}
-            setSelectedZone={setSelectedZone}
             zoneRackPairs={zoneRackPairs}
+            selectedManagerType={selectedManagerType}
+            setSelectedManagerType={setSelectedManagerType}
+            managerToUpdate={managerToUpdate}
+            setSelectedZone={setSelectedZone}
+            selectedZone={selectedZone}
+            setSaveButtondisability={setSaveButtondisability}
+            isUnassigned={isUnassigned}
           />
         </FormikForm>
       )}

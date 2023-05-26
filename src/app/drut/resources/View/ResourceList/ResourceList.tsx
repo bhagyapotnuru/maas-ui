@@ -10,6 +10,7 @@ import {
   Button,
   Modal,
 } from "@canonical/react-components";
+import type { MainTableRow } from "@canonical/react-components/dist/components/MainTable/MainTable";
 import { JSONTree } from "react-json-tree";
 import { NavLink, useParams } from "react-router-dom";
 
@@ -18,6 +19,10 @@ import { resourceData, resourcesByType } from "../../../parser";
 import ResourceDetails from "../ResourceDetail";
 
 import ResourceFilterControls from "./../../../filter/ResourceFilterControls";
+
+import DoubleRow from "app/base/components/DoubleRow";
+import { groupAsMap } from "app/utils";
+import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 interface Props {
   onChangeContent: any;
@@ -31,10 +36,12 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
   const [currentRowIndex, setCurrentRowIndex] = useState(-1);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState({});
+  const [grouping, setGrouping] = useState("");
   const [selectedData, setSelectedData] = useState({ Name: "" });
   const [modalState, setModalState] = useState(false);
   const parms: any = useParams();
   const [closeAccordions, setCloseAccordions] = useState(false);
+  const [hiddenGroups, setHiddenGroups] = useState([] as string[]);
 
   function getResourceData(id: any = null) {
     // onChangeContent({}, false);
@@ -121,20 +128,157 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
       elm?.CompositionStatus?.Reserved
     ) {
       return elm?.Status?.Health === "OK" ? (
-        <div className="drut-status drut-color-green"></div>
+        <i className="p-icon--success"></i>
       ) : (
-        <div className="drut-status drut-color-red"></div>
+        <i className="p-icon--error"></i>
       );
     }
-    return <div className="drut-status drut-color-default"></div>;
+    return <i className="p-icon--status-waiting"></i>;
+  };
+
+  const getToolTipData = (elm: any) => {
+    if (
+      elm?.CompositionStatus?.CompositionState === "Composed" ||
+      elm?.CompositionStatus?.Reserved
+    ) {
+      return `${elm?.CompositionStatus?.CompositionState} Health ${elm?.Status?.Health}`;
+    }
+    return `${elm?.CompositionStatus?.CompositionState}`;
   };
 
   const renderRSTable = (resources: any) => {
+    let rows: MainTableRow[] = [];
     const res = resourcesByType(resources, selected);
+    if (selected === "All") {
+      if (grouping === "type") {
+        Object.keys(resources).forEach((label) => {
+          const collapsed = hiddenGroups.includes(label);
+          rows.push({
+            key: label,
+            className: "machine-list__group",
+            columns: [
+              {
+                colSpan: 6,
+                content: (
+                  <>
+                    <DoubleRow
+                      data-testid="group-cell"
+                      primary={<strong>{label}</strong>}
+                      secondary={
+                        <span>{`${resources[label].length} Resources`}</span>
+                      }
+                    />
+                    <div className="machine-list__group-toggle">
+                      <Button
+                        appearance="base"
+                        dense
+                        hasIcon
+                        onClick={() => {
+                          if (collapsed) {
+                            setHiddenGroups &&
+                              setHiddenGroups(
+                                hiddenGroups.filter((group) => group !== label)
+                              );
+                          } else {
+                            setHiddenGroups &&
+                              setHiddenGroups(hiddenGroups.concat([label]));
+                          }
+                        }}
+                      >
+                        {collapsed ? (
+                          <i className="p-icon--plus">Show</i>
+                        ) : (
+                          <i className="p-icon--minus">Hide</i>
+                        )}
+                      </Button>
+                    </div>
+                  </>
+                ),
+              },
+            ],
+          });
+          const visibleResources = collapsed ? [] : resources[label];
+          rows = rows.concat(generateRows(visibleResources));
+        });
+      } else if (grouping === "rack") {
+        const groupMap = groupAsMap(
+          res,
+          (resource: any) => resource?.Manager?.RackName
+        );
+        const groups = Array.from(groupMap).map(([label, resources]) => ({
+          label: label?.toString(),
+          resources,
+        }));
+        groups &&
+          groups.length &&
+          groups.forEach((group) => {
+            const { label, resources } = group;
+            const collapsed = hiddenGroups.includes(label);
+            if (resources && resources.length) {
+              rows.push({
+                key: group.label,
+                className: "machine-list__group",
+                columns: [
+                  {
+                    colSpan: 6,
+                    content: (
+                      <>
+                        <DoubleRow
+                          data-testid="group-cell"
+                          primary={<strong>{label}</strong>}
+                          secondary={
+                            <span>{`${resources.length} Resources`}</span>
+                          }
+                        />
+                        <div className="machine-list__group-toggle">
+                          <Button
+                            appearance="base"
+                            dense
+                            hasIcon
+                            onClick={() => {
+                              if (collapsed) {
+                                setHiddenGroups &&
+                                  setHiddenGroups(
+                                    hiddenGroups.filter(
+                                      (group) => group !== label
+                                    )
+                                  );
+                              } else {
+                                setHiddenGroups &&
+                                  setHiddenGroups(hiddenGroups.concat([label]));
+                              }
+                            }}
+                          >
+                            {collapsed ? (
+                              <i className="p-icon--plus">Show</i>
+                            ) : (
+                              <i className="p-icon--minus">Hide</i>
+                            )}
+                          </Button>
+                        </div>
+                      </>
+                    ),
+                  },
+                ],
+              });
+              const visibleResources = collapsed ? [] : resources;
+              rows = rows.concat(generateRows(visibleResources));
+            }
+          });
+      } else {
+        rows = generateRows(res);
+      }
+    } else {
+      rows = generateRows(res);
+    }
+    return rows;
+  };
+
+  const generateRows = (res: any) => {
     if (res && res.length) {
       return res.map((elm: any, index: any) => {
         return {
-          key: `${elm.Id}_${index}`,
+          key: `${elm?.Id}_${index}`,
           className:
             index === expandedRow
               ? "drut-table-selected-row"
@@ -142,12 +286,23 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
           columns: [
             {
               key: "Status",
+              width: 50,
+              maxWidth: 50,
+              content: (
+                <CustomizedTooltip
+                  key={`Resource_tooltip_${index}`}
+                  title={getToolTipData(elm)}
+                  className="drut-col-sn-left-sn-ellipsis"
+                  placement={"bottom-start"}
+                >
+                  {iconName(elm)}
+                </CustomizedTooltip>
+              ),
               className: "drut-col-sn",
-              content: iconName(elm),
             },
             {
               key: "nodeName",
-              className: "drut-col-name",
+              className: "drut-col-name-left",
               content: (
                 <Tooltip
                   className="doughnut-chart__tooltip"
@@ -157,13 +312,13 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
                 >
                   <span className="drut-elapsis-block-name">
                     <Link
-                      color="default"
                       key="nodeNameLink"
+                      title={elm?.Name}
                       onClick={(e) => {
                         e.preventDefault();
                         handleClick(index);
                       }}
-                      title={elm?.Name}
+                      color="default"
                     >
                       {`${elm?.Name}`}
                     </Link>
@@ -173,7 +328,7 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
             },
             {
               key: "Ability",
-              className: "drut-col-name",
+              className: "drut-col-name-left",
               content: (
                 <>
                   {elm?.Ability.map((elmDT: any) => {
@@ -201,12 +356,12 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
               ),
             },
             {
-              key: "FullyQualifiedGroupName",
+              key: "FullyQualifiedNodeName",
               content: <>{elm?.Manager?.Fqnn || "-"}</>,
             },
             {
               key: "NodeName",
-              className: "drut-col-name",
+              className: "drut-col-name-left",
               content: (
                 <>
                   {elm?.NodeId ? (
@@ -256,11 +411,11 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
                   }}
                 >
                   <ResourceDetails
-                    close={closeAccordions}
-                    data={elm}
                     id={`resource-detail${index}`}
-                    isMachinesPage={true}
+                    data={elm}
                     loading={loading}
+                    close={closeAccordions}
+                    isMachinesPage={true}
                   />
                   <Button
                     onClick={() => {
@@ -287,8 +442,8 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
                   </Button>
                   <NavLink
                     className="p-button--neutral"
-                    key={elm?.NodeId}
                     style={{ margin: "0px 8px 0px 0px" }}
+                    key={elm?.NodeId}
                     to={`/drut-cdi/resources/${elm?.Id}`}
                   >
                     Know more <i className="p-icon--external-link"></i>
@@ -304,6 +459,7 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
             Description: elm?.Description,
             NodeName: elm?.NodeName,
             DeviceCount: elm?.DeviceCount,
+            FullyQualifiedNodeName: elm?.Manager?.Fqnn,
           },
         };
       });
@@ -317,29 +473,31 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
       content: "Status",
       sortKey: "Status",
       className: "drut-col-sn",
+      width: 50,
+      maxWidth: 50,
     },
     {
       content: "Name",
       sortKey: "Name",
-      className: "drut-col-name",
+      className: "drut-col-name-left",
     },
     {
       content: "Capacity",
       sortKey: "Ability",
-      className: "drut-col-name",
+      className: "drut-col-name-left",
     },
     {
       content: "Description",
       sortKey: "Description",
     },
     {
-      content: "Fully Qualified Group Name",
-      sortKey: "FullyQualifiedGroupName",
+      content: "Fully Qualified Node Name",
+      sortKey: "FullyQualifiedNodeName",
     },
     {
       content: "Node (Machine)",
       sortKey: "NodeName",
-      className: "drut-col-name",
+      className: "drut-col-name-left",
     },
     {
       content: "Count",
@@ -349,72 +507,76 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
   ];
 
   const onFilterChange = (data: any) => {
-    const rsd: any = JSON.parse(JSON.stringify(fullRSData));
-    if (data && data.length) {
-      if (Array.isArray(data)) {
-        rsd["Offload"] = rsd["Offload"].filter((d: any) =>
-          d.af.some((ab: any) => data.includes(ab))
-        );
-        rsd["Storage"] = rsd["Storage"].filter((d: any) =>
-          d.af.some((ab: any) => data.includes(ab))
-        );
-        rsd["Compute"] = rsd["Compute"].filter((d: any) =>
-          d.af.some((ab: any) => data.includes(ab))
-        );
-        rsd["Network"] = rsd["Network"].filter((d: any) =>
-          d.af.some((ab: any) => data.includes(ab))
-        );
-        rsd["DPU"] = rsd["DPU"].filter((d: any) =>
-          d.af.some((ab: any) => data.includes(ab))
-        );
-        setResources(rsd);
-      } else {
-        try {
-          data = data.toUpperCase();
-          rsd["Offload"] = rsd["Offload"].filter((d: any) =>
-            filterTextLogic(
-              d.Description,
-              `${d.Name} ${d.NodeName || ""}`,
-              data
-            )
+    try {
+      const rsd: any = JSON.parse(JSON.stringify(fullRSData));
+      if (data && data.length) {
+        if (Array.isArray(data)) {
+          rsd["Offload"] = rsd["Offload"]?.filter((d: any) =>
+            d.af.some((ab: any) => data.includes(ab))
           );
-          rsd["Storage"] = rsd["Storage"].filter((d: any) =>
-            filterTextLogic(
-              d.Description,
-              `${d.Name} ${d.NodeName || ""}`,
-              data
-            )
+          rsd["Storage"] = rsd["Storage"]?.filter((d: any) =>
+            d.af.some((ab: any) => data.includes(ab))
           );
-          rsd["Compute"] = rsd["Compute"].filter((d: any) =>
-            filterTextLogic(
-              d.Description,
-              `${d.Name} ${d.NodeName || ""}`,
-              data
-            )
+          rsd["Compute"] = rsd["Compute"]?.filter((d: any) =>
+            d.af.some((ab: any) => data.includes(ab))
           );
-          rsd["Network"] = rsd["Network"].filter((d: any) =>
-            filterTextLogic(
-              d.Description,
-              `${d.Name} ${d.NodeName || ""}`,
-              data
-            )
+          rsd["Network"] = rsd["Network"]?.filter((d: any) =>
+            d.af.some((ab: any) => data.includes(ab))
           );
-          rsd["DPU"] = rsd["DPU"].filter((d: any) =>
-            filterTextLogic(
-              d.Description,
-              `${d.Name} ${d.NodeName || ""}`,
-              data
-            )
+          rsd["DPU"] = rsd["DPU"]?.filter((d: any) =>
+            d.af.some((ab: any) => data.includes(ab))
           );
-
           setResources(rsd);
-        } catch (err) {
-          console.log(err);
-          setResources(fullRSData);
+        } else {
+          try {
+            data = data.toUpperCase();
+            rsd["Offload"] = rsd["Offload"]?.filter((d: any) =>
+              filterTextLogic(
+                d.Description,
+                `${d.Name} ${d.NodeName || ""}`,
+                data
+              )
+            );
+            rsd["Storage"] = rsd["Storage"]?.filter((d: any) =>
+              filterTextLogic(
+                d.Description,
+                `${d.Name} ${d.NodeName || ""}`,
+                data
+              )
+            );
+            rsd["Compute"] = rsd["Compute"]?.filter((d: any) =>
+              filterTextLogic(
+                d.Description,
+                `${d.Name} ${d.NodeName || ""}`,
+                data
+              )
+            );
+            rsd["Network"] = rsd["Network"]?.filter((d: any) =>
+              filterTextLogic(
+                d.Description,
+                `${d.Name} ${d.NodeName || ""}`,
+                data
+              )
+            );
+            rsd["DPU"] = rsd["DPU"]?.filter((d: any) =>
+              filterTextLogic(
+                d.Description,
+                `${d.Name} ${d.NodeName || ""}`,
+                data
+              )
+            );
+
+            setResources(rsd);
+          } catch (err) {
+            console.log(err);
+            setResources(fullRSData);
+          }
         }
+      } else {
+        setResources(fullRSData);
       }
-    } else {
-      setResources(fullRSData);
+    } catch (e) {
+      console.log(e);
     }
   };
 
@@ -436,10 +598,12 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
     setExpandedRow(-1);
   }, [selected]);
 
+  const rows = renderRSTable(resources);
+
   return (
     <>
       <Row>
-        <Col className="fabric-sel-main-container" size={12}>
+        <Col size={12} className="fabric-sel-main-container">
           {loading ? (
             <Spinner key="nodeListSpinner" />
           ) : (
@@ -449,27 +613,30 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
                   <ResourceFilterControls
                     items={filter}
                     onFilterChange={onFilterChange}
+                    grouping={grouping}
+                    setGrouping={setGrouping}
+                    selectedTab={selected}
                   />
                   <hr />
                   <MainTable
+                    key="resourceTableTable"
+                    expanding
                     defaultSort="Name"
                     defaultSortDirection="ascending"
-                    emptyStateMsg="Resource data not available."
-                    expanding
-                    headers={headers}
-                    key="resourceTableTable"
                     responsive={false}
-                    rows={renderRSTable(resources)}
+                    headers={headers}
+                    rows={rows}
                     sortable
+                    emptyStateMsg="Resource data not available."
                   />
                 </>
               ) : (
                 <ResourceDetails
-                  close={closeAccordions}
-                  data={resources}
                   id="details"
-                  isMachinesPage={true}
+                  data={resources}
                   loading={loading}
+                  close={closeAccordions}
+                  isMachinesPage={true}
                 />
               )}
             </>
@@ -484,21 +651,21 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
         }}
       >
         <div
-          aria-describedby="modal-description"
-          aria-labelledby="modal-title"
-          aria-modal="true"
           className=""
-          role="dialog"
           style={{ minWidth: "500px" }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="modal-title"
+          aria-describedby="modal-description"
         >
           <header className="p-modal__header">
             <h2 className="p-modal__title" id="modal-title">
               {selectedData?.Name || ""}
             </h2>
             <Button
-              aria-controls="modal"
-              aria-label="Close active modal"
               className="p-modal__close"
+              aria-label="Close active modal"
+              aria-controls="modal"
               onClick={() => {
                 setModalState(!modalState);
               }}
@@ -508,15 +675,15 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
           </header>
           <div style={{ maxHeight: "600px", overflow: "auto" }}>
             <JSONTree
-              data={selectedData}
               key={"jsonModal"}
-              keyPath={[]}
-              shouldExpandNodeInitially={() => true}
+              data={selectedData}
               theme={{
                 scheme: "monokai",
-                author: "Indu",
+                author: "Drut",
                 base00: "#000000",
               }}
+              keyPath={[]}
+              shouldExpandNode={() => true}
             />
           </div>
         </div>

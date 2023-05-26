@@ -26,10 +26,10 @@ const ManageSessionMainHeader = (): JSX.Element => {
 
   return (
     <SectionHeader
-      buttons={getHeaderButtons()}
       key="manageSessionHeader"
-      subtitle={"All active sessions."}
+      buttons={getHeaderButtons()}
       title="Session List"
+      subtitle={"All active sessions."}
     />
   );
 };

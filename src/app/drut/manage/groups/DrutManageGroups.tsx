@@ -15,8 +15,8 @@ const DrutManageRB = (): JSX.Element => {
   return (
     <Section
       className="u-no-padding--bottom"
-      header={<ManageRBMainHeader />}
       key="nodehSecetion"
+      header={<ManageRBMainHeader />}
     >
       <Switch>
         <Route exact path={manageUrls.manage.groups}>

@@ -53,7 +53,7 @@ export const FormCard = ({
     </Row>
   );
   return (
-    <Card className="form-card" highlighted={true}>
+    <Card highlighted={true} className="form-card">
       {content}
     </Card>
   );

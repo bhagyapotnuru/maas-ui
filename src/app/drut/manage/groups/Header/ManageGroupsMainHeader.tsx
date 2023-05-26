@@ -7,26 +7,12 @@ const ManageRBMainHeader = (): JSX.Element => {
     return [];
   };
 
-  /*
-  <ContextualMenu
-    hasToggleIcon
-    className="drut-button"
-    links={[
-      {
-        children: "Add New Group",
-        onClick: () => history.push("resources"),
-      },
-    ]}
-    position="right"
-    toggleLabel="dFabric"
-  />,*/
-
   return (
     <SectionHeader
-      buttons={getHeaderButtons()}
       key="manageRBHeader"
-      subtitle={"Manage groups for the resources/users."}
+      buttons={getHeaderButtons()}
       title="Manage Groups"
+      subtitle={"Manage groups for the resources/users."}
     />
   );
 };
