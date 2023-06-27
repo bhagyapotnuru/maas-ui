@@ -4,8 +4,7 @@ import { Row, Col, Select } from "@canonical/react-components";
 
 import FormikField from "app/base/components/FormikField/FormikField";
 import FormikForm from "app/base/components/FormikForm";
-import { resetNode } from "app/drut/api";
-import { throwHttpMessage } from "app/drut/config";
+import { resetNodeById } from "app/drut/api";
 
 type ResetForm = {
   type: string;
@@ -45,16 +44,15 @@ export const Form = ({
       }}
       onSubmit={(values: ResetForm) => {
         setSaving(true);
-        resetNode(selectedNode?.Id, { ResetType: values.type })
-          .then((res) => throwHttpMessage(res))
-          .then((resp) => {
+        resetNodeById(selectedNode?.Id, { ResetType: values.type })
+          .then(() => {
             setSaving(false);
             setOpenResetForm(false);
           })
           .catch((e) => {
             setSaving(false);
             setOpenResetForm(false);
-            setError(e.toString());
+            setError(e);
           });
       }}
       resetOnSave

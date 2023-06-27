@@ -18,7 +18,7 @@ import type { Member, RBTypeResp } from "../../Models/ResourceBlock";
 import type { ResourceBlockInfo } from "../../Models/ResourceBlockInfo";
 import classes from "../../composedNode.module.scss";
 
-import { fetchData } from "app/drut/config";
+import { fetchResourceBlocksById } from "app/drut/api";
 import { arrayObjectArray, genObjAccord } from "app/drut/parser";
 
 const ResourceBlockTable = ({
@@ -28,6 +28,7 @@ const ResourceBlockTable = ({
   setSelectedResourceBlocks,
   header,
   isMaxPortCountLimitReached,
+  setTargetResourceBlocks,
 }: {
   resourceBlocks: Member[];
   expandedResourceBlockRow: string;
@@ -35,6 +36,7 @@ const ResourceBlockTable = ({
   setSelectedResourceBlocks: (value: React.SetStateAction<RBTypeResp>) => void;
   header: string;
   isMaxPortCountLimitReached: boolean;
+  setTargetResourceBlocks?: (value: RBTypeResp) => void;
 }): JSX.Element => {
   const [fullRBInfo, setFullRBInfo] = useState({} as ResourceBlockInfo);
 
@@ -50,21 +52,14 @@ const ResourceBlockTable = ({
   const fetchFullRBInfo = async (rbId: string) => {
     try {
       setLoading(true);
-      const promise: Response = await fetchData(
-        `dfab/resourceblocks/${rbId}/`,
-        false,
+      const response: ResourceBlockInfo = await fetchResourceBlocksById(
+        rbId,
         abortController.signal
       );
-      if (promise.status === 200) {
-        const response: ResourceBlockInfo = await promise.json();
-        setFullRBInfo(response);
-      } else {
-        const apiError: string = await promise.text();
-        const defaultError = "Error fetching Data for Resource Block.";
-        setError(apiError ? apiError : defaultError);
-      }
+      setFullRBInfo(response);
     } catch (e: any) {
-      setError(e);
+      const defaultError = "Error fetching Data for Resource Block.";
+      setError(e ? e : defaultError);
     } finally {
       setLoading(false);
     }
@@ -127,6 +122,8 @@ const ResourceBlockTable = ({
     expandedResourceBlockRow: string,
     setExpandedResourceBlock: (value: string) => void
   ): MainTableRow[] => {
+    const errorValue = error?.toString();
+
     return resourceBlockMembers.map((currentRB: Member) => {
       return {
         key: currentRB.Id,
@@ -155,16 +152,31 @@ const ResourceBlockTable = ({
                   disabled={!currentRB.checked && isMaxPortCountLimitReached}
                   checked={currentRB.checked}
                   onChange={(e: any) => {
-                    if (e.target.checked && header === "Compute") {
+                    if (
+                      e.target.checked &&
+                      header.toLowerCase() === "compute"
+                    ) {
                       resourceBlockMembers.forEach((m) => (m.checked = false));
                     }
                     currentRB.checked = e?.target?.checked;
-                    setSelectedResourceBlocks((rbType: RBTypeResp) => {
-                      rbType[header] = resourceBlockMembers.filter(
-                        (rb: Member) => rb.checked
-                      );
-                      return { ...rbType };
-                    });
+                    if (
+                      header.toLowerCase() === "compute" &&
+                      setTargetResourceBlocks
+                    ) {
+                      setSelectedResourceBlocks({
+                        Compute: resourceBlockMembers.filter(
+                          (rb: Member) => rb.checked
+                        ),
+                      });
+                      setTargetResourceBlocks({} as RBTypeResp);
+                    } else {
+                      setSelectedResourceBlocks((rbType: RBTypeResp) => {
+                        rbType[header] = resourceBlockMembers.filter(
+                          (rb: Member) => rb.checked
+                        );
+                        return { ...rbType };
+                      });
+                    }
                   }}
                 />
               </Tooltip>
@@ -241,14 +253,13 @@ const ResourceBlockTable = ({
         expanded: currentRB.Id === expandedResourceBlockRow,
         expandedContent: (
           <Row>
-            {error && error.length && (
+            {errorValue && !errorValue?.includes("AbortError") && (
               <Notification
-                key={`notification_${Math.random()}`}
                 onDismiss={() => setError("")}
                 inline
                 severity="negative"
               >
-                {error}
+                {errorValue}
               </Notification>
             )}
             {loading ? (

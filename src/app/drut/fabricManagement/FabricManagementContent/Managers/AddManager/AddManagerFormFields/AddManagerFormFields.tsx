@@ -1,56 +1,76 @@
 import { useEffect, useState } from "react";
 
-import { Col, Row, Select } from "@canonical/react-components";
+import { Col, Row, Select, Tooltip } from "@canonical/react-components";
+import { position } from "@canonical/react-components/dist/components/Tooltip";
+import Edit from "@mui/icons-material/Edit";
+import IconButton from "@mui/material/IconButton";
 import { useFormikContext } from "formik";
+import { useDispatch, useSelector } from "react-redux";
 
 import {
-  MANAGER_TYPES,
-  IP_ADDRESS_REGEX,
-  PORT_REGEX,
-  MANAGER_NAME_REGEX,
-} from "../constants";
-import type { Manager, Zone, Rack } from "../type";
+  getDefaultPortValue,
+  getDefaultProtocol,
+  getDescription,
+  updateManagerFormValidation,
+  addManagerFormValidation,
+  updateRedfishurlValidation,
+} from "../../utils";
+import classes from "../AddManager.module.css";
+import { MANAGER_TYPES } from "../constants";
 
 import OpticalSwitchFormFields from "./OpticalSwitchFormFields";
 import RedfishManagerFormFields from "./RedfishManagerFormFields";
 
 import FormikField from "app/base/components/FormikField";
 import type { AnyObject } from "app/base/types";
+import { actions } from "app/store/drut/managers/slice";
+import type { Manager, Zone, Rack } from "app/store/drut/managers/types";
+import type { RootState } from "app/store/root/types";
 
 type Props = {
-  zoneRackPairs: Zone[];
   setSelectedZone: (type: string) => void;
   setSelectedManagerType: (type: string) => void;
   selectedZone: string;
   selectedManagerType: string;
   managerToUpdate?: Manager;
   setSaveButtondisability: (value: boolean) => void;
-  isUnassigned: boolean;
 };
 
 export const AddManagerFormFields = <V extends AnyObject>({
-  zoneRackPairs,
   setSelectedZone,
   setSelectedManagerType,
   selectedZone,
   selectedManagerType,
   managerToUpdate,
   setSaveButtondisability,
-  isUnassigned,
 }: Props): JSX.Element => {
+  const { zones, isUnassigned, redfishurlEdit } = useSelector(
+    (state: RootState) => state.Managers
+  );
   const { handleChange, setFieldValue, values, initialValues } =
     useFormikContext<V>();
   const [racks, setRacks] = useState<Rack[]>([]);
-
+  const dispatch = useDispatch();
   useEffect(() => {
     if (managerToUpdate) {
-      const isSaveButtonDisabled = updateManagerFormValidation(
-        values,
-        initialValues
-      );
+      let isSaveButtonDisabled: boolean;
+      if (redfishurlEdit) {
+        isSaveButtonDisabled = updateRedfishurlValidation(
+          values,
+          initialValues
+        );
+      } else
+        isSaveButtonDisabled = updateManagerFormValidation(
+          values,
+          initialValues
+        );
       setSaveButtondisability(isSaveButtonDisabled);
     } else {
-      const isSaveButtonDisabled = addManagerFormValidation(values);
+      const isSaveButtonDisabled = addManagerFormValidation(
+        values,
+        selectedManagerType,
+        isUnassigned
+      );
       setSaveButtondisability(isSaveButtonDisabled);
     }
   }, [values]);
@@ -58,111 +78,12 @@ export const AddManagerFormFields = <V extends AnyObject>({
   useEffect(() => {
     if (selectedZone || managerToUpdate?.zone_id) {
       const zoneId = selectedZone ? +selectedZone : managerToUpdate?.zone_id;
-      const result = zoneRackPairs.find(
-        (zone: Zone) => +zone.zone_id === zoneId
-      );
+      const result = zones.find((zone: Zone) => +zone.zone_id === zoneId);
       if (result) {
-        setRacks(result?.racks as Rack[]);
+        setRacks(result?.racks);
       }
     }
   }, [selectedZone, managerToUpdate]);
-
-  const getDefaultProtocol = (managerType: string) => {
-    if (managerType) {
-      switch (managerType) {
-        case "OXC": {
-          return "TL1";
-        }
-        case "BMC": {
-          return "https";
-        }
-        case "IFIC":
-        case "TFIC": {
-          return "http";
-        }
-        default: {
-          return "";
-        }
-      }
-    }
-  };
-
-  const getDefaultPortValue = (managerType: string) => {
-    if (managerType) {
-      switch (managerType) {
-        case "OXC": {
-          return 3082;
-        }
-        case "IFIC":
-        case "TFIC": {
-          return 18080;
-        }
-        default: {
-          return "";
-        }
-      }
-    }
-  };
-
-  const isIPAddressValid = (ipString: string) => {
-    const ipAddressPattern = new RegExp(IP_ADDRESS_REGEX, "i");
-    return ipString !== "" && !!ipAddressPattern.test(ipString);
-  };
-
-  const isPortValid = (portString: string) => {
-    const portPattern = new RegExp(PORT_REGEX, "i");
-    return portString !== "" && !!portPattern.test(portString);
-  };
-
-  const isNameValid = (nameString: string) => {
-    const ipAddressPattern = new RegExp(MANAGER_NAME_REGEX, "i");
-    return nameString !== "" && !!ipAddressPattern.test(nameString);
-  };
-
-  const addManagerFormValidation = (values: any) => {
-    let validation = true;
-    if (selectedManagerType === "OXC") {
-      validation =
-        !!values.manager_type &&
-        isNameValid(values.name) &&
-        isIPAddressValid(values.ip_address) &&
-        isPortValid(values.port) &&
-        !!values.protocol &&
-        !!values.user_name &&
-        !!values.password &&
-        !!values.manufacturer;
-    } else {
-      validation =
-        !!values.manager_type &&
-        isNameValid(values.name) &&
-        isIPAddressValid(values.ip_address) &&
-        !!values.protocol;
-    }
-    return isUnassigned
-      ? !validation
-      : !(validation && !!values.rack_id && !!values.zone_id);
-  };
-
-  const updateManagerFormValidation = (values: any, initialValues: any) => {
-    const valuesValidation =
-      (+values.rack_id !== +initialValues.rack_id ||
-        +values.zone_id !== +initialValues.zone_id ||
-        values.name !== initialValues.name) &&
-      isNameValid(values.name) &&
-      !!values.rack_id &&
-      !!values.zone_id;
-    return !valuesValidation;
-  };
-
-  const getDescription = (
-    zone_fqgn: string,
-    rack_fqgn: string,
-    name: string
-  ) => {
-    return `${zone_fqgn || ""}${rack_fqgn ? `.${rack_fqgn}` : ""}${
-      name ? `${zone_fqgn ? "." : ""}${name}` : ""
-    }`;
-  };
 
   return (
     <>
@@ -172,7 +93,7 @@ export const AddManagerFormFields = <V extends AnyObject>({
             component={Select}
             label="Manager Type"
             name="manager_type"
-            disabled={managerToUpdate ? true : false}
+            disabled={managerToUpdate || redfishurlEdit ? true : false}
             style={{ opacity: !!managerToUpdate ? "0.8" : "1" }}
             options={[
               { label: "Select Manager Type", value: "", disabled: true },
@@ -198,12 +119,16 @@ export const AddManagerFormFields = <V extends AnyObject>({
               <FormikField
                 component={Select}
                 label="Zone"
+                disabled={redfishurlEdit}
                 name="zone_id"
                 options={[
                   { label: "Select Zone", value: "", disabled: true },
-                  ...zoneRackPairs
+                  ...zones
                     .filter(
-                      (zoneRack) => zoneRack.zone_name.toLowerCase() !== "drut"
+                      (zoneRack: any) =>
+                        !["drut", "default_zone"].includes(
+                          zoneRack.zone_name.toLowerCase()
+                        )
                     )
                     .map((zone: Zone) => ({
                       key: `zone_id-${zone.zone_id}`,
@@ -217,7 +142,7 @@ export const AddManagerFormFields = <V extends AnyObject>({
                   setFieldValue("rack_id", "");
                   setFieldValue(
                     "zone_fqgn",
-                    zoneRackPairs.find(
+                    zones.find(
                       (zone: Zone) => +zone.zone_id === +event.target.value
                     )?.zone_fqgn
                   );
@@ -225,7 +150,7 @@ export const AddManagerFormFields = <V extends AnyObject>({
                   setFieldValue(
                     "description",
                     getDescription(
-                      zoneRackPairs.find(
+                      zones.find(
                         (zone: Zone) => +zone.zone_id === +event.target.value
                       )?.zone_fqgn || "",
                       values?.rack_name as string,
@@ -241,9 +166,9 @@ export const AddManagerFormFields = <V extends AnyObject>({
                 component={Select}
                 label="Pool"
                 disabled={
-                  managerToUpdate
+                  (managerToUpdate
                     ? !!selectedZone && !managerToUpdate
-                    : !selectedZone
+                    : !selectedZone) || redfishurlEdit
                 }
                 name="rack_id"
                 options={
@@ -298,6 +223,7 @@ export const AddManagerFormFields = <V extends AnyObject>({
         <Col size={3}>
           <FormikField
             label="Name"
+            disabled={redfishurlEdit}
             name="name"
             required={true}
             placeholder="Name"
@@ -315,6 +241,21 @@ export const AddManagerFormFields = <V extends AnyObject>({
               );
             }}
           />
+        </Col>
+        <Col size={1} className={classes.edit}>
+          {redfishurlEdit && (
+            <Tooltip message="Edit" position={position.right}>
+              <IconButton
+                color="primary"
+                onClick={(e) => {
+                  e.preventDefault();
+                  dispatch(actions.setRedfishurlEdit(false));
+                }}
+              >
+                <Edit style={{ height: 18, width: 18 }} />
+              </IconButton>
+            </Tooltip>
+          )}
         </Col>
       </Row>
       {selectedManagerType && (

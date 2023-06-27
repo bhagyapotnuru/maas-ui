@@ -9,7 +9,10 @@ import ApplicationPoolFormFields from "./ApplicationPoolFormFields";
 
 import FormikForm from "app/base/components/FormikForm";
 import type { ClearHeaderContent } from "app/base/types";
-import { postData } from "app/drut/config";
+import {
+  updateApplicationPoolConfiguration,
+  setMonitorConfigurations,
+} from "app/drut/api";
 
 type Props = {
   clearHeaderContent: ClearHeaderContent;
@@ -40,9 +43,8 @@ export const ApplicationPoolForm = ({
     if (values.poolSelection === "create") {
       const payload = values;
       delete payload["poolSelection"];
-      const url = `dfab/applicationpools/`;
       setLoading(true);
-      postData(url, payload).then((response: any) => {
+      updateApplicationPoolConfiguration(payload).then((response: any) => {
         if (response.status === 200) {
           setConfigsToPool(values);
           setLoading(false);
@@ -62,9 +64,8 @@ export const ApplicationPoolForm = ({
       ...config,
       applicationpool: values.name,
     }));
-    const url = `dfab/clusters/`;
     setLoading(true);
-    postData(url, updatedConfigs, true)
+    setMonitorConfigurations(updatedConfigs)
       .then((response: any) => {
         if (response.status === 200) {
           setFetchConfigurations(true);

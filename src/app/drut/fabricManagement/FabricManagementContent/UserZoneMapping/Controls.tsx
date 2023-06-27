@@ -20,7 +20,7 @@ type Props = {
   userCount: number;
 };
 
-const IficBmcControls = ({
+const Controls = ({
   searchText,
   userCount,
   setSearchText,
@@ -99,4 +99,4 @@ const IficBmcControls = ({
   );
 };
 
-export default IficBmcControls;
+export default Controls;

@@ -1,6 +1,5 @@
-import { useState } from "react";
-
 import { Button } from "@canonical/react-components";
+import { useDispatch, useSelector } from "react-redux";
 import { Route, Switch } from "react-router-dom";
 
 import FabricManagementHeader from "../../FabricManagementHeader";
@@ -9,20 +8,19 @@ import managersUrl from "../../url";
 import AddGroupForm from "./AddGroup/AddGroupForm";
 import DeleteGroupForm from "./DeleteGroup/DeleteGroupForm";
 import GroupList from "./GroupList";
-import type { Group } from "./type";
 
 import Section from "app/base/components/Section";
 import NotFound from "app/base/views/NotFound";
+import { actions } from "app/store/drut/groups/slice";
+import type { RootState } from "app/store/root/types";
 
 const Groups = (): JSX.Element => {
-  const [renderAddGroupsForm, setRenderAddGroupsForm] = useState(false);
-  const [groupList, setGroupList] = useState<Group[]>([]);
-  const [group, setGroup] = useState<Group | null>(null);
-  const [renderUpdateGroupsForm, setRenderUpdateGroupsForm] = useState(false);
-  const [fetchGroups, setFetchGroups] = useState(true);
-  const [error, setError] = useState("");
-
-  const [renderDeleteGroupsForm, setRenderDeleteGroupsForm] = useState(false);
+  const dispatch = useDispatch();
+  const {
+    renderAddGroupsForm,
+    renderDeleteGroupsForm,
+    renderUpdateGroupsForm,
+  } = useSelector((state: RootState) => state.Group);
 
   let headerContent: JSX.Element | null = null;
   let renderTitle = "Fabric Management";
@@ -30,10 +28,9 @@ const Groups = (): JSX.Element => {
   if (renderAddGroupsForm) {
     headerContent = (
       <AddGroupForm
-        setError={setError}
-        setFetchGroups={setFetchGroups}
-        clearHeaderContent={() => createGroupFunctionality(false)}
-        groupList={groupList}
+        clearHeaderContent={() =>
+          dispatch(actions.setRenderAddGroupsForm(false))
+        }
       />
     );
     renderTitle = "Add Group";
@@ -41,46 +38,26 @@ const Groups = (): JSX.Element => {
   if (renderUpdateGroupsForm) {
     headerContent = (
       <AddGroupForm
-        groupToUpdate={group}
-        setError={setError}
-        groupList={groupList}
-        setFetchGroups={setFetchGroups}
-        clearHeaderContent={() => setRenderUpdateGroupsForm(false)}
+        clearHeaderContent={() =>
+          dispatch(actions.setRenderUpdateGroupsForm(false))
+        }
       />
     );
     renderTitle = "Update Group";
   }
   if (renderDeleteGroupsForm) {
-    headerContent = (
-      <DeleteGroupForm
-        setError={setError}
-        groupData={group}
-        setFetchGroups={setFetchGroups}
-        onClose={() => setRenderDeleteGroupsForm(false)}
-      />
-    );
+    headerContent = <DeleteGroupForm />;
     renderTitle = "Delete Group";
   }
 
   const buttonContent: JSX.Element[] | null = [
-    <Button key="add-a-group" onClick={() => createGroupFunctionality(true)}>
+    <Button
+      key="add-a-group"
+      onClick={() => dispatch(actions.setRenderAddGroupsForm(true))}
+    >
       Add Group
     </Button>,
   ];
-
-  const deleteGroupFunctionality = (group: Group) => {
-    setRenderDeleteGroupsForm(true);
-    setGroup(group);
-  };
-
-  const updateGroupFunctionality = (group: Group) => {
-    setRenderUpdateGroupsForm(true);
-    setGroup(group);
-  };
-
-  const createGroupFunctionality = (check: boolean) => {
-    setRenderAddGroupsForm(check);
-  };
 
   return (
     <Section
@@ -97,17 +74,7 @@ const Groups = (): JSX.Element => {
     >
       <Switch>
         <Route exact path={managersUrl.fabricManagement.index}>
-          <GroupList
-            setRenderUpdateGroupForm={updateGroupFunctionality}
-            setRenderDeleteGroupForm={deleteGroupFunctionality}
-            fetchGroups={fetchGroups}
-            setGroupList={(groups: Group[]) => {
-              setFetchGroups(false);
-              setGroupList(groups);
-            }}
-            error={error}
-            setError={setError}
-          />
+          <GroupList />
         </Route>
         <Route path="*">
           <NotFound />

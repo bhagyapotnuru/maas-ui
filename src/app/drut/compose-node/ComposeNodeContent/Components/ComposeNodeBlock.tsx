@@ -1,56 +1,23 @@
-import { useState } from "react";
-
-import { Notification, Spinner } from "@canonical/react-components";
-import Button from "@mui/material/Button";
-import { useNavigate } from "react-router-dom-v5-compat";
+import { Notification } from "@canonical/react-components";
 
 import type { Member, RBTypeResp } from "../../Models/ResourceBlock";
 import classes from "../../composedNode.module.scss";
-
-import { postData } from "app/drut/config";
 
 const ComposeNodeBlock = ({
   enteredNodeName,
   selectedResourceBlocks,
   setIsMaxPortCountLimitReached,
   selectedZone,
-  onCancelCompostion,
+  error,
+  setError,
 }: {
   enteredNodeName: string;
   selectedResourceBlocks: RBTypeResp;
   setIsMaxPortCountLimitReached: (value: boolean) => void;
   selectedZone: string;
-  onCancelCompostion: () => void;
+  error: string;
+  setError: (value: string) => void;
 }): JSX.Element => {
-  const [error, setError] = useState("");
-  const [composing, setComposing] = useState(false);
-  const navigate = useNavigate();
-  const onClickCompose = async () => {
-    try {
-      setError("");
-      setComposing(true);
-      const resourceBlocks: string[] = Object.values(
-        selectedResourceBlocks
-      ).flatMap((members: Member[]) => members.flatMap((member) => member.Id));
-      const payLoad: { Name: string; ResourceBlocks: string[] } = {
-        Name: enteredNodeName,
-        ResourceBlocks: resourceBlocks,
-      };
-      const promise = await postData("dfab/nodes/", payLoad);
-      if (promise.status === 200) {
-        navigate("/drut-cdi/nodes");
-      } else {
-        const apiError: string = await promise.text();
-        const defaultError = "Failed to Compose a Node.";
-        setError(apiError ? apiError : defaultError);
-      }
-    } catch (e: any) {
-      setError(e);
-    } finally {
-      setComposing(false);
-    }
-  };
-
   const targetRBs: string[] = Object.keys(selectedResourceBlocks).filter(
     (key: string) => key !== "Compute"
   );
@@ -65,23 +32,22 @@ const ComposeNodeBlock = ({
   setIsMaxPortCountLimitReached(
     selectedTargetRBsCount >= totalIFICDownStreamPorts
   );
+  const errorValue = error?.toString();
+
   return (
     <>
       <div className={classes.node_details_content}>
-        <div className={classes.node_details_header}>Node Details &#58;</div>
+        <div className={classes.node_details_header}>
+          <span>
+            <strong>Node Name &#58; &nbsp;</strong>
+          </span>
+          <span>{enteredNodeName}</span>&nbsp;&nbsp;&nbsp;
+          <span>
+            <strong>Selected Zone &#58; &nbsp;</strong>
+          </span>
+          <span>{selectedZone}</span>
+        </div>
         <div className={classes.node_details_data}>
-          <div>
-            <span>
-              <strong>Node Name &#58; &nbsp;</strong>
-            </span>
-            <span>{enteredNodeName}</span>
-          </div>
-          <div>
-            <span>
-              <strong>Selected Zone &#58; &nbsp;</strong>
-            </span>
-            <span>{selectedZone}</span>
-          </div>
           <div>
             <span>
               <strong>Selected Compute Block &#58; &nbsp;</strong>
@@ -241,56 +207,15 @@ const ComposeNodeBlock = ({
         </div>
         <div className={`${classes.compose_button}`}>
           <div>
-            {error && error.length > 0 && (
+            {errorValue && !errorValue?.includes("AbortError") && (
               <Notification
-                inline
-                key={`notification_${Math.random()}`}
                 onDismiss={() => setError("")}
+                inline
                 severity="negative"
-                style={{ margin: 0 }}
               >
-                {error}
+                {errorValue}
               </Notification>
             )}
-          </div>
-          <div className={classes.compose_node_button}>
-            <div className={`${classes.text_button}`}>
-              <Button
-                color="inherit"
-                disabled={!isComputeBlockSelected || composing}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onCancelCompostion();
-                }}
-                sx={{ mr: 1 }}
-                variant="text"
-              >
-                Cancel
-              </Button>
-            </div>
-
-            <div className={`${classes.contained_button}`}>
-              <Button
-                color="inherit"
-                disabled={!isComputeBlockSelected || composing}
-                onClick={(e) => {
-                  e.preventDefault();
-                  onClickCompose();
-                }}
-                sx={{ mr: 1 }}
-                variant="contained"
-              >
-                {composing && (
-                  <Spinner
-                    color="white"
-                    key={`managerListSpinner_${Math.random()}`}
-                  />
-                )}
-                <span>
-                  {composing ? `Composing Node...` : `Compose System`}
-                </span>
-              </Button>
-            </div>
           </div>
         </div>
       </div>

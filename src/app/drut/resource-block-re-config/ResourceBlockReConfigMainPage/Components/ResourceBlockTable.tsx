@@ -4,17 +4,9 @@ import { Card, Col, Row, Spinner } from "@canonical/react-components";
 import type { Section } from "@canonical/react-components/dist/components/Accordion/Accordion";
 import MainTable from "@canonical/react-components/dist/components/MainTable";
 import type { MainTableRow } from "@canonical/react-components/dist/components/MainTable/MainTable";
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-import MuiAccordion from "@mui/material/Accordion";
-import type { AccordionProps } from "@mui/material/Accordion";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import MuiAccordionSummary from "@mui/material/AccordionSummary";
-import type { AccordionSummaryProps } from "@mui/material/AccordionSummary";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
-import { styled } from "@mui/material/styles";
 
-import { COLOURS } from "../../../../base/constants";
 import { IN_PROGRESS, INPROGRESS } from "../../Constants/re-config.constants";
 import type { Count, Member } from "../../Models/ResourceBlock";
 import ResoruceBlockReConfigContext from "../../Store/resource-block-re-config-context";
@@ -22,56 +14,13 @@ import classes from "../../resource-block-re-config.module.scss";
 
 import { getResourceDeviceInfo } from "./ResourceDeviceInfoContext";
 
+import {
+  Accordion2 as StyledAccordion,
+  AccordionDetails,
+  AccordionSummary2 as AccordionSummary,
+} from "app/drut/components/accordion";
 import { arrayObjectArray as getSwitchPortInfo } from "app/drut/parser";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
-
-const StyledAccordion = styled((props: AccordionProps) => (
-  <MuiAccordion disableGutters elevation={0} square {...props} />
-))(({ theme }) => ({
-  // border: `1px solid ${theme.palette.divider}`,
-  // "&:not(:last-child)": {
-  //   // borderBottom: 0,
-  // },
-  "&:before": {
-    display: "none",
-  },
-}));
-
-const AccordionSummary = styled((props: AccordionSummaryProps) => (
-  <MuiAccordionSummary
-    expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
-    {...props}
-  />
-))(({ theme }) => ({
-  backgroundColor:
-    theme.palette.mode === "dark"
-      ? COLOURS.ACCORDIAN_BG_TRUE
-      : COLOURS.ACCORDIAN_BG_FALSE,
-  flexDirection: "row-reverse",
-  "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-    transform: "rotate(90deg)",
-  },
-  "& .MuiTypography-root": {
-    fontWeight: "400",
-    padding: 0,
-    color: COLOURS.ACCORDIAN_TEXT,
-    fontSize: 14,
-  },
-  "& .MuiAccordionSummary-content": {
-    marginLeft: theme.spacing(1),
-    marginTop: 0,
-    marginBottom: 0,
-  },
-  "&.MuiAccordionSummary-root": {
-    minHeight: "2rem",
-    maxHeight: "2rem",
-  },
-}));
-
-const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-  padding: theme.spacing(2),
-  borderTop: "1px solid rgba(0, 0, 0, .125)",
-}));
 
 const ResourceBlockTable = ({
   resourceBlockMembers,

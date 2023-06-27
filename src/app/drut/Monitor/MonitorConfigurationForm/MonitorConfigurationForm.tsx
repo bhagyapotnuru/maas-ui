@@ -26,7 +26,12 @@ import {
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 import monitorUrls from "../url";
 
-import { fetchData, postData } from "app/drut/config";
+import {
+  fetchResourcePoolsData,
+  fetchMonitorDataById,
+  fetchClusterTypesData,
+  createOrUpdateMonitorConfigurations,
+} from "app/drut/api";
 import customDrutTheme from "app/utils/Themes/Themes";
 
 interface State {
@@ -397,11 +402,7 @@ const MonitorConfigurationForm = ({
   const fetchClusterTypes = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      const response: any = await fetchData(
-        `dfab/clusters/?op=get_types`,
-        false
-      );
-      const clusterTypesResponse: string[] = await response.json();
+      const clusterTypesResponse: any = await fetchClusterTypesData();
       setValues((values: State) => {
         return {
           ...values,
@@ -417,23 +418,18 @@ const MonitorConfigurationForm = ({
   const fetchResourcePools = async () => {
     try {
       setIsLoading(true);
-      const promise: any = await fetchData(`resourcepools/`, false);
-      if (promise.status === 200) {
-        const response = await promise.json();
-        const resourcePools: string[] = response.map(
-          (resourcePool: any) => resourcePool.name
-        );
-        setValues((values: State) => {
-          return {
-            ...values,
-            resourcepools: resourcePools,
-          };
-        });
-      } else {
-        const apiError: string = await promise.text();
-        setError(apiError ? apiError : "Failed to load resource pools");
-      }
+      const response: any = await fetchResourcePoolsData();
+      const resourcePools: string[] = response.map(
+        (resourcePool: any) => resourcePool.name
+      );
+      setValues((values: State) => {
+        return {
+          ...values,
+          resourcepools: resourcePools,
+        };
+      });
     } catch (e: any) {
+      setError(e ? e : "Failed to load resource pools");
     } finally {
       setIsLoading(false);
     }
@@ -442,12 +438,10 @@ const MonitorConfigurationForm = ({
   const fetchConfiguration = async (id: number): Promise<void> => {
     try {
       setIsLoading(true);
-      const response = await fetchData(
-        `dfab/clusters/${id}/`,
-        false,
+      const configResponse = await fetchMonitorDataById(
+        id,
         abortController.signal
       );
-      const configResponse: MonitorConfiguration = await response.json();
       setValues({
         ...values,
         selectedClusterType: configResponse.cluster_type,
@@ -542,20 +536,10 @@ const MonitorConfigurationForm = ({
       if (SHELL_IN_A_BOX_CLUSTER_TYPES.includes(values.selectedClusterType)) {
         payLoad["shellinabox_url"] = values.shellInTheBoxUrl;
       }
-      const url = parmsId ? `dfab/clusters/${parmsId}/` : `dfab/clusters/`;
-      postData(url, payLoad, !!parmsId)
+      const params = parmsId ? `${parmsId}/` : "";
+      createOrUpdateMonitorConfigurations(params, payLoad, !!parmsId)
         .then(async (promise: any) => {
-          if (promise.ok) {
-            navigate(monitorUrls.monitorDashboardList.index);
-          } else {
-            const response = await promise.json();
-            const error: string = Object.keys(response)
-              .map(
-                (key) => `${key.toUpperCase()} : ${response[key].toString()}`
-              )
-              .join("\n");
-            setError(error);
-          }
+          navigate(monitorUrls.monitorDashboardList.index);
         })
         .catch((error) => {
           setError(error);

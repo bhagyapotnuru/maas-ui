@@ -7,7 +7,7 @@ import DataPathTabs from "./DataPathTabs";
 import NodeEventLog from "./NodeEventsLog";
 import NodeSummary from "./NodeSummary";
 
-import { fetchData, postData } from "app/drut/config";
+import { fetchFabricsNodeData, updateNodeCacheById } from "app/drut/api";
 import AttachDetachFabricElement from "app/drut/fabric/AttachDetachFabric";
 
 type Props = {
@@ -47,7 +47,7 @@ const NodeInfo = (props: Props): JSX.Element => {
   const forceRefresh = async (id: any = parms.id) => {
     try {
       setIsRefreshing(true);
-      await postData(`dfab/nodes/${id}/?op=update_node_cache`);
+      await updateNodeCacheById(id);
       props.toggleRefresh();
     } catch (e: any) {
       setError(e);
@@ -59,35 +59,28 @@ const NodeInfo = (props: Props): JSX.Element => {
   const getNodeDetails = async (id: any = parms.id) => {
     try {
       setIsLoading(true);
-      const response = await fetchData(
-        `dfab/nodes/${id}/`,
-        false,
+      const composedNodeResponse = await fetchFabricsNodeData(
+        id,
         abortController.signal
       );
-      const composedNodeResponse = await response.json();
-      if (response.status === 404) {
-        setNotFoundError(composedNodeResponse);
-      }
       if (composedNodeResponse !== null && composedNodeResponse !== undefined) {
         setSelNode(composedNodeResponse);
         props.onNodeDetail(composedNodeResponse);
       }
-    } catch (e) {
+    } catch (e: any) {
+      setNotFoundError(e);
     } finally {
       setIsLoading(false);
     }
   };
 
+  const errorValue = error?.toString();
+
   return (
     <>
-      {error && error.length && (
-        <Notification
-          key={`notification_${Math.random()}`}
-          onDismiss={() => setError("")}
-          inline
-          severity="negative"
-        >
-          {error}
+      {errorValue && !errorValue?.includes("AbortError") && (
+        <Notification onDismiss={() => setError("")} inline severity="negative">
+          {errorValue}
         </Notification>
       )}
 

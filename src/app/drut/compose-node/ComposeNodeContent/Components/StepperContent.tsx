@@ -1,13 +1,14 @@
 import type { RBTypeResp } from "../../Models/ResourceBlock";
 import Step1Content from "../Components/Step1Content";
 
+import ComposeNodeBlock from "./ComposeNodeBlock";
 import IFICPool from "./IFICPool";
 import TFICPool from "./TFICPool";
 
 import type {
   RackByType,
-  Zone,
-} from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
+  ZoneObj as Zone,
+} from "app/store/drut/managers/types";
 
 const StepperContent = ({
   stepIndex,
@@ -16,6 +17,8 @@ const StepperContent = ({
   setSelectedZone,
   expandedResourceBlockRow,
   setExpandedResourceBlock,
+  selectedResourceBlocks,
+  setIsMaxPortCountLimitReached,
   racks,
   selectedIFICRack,
   setSelectedIFICRack,
@@ -30,6 +33,13 @@ const StepperContent = ({
   fetchingResourceBlocks,
   fqnn,
   setFqnn,
+  error,
+  setError,
+  setTargetResourceBlocks,
+  setResourceBlocksRefreshKey,
+  resourceBlocksRefreshKey,
+  setResourcesRefreshKey,
+  resourcesRefreshKey,
 }: {
   stepIndex: number;
   zones: Zone[];
@@ -43,16 +53,24 @@ const StepperContent = ({
   selectedIFICRack: string;
   setSelectedIFICRack: (value: string) => void;
   selectedTFICRack: string;
-  setSelectedTFICRack: (value: string) => void;
   expandedResourceType: string;
   setExpandedResourceType: (value: string) => void;
   enteredNodeName: string;
+  selectedResourceBlocks: RBTypeResp;
+  setIsMaxPortCountLimitReached: (value: boolean) => void;
   setEnteredNodeName: (value: string) => void;
   setSelectedResourceBlocks: (value: React.SetStateAction<RBTypeResp>) => void;
   isMaxPortCountLimitReached: boolean;
   fetchingResourceBlocks: boolean;
   fqnn: any;
   setFqnn: (value: any) => void;
+  error: string;
+  setError: (value: string) => void;
+  setTargetResourceBlocks: (value: RBTypeResp) => void;
+  setResourceBlocksRefreshKey: (value: React.SetStateAction<boolean>) => void;
+  resourceBlocksRefreshKey: boolean;
+  setResourcesRefreshKey: (value: React.SetStateAction<boolean>) => void;
+  resourcesRefreshKey: boolean;
 }): JSX.Element => {
   switch (stepIndex) {
     case 1:
@@ -78,6 +96,11 @@ const StepperContent = ({
           setExpandedResourceType={setExpandedResourceType}
           setSelectedResourceBlocks={setSelectedResourceBlocks}
           fetchingResourceBlocks={fetchingResourceBlocks}
+          selectedResourceBlocks={selectedResourceBlocks}
+          setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
+          setTargetResourceBlocks={setTargetResourceBlocks}
+          setResourceBlocksRefreshKey={setResourceBlocksRefreshKey}
+          resourceBlocksRefreshKey={resourceBlocksRefreshKey}
         />
       );
     case 3:
@@ -93,6 +116,23 @@ const StepperContent = ({
           fetchingResourceBlocks={fetchingResourceBlocks}
           fqnn={fqnn}
           setFqnn={setFqnn}
+          selectedResourceBlocks={selectedResourceBlocks}
+          setResourcesRefreshKey={setResourcesRefreshKey}
+          resourcesRefreshKey={resourcesRefreshKey}
+          setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
+        />
+      );
+    case 4:
+      return (
+        <ComposeNodeBlock
+          enteredNodeName={enteredNodeName}
+          selectedResourceBlocks={selectedResourceBlocks}
+          setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
+          selectedZone={
+            zones.find((z) => +z.zone_id === +selectedZone)?.zone_name || ""
+          }
+          error={error}
+          setError={setError}
         />
       );
     default:

@@ -1,19 +1,17 @@
 import React, { useState, useEffect } from "react";
 
 import { Notification, Spinner } from "@canonical/react-components";
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-import MuiAccordion from "@mui/material/Accordion";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
-import { styled } from "@mui/material/styles";
-
-import { COLOURS } from "../../../base/constants";
 
 import DataPathOrderDetailsTable from "./DataPathOrderDetailsTable";
 import classess from "./NodeList.module.css";
 
-import { fetchData } from "app/drut/config";
+import { fetchDataPathOrdersByNodeId } from "app/drut/api";
+import {
+  Accordion1 as Accordion,
+  AccordionDetails,
+  AccordionSummary,
+} from "app/drut/components/accordion";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
@@ -21,6 +19,7 @@ type Props = {
 };
 
 const DataPathOrderDetails = (props: Props): JSX.Element => {
+  const [error, setError] = useState("");
   const [isLoading, setLoading] = useState(true);
   const [isStringResponse, setIsStringResponseReceived] = useState(false);
   const [dataPathOrderResponseMsg, setDataPathOrderResponseMsg] = useState("");
@@ -41,56 +40,6 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
     }
   };
 
-  const Accordion = styled((props: any) => (
-    <MuiAccordion
-      disableGutters={true}
-      elevation={0}
-      square={false}
-      {...props}
-    />
-  ))(({ theme }) => ({
-    border: `1px solid ${theme.palette.divider}`,
-    "&:not(:last-child)": {
-      borderBottom: 0,
-    },
-    "&:before": {
-      display: "none",
-    },
-    marginBottom: "0.5%",
-    fontWeight: "600",
-    padding: "0",
-  }));
-
-  const AccordionSummary = styled((props: any) => (
-    <MuiAccordionSummary
-      expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
-      {...props}
-    />
-  ))(({ theme }) => ({
-    backgroundColor:
-      theme.palette.mode === "dark"
-        ? COLOURS.ACCORDIAN_BG_TRUE
-        : COLOURS.ACCORDIAN_BG_FALSE,
-    flexDirection: "row-reverse",
-    "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-      transform: "rotate(90deg)",
-    },
-    "& .MuiTypography-root": {
-      width: "100%",
-      paddingTop: 0,
-      fontWeight: 300,
-      maxWidth: "none",
-    },
-    "& .MuiAccordionSummary-content": {
-      marginLeft: theme.spacing(1),
-    },
-  }));
-
-  const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-    padding: theme.spacing(2),
-    borderTop: "1px solid rgba(0, 0, 0, .125)",
-  }));
-
   useEffect(() => {
     fetchDataPathOrders();
     return () => {
@@ -101,12 +50,10 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
   const fetchDataPathOrders = async () => {
     try {
       setLoading(true);
-      const response = await fetchData(
-        `dfab/nodes/${props.nodeId}/?op=get_target_end_point_order_list`,
-        false,
+      const dataPathOrderResponse = await fetchDataPathOrdersByNodeId(
+        props.nodeId,
         abortController.signal
       );
-      const dataPathOrderResponse = await response.json();
       const isString = typeof dataPathOrderResponse === "string";
       setIsStringResponseReceived(isString);
       if (isString) {
@@ -122,7 +69,8 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
         SetGroupDataPathOrders(trasnformedDataPathOrderResponse);
         setParentExpanded(Object.keys(trasnformedDataPathOrderResponse)[0]);
       }
-    } catch (e) {
+    } catch (e: any) {
+      setError(e);
     } finally {
       setLoading(false);
     }
@@ -234,7 +182,17 @@ const DataPathOrderDetails = (props: Props): JSX.Element => {
   };
 
   const renderData = getElementToRender();
+  const errorValue = error?.toString();
 
-  return <React.Fragment>{renderData}</React.Fragment>;
+  return (
+    <>
+      {errorValue && !errorValue?.includes("AbortError") && (
+        <Notification onDismiss={() => setError("")} inline severity="negative">
+          {errorValue}
+        </Notification>
+      )}
+      {renderData}
+    </>
+  );
 };
 export default DataPathOrderDetails;

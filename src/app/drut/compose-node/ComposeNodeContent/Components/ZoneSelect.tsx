@@ -5,7 +5,7 @@ import type { SelectChangeEvent } from "@mui/material/Select";
 
 import classes from "../../composedNode.module.scss";
 
-import type { Zone } from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
+import type { ZoneObj as Zone } from "app/store/drut/managers/types";
 
 const ZoneSelect = ({
   zones,

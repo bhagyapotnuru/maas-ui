@@ -1,6 +1,6 @@
 @use 'defaults';
 
-.select_value > div {
+.select_value>div {
   font-size: 0.875rem !important;
 }
 
@@ -77,6 +77,11 @@
   gap: 1rem;
 }
 
+.tfic_pool_block {
+  display: flex;
+  justify-content: space-between;
+}
+
 .contained_button button {
   text-transform: capitalize !important;
   background-color: defaults.$button-background;
@@ -114,10 +119,10 @@
 }
 
 .node_details_header {
-  border-bottom: 2px solid #c6c6c699;
+  // border-bottom: 2px solid #c6c6c699;
   padding-bottom: 10px;
-  font-size: 20px;
-  font-weight: 500;
+  font-size: 16px;
+  // font-weight: 500;
 }
 
 .node_details_content {

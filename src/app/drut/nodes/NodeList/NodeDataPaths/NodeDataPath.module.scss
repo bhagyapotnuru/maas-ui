@@ -1,0 +1,247 @@
+@use "defaults";
+
+.health_column {
+  width: 6rem;
+}
+
+.data_path_id_column {
+  width: 8rem;
+}
+
+.cross_connect_column {
+  width: 15%;
+}
+
+.power_column {
+  width: 5%;
+}
+
+.endpoint_data {
+  display: flex;
+  gap: 0.3rem;
+  align-items: center;
+  justify-content: center;
+
+  .ports {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+
+    .port_value {
+      display: flex;
+      align-items: center;
+    }
+
+    svg {
+      font-size: 1rem;
+    }
+  }
+}
+
+.oxc_cross_connect {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: center;
+
+  .oxc_port {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+  }
+}
+
+.optical_power_values_heading {
+  display: flex;
+  // gap: 5rem;
+  justify-content: space-between;
+}
+
+.optical_powers {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0.5rem 0;
+  font-size: 0.8rem;
+}
+
+.optical_power_values {
+  display: flex;
+  gap: 0.8rem;
+  justify-content: space-between;
+}
+
+.no_power_values {
+  max-width: 4rem;
+  word-break: break-word;
+}
+
+.optical_power_val_heading {
+  display: flex;
+  flex-direction: column;
+
+  .optical_power_heading_info {
+    display: flex;
+    justify-content: center;
+  }
+
+  .ports {
+    display: flex;
+    align-items: center;
+    gap: 0.1rem;
+    justify-content: center;
+
+    .port_value {
+      display: flex;
+      align-items: center;
+    }
+
+    svg {
+      font-size: 1rem;
+    }
+  }
+}
+
+.opv_initiator {
+  width: 40%;
+}
+
+.opv_target {
+  width: 40%;
+}
+
+.upstream_port {
+  display: flex;
+
+  svg {
+    color: forestgreen;
+  }
+}
+
+.downstream_port {
+  display: flex;
+
+  svg {
+    color: rgb(255, 106, 0);
+  }
+}
+
+.port_sync {
+  display: flex;
+
+  svg {
+    color: rgb(0, 123, 255);
+  }
+}
+
+.data_path_id_content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-left: 0.5rem;
+}
+
+.target_block_optical_power {
+  width: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.optical_power_target_ds_ports {
+  max-width: 12ch;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn {
+  button {
+    text-transform: capitalize;
+  }
+}
+
+.initiator_block {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  .intiator_block_details {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+  }
+}
+
+.header_selection_menu_item {
+  font-size: 0.875rem !important;
+}
+
+/** Optical power values Popup */
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 99;
+  background: rgba(0, 0, 0, 0.75);
+}
+
+.modal {
+  position: absolute;
+  top: 15%;
+  left: 1%;
+  width: 98%;
+  z-index: 100;
+  overflow: hidden;
+  background-color: defaults.$bg-white;
+  transition: box-shadow 300ms cubic-bezier(0.4, 0, 0.2, 1) 0ms;
+  border-radius: 8px;
+  box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.374),
+    0px 1px 1px 0px rgba(0, 0, 0, 0.381), 0px 1px 3px 0px rgba(0, 0, 0, 0.395);
+}
+
+.header {
+  background: defaults.$bg-white;
+  padding: 1rem;
+
+  h2 {
+    margin: 0;
+    color: black;
+    font-weight: 400 !important;
+    line-height: 2rem !important;
+    font-size: 1.5em !important;
+  }
+}
+
+.content {
+  padding: 0.5rem;
+}
+
+.actions {
+  padding: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1%;
+}
+
+.default_btn button {
+  color: black !important;
+  text-transform: capitalize;
+}
+
+.Optical_power_header_content {
+  display: flex;
+  align-items: center;
+  padding-right: 2rem;
+  justify-content: space-between;
+}
+
+.optical_values_refresh {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+/** End of optical power values popup **/

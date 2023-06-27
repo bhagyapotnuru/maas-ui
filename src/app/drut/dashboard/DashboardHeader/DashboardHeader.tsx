@@ -4,9 +4,8 @@ import { Button } from "@canonical/react-components";
 // import { createBrowserHistory } from "history";
 import { NavLink, Link } from "react-router-dom";
 
-import { fetchData } from "../../config";
-
 import SectionHeader from "app/base/components/SectionHeader";
+import { fetchFabricData } from "app/drut/api";
 
 interface Props {
   onClickTab?: any;
@@ -45,24 +44,21 @@ const DashboardHeader = ({ onClickTab }: Props): JSX.Element => {
   };
 
   async function getSummaryData() {
-    await fetchData("dfab/fabrics/", false, abcSumData.signal)
-      .then((response: any) => response.json())
-      .then(
-        (result: any) => {
-          if (result && result.length) {
-            const fabm = result.find((dt: any) => dt.enabled === true);
-            if (fabm.url) {
-              const a = document.createElement("a");
-              a.href = fabm.url;
-              fabm.url = `${a.hostname}:${a.port}`;
-            }
-            setFabric(fabm);
+    await fetchFabricData(abcSumData.signal)
+      .then((result: any) => {
+        if (result && result.length) {
+          const fabm = result.find((dt: any) => dt.enabled === true);
+          if (fabm.url) {
+            const a = document.createElement("a");
+            a.href = fabm.url;
+            fabm.url = `${a.hostname}:${a.port}`;
           }
-        },
-        (error: any) => {
-          console.log(error);
+          setFabric(fabm);
         }
-      );
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
   }
 
   useEffect(() => {

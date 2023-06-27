@@ -10,7 +10,7 @@ import {
   MainTable,
 } from "@canonical/react-components";
 
-import { fetchData, postData, throwHttpMessage } from "../../../config";
+import { fetchData, postData } from "../../../config";
 
 const AddResourceGroups = (): JSX.Element => {
   const abortController = new AbortController();
@@ -27,33 +27,28 @@ const AddResourceGroups = (): JSX.Element => {
   const getParrent = () => {
     clearAll();
     console.log(fetchData, loading, error);
-    fetchData("dfab/manage/", false, abortController.signal)
-      .then((response: any) => {
-        return throwHttpMessage(response, setError);
+    fetchData("dfab/manage/", abortController.signal)
+      .then((dt: any) => {
+        console.log(dt);
+        const data = dt.map((d: any) => {
+          return {
+            id: d.id,
+            value: d.id,
+            label: d.qname,
+            name: d.name,
+            parent_id: d.parent_id,
+            parent_name: d.parent_name,
+            qname: d.qname,
+          };
+        });
+        data.unshift({ id: "", value: "", label: "--No Parent--" });
+        setGroupData(data);
+        setLoading(false);
       })
-      .then(
-        (dt: any) => {
-          console.log(dt);
-          const data = dt.map((d: any) => {
-            return {
-              id: d.id,
-              value: d.id,
-              label: d.qname,
-              name: d.name,
-              parent_id: d.parent_id,
-              parent_name: d.parent_name,
-              qname: d.qname,
-            };
-          });
-          data.unshift({ id: "", value: "", label: "--No Parent--" });
-          setGroupData(data);
-          setLoading(false);
-        },
-        (error: any) => {
-          setLoading(false);
-          console.log(error);
-        }
-      );
+      .catch((error: any) => {
+        setLoading(false);
+        setError(error);
+      });
   };
 
   const setStateValues = (type: any, value: any) => {
@@ -105,30 +100,15 @@ const AddResourceGroups = (): JSX.Element => {
       qname: qname,
     };
     postData("dfab/manage/", fnData)
-      .then((response: any) => {
-        if (response.status === 200) {
-          return response.json();
-        } else {
-          response.text().then((text: any) => {
-            setError(`Error: ${text}`);
-          });
-          throw response.text;
-        }
+      .then(() => {
+        setLoading(false);
+        setName("");
+        setStateValues("p", pid);
+        setRefresh(Math.random().toString());
       })
-      .then(
-        () => {
-          setLoading(false);
-          setName("");
-          setStateValues("p", pid);
-          setRefresh(Math.random().toString());
-        },
-        (error: any) => {
-          setLoading(false);
-          console.log(error);
-        }
-      )
       .catch((err: any) => {
-        console.log(err);
+        setLoading(false);
+        console.log(error);
       });
   };
 

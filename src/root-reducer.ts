@@ -11,6 +11,11 @@ import device from "app/store/device";
 import dhcpsnippet from "app/store/dhcpsnippet";
 import discovery from "app/store/discovery";
 import domain from "app/store/domain";
+import Group from "app/store/drut/groups/slice";
+import Managers from "app/store/drut/managers/slice";
+import MonitorConfiguration from "app/store/drut/monitor/slice";
+import AddZone from "app/store/drut/userzones/addzones/slice";
+import UserZone from "app/store/drut/userzones/slice";
 import event from "app/store/event";
 import fabric from "app/store/fabric";
 import general from "app/store/general";
@@ -85,6 +90,11 @@ const createAppReducer = (routerReducer: Reducer<RouterState, AnyAction>) =>
     vlan,
     vmcluster,
     zone,
+    UserZone,
+    AddZone,
+    MonitorConfiguration,
+    Group,
+    Managers,
   });
 
 const createRootReducer =

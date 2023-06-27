@@ -1,7 +1,6 @@
 import type { SetStateAction } from "react";
 
 import classes from "../../../fabricManagement.module.scss";
-import type { Zone } from "../../Managers/AddManager/type";
 
 import IFICBlock from "./IFICBlock";
 import OXCBlock from "./OXCBlock";
@@ -13,6 +12,7 @@ import type {
   OxcPort,
   OxcPortOption,
 } from "app/drut/fabricManagement/Models/Manager";
+import type { ZoneObj as Zone } from "app/store/drut/managers/types";
 
 const ConnectivityManagementTable = ({
   iFicData,

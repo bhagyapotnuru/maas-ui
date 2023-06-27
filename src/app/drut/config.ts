@@ -9,23 +9,6 @@ const jsonTheme = {
 const ROOT_API = "/MAAS/api/2.0/";
 const csrftoken: any = () => getCookie("csrftoken");
 
-function resourcesAPI(
-  id = null,
-  computeBlockId = null,
-  isResourcesPage = false
-): string {
-  if (id) {
-    return `${ROOT_API}dfab/resourceblocks/${id}/`;
-  }
-  if (computeBlockId) {
-    if (isResourcesPage) {
-      return `${ROOT_API}dfab/resourceblocks/?ComputeBlockId=${computeBlockId}`;
-    }
-    return `${ROOT_API}dfab/resourceblocks/?op=get_new_schema&ComputeBlockId=${computeBlockId}`;
-  }
-  return `${ROOT_API}dfab/resourceblocks/`;
-}
-
 const hdr: any = () => {
   return new Headers({
     "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -34,46 +17,41 @@ const hdr: any = () => {
   });
 };
 
-function fetchResources(
-  id = null,
-  computeBlockId: any = null,
-  isResourcesPage = false
-): any {
-  return fetch(resourcesAPI(id, computeBlockId, isResourcesPage), {
-    headers: hdr(),
-  });
-}
-
-async function fetchDataPromise(
-  path: string,
-  isFullPath: any = false,
-  abort: any = null
-): Promise<any> {
-  const callPath = isFullPath ? `${path}` : `${ROOT_API}${path}`;
+function fetchEventData(path: string, abort: any = null): any {
   const header: any = {
     headers: hdr(),
   };
   if (abort !== null) {
     header.signal = abort;
   }
-  const response: any = await fetch(callPath, header);
-  return await response.text();
+  return fetch(path, header).then((response: any) =>
+    throwHttpMessage(response)
+  );
 }
 
-function fetchData(
-  path: string,
-  isFullPath: any = false,
-  abort: any = null
-): any {
-  const callPath = isFullPath ? `${path}` : `${ROOT_API}${path}`;
+function fetchData(path: string, abort: any = null): any {
+  const callPath = `${ROOT_API}${path}`;
   const header: any = {
     headers: hdr(),
   };
   if (abort !== null) {
     header.signal = abort;
   }
-  return fetch(callPath, header);
+  return fetch(callPath, header).then((response: any) =>
+    throwHttpMessage(response)
+  );
 }
+
+const downLoadFile = (path: string, abort: any = null): Promise<Response> => {
+  const callPath = `${ROOT_API}${path}`;
+  const header: any = {
+    headers: hdr(),
+  };
+  if (abort !== null) {
+    header.signal = abort;
+  }
+  return fetch(callPath, header).then((response: Response) => response);
+};
 
 function postData(
   path: string,
@@ -89,7 +67,7 @@ function postData(
       "X-Requested-With": "XMLHttpRequest",
     },
     body: JSON.stringify(data),
-  });
+  }).then((response: any) => throwHttpMessage(response));
 }
 
 function uploadFile(path: string, file: File | FormData): Promise<any> {
@@ -103,38 +81,54 @@ function uploadFile(path: string, file: File | FormData): Promise<any> {
       "X-Requested-With": "XMLHttpRequest",
     },
     body: file,
-  });
+  }).then((response: any) => throwHttpMessage(response));
 }
 
 function deleteData(path: string): Promise<any> {
   return fetch(`${ROOT_API}${path}`, {
     method: "DELETE",
     headers: hdr(),
+  }).then((response: any) => throwHttpMessage(response));
+}
+
+function deleteManager(path: string): Promise<any> {
+  return fetch(`${ROOT_API}${path}`, {
+    method: "DELETE",
+    headers: hdr(),
   });
 }
 
-async function throwHttpMessage(
-  response: Response,
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  setError: (value: string) => void = () => {}
-): Promise<any> {
+async function throwHttpMessage(response: Response): Promise<any> {
   if (!response.ok) {
-    await response.text().then((text: any) => {
-      setError(text);
-      throw new Error(text);
-    });
+    const contentType = response.headers.get("content-type");
+    let error;
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+      const res = await response.json();
+      error = res?.error?.message;
+    } else {
+      error = await response.text();
+    }
+    if (
+      (response.status === 500 || response.status === 503) &&
+      error.toLowerCase().includes("connection refused")
+    ) {
+      const errorMessage = error.match(/host='([^']*)/)?.[1] || "-";
+      error = `Fabric Manager running at ${errorMessage} is not reachable.`;
+    }
+    throw new Error(error);
   } else {
     return response.json();
   }
 }
 
 export {
-  fetchResources,
   postData,
   uploadFile,
   deleteData,
+  fetchEventData,
   fetchData,
-  fetchDataPromise,
   throwHttpMessage,
   jsonTheme,
+  deleteManager,
+  downLoadFile,
 };

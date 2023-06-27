@@ -10,15 +10,21 @@ import classes from "../../../fabricManagement.module.scss";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 const ImportExportCsvBtns = ({
+  selectedZone,
   onImportFile,
   fileToImportPeerConnections,
   onClickCsvUpload,
   uploadingInProgress,
+  onClickExportCsv,
+  exportingInProgress,
 }: {
+  selectedZone: string;
   onImportFile: (files: FileList | null) => void;
   fileToImportPeerConnections: FileList | null;
   onClickCsvUpload: () => void;
   uploadingInProgress: boolean;
+  onClickExportCsv: () => void;
+  exportingInProgress: boolean;
 }): JSX.Element => {
   return (
     <div className={classes.import_export_csv_buttons}>
@@ -88,13 +94,33 @@ const ImportExportCsvBtns = ({
           )}
         </div>
       )}
-      <CustomizedTooltip title={`Feature implementation in progress.`}>
-        <div>
-          <Button disabled variant="outlined">
-            Export CSV
-          </Button>
-        </div>
-      </CustomizedTooltip>
+      <div>
+        {exportingInProgress ? (
+          <Spinner text={`Exporting...`} key={`export_${Math.random()}`} />
+        ) : (
+          <CustomizedTooltip
+            title={
+              !selectedZone
+                ? `Please select a zone to export the OXC connectivity information into CSV`
+                : ""
+            }
+          >
+            <div>
+              <Button
+                disabled={!selectedZone}
+                variant="outlined"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  onClickExportCsv();
+                }}
+              >
+                Export CSV
+              </Button>
+            </div>
+          </CustomizedTooltip>
+        )}
+      </div>
     </div>
   );
 };

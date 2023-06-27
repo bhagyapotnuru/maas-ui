@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment } from "react";
+import { useEffect, Fragment } from "react";
 
 import {
   Col,
@@ -10,23 +10,14 @@ import {
   Select,
   Spinner,
 } from "@canonical/react-components";
-
-import { fetchData } from "../../../config";
-
-import type { Group } from "./type";
-import { DEFAULT_GROUP_NAMES } from "./type";
+import { useDispatch, useSelector } from "react-redux";
 
 import TableActions from "app/base/components/TableActions";
+import { actions, getGroupsData } from "app/store/drut/groups/slice";
+import { DEFAULT_GROUP_NAMES } from "app/store/drut/groups/types";
+import type { Group } from "app/store/drut/groups/types";
+import type { RootState } from "app/store/root/types";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
-
-type Props = {
-  setRenderUpdateGroupForm: (group: Group) => void;
-  setRenderDeleteGroupForm: (group: Group) => void;
-  fetchGroups: boolean;
-  setError: (error: string) => void;
-  error: string;
-  setGroupList: (list: Group[]) => void;
-};
 
 const groupOptions = [
   {
@@ -42,21 +33,18 @@ const groupOptions = [
     label: "Pool",
   },
 ];
-const GroupList = ({
-  setRenderUpdateGroupForm,
-  setRenderDeleteGroupForm,
-  fetchGroups,
-  setGroupList,
-  setError,
-  error,
-}: Props): JSX.Element => {
+const GroupList = (): JSX.Element => {
   const abortController = new AbortController();
-  const [groupsData, setGroupsData] = useState<Group[]>([]);
-  const [groupsDataCopy, setGroupsDataCopy] = useState<Group[]>([]);
-  const [filter, setFilter] = useState("");
-  const [searchFilterText, setSearchFilterText] = useState("");
-  const [loading, setLoading] = useState(true);
-
+  const dispatch = useDispatch();
+  const {
+    loading,
+    items,
+    errors,
+    fetchGroups,
+    searchFilterText,
+    filter,
+    groupsData,
+  } = useSelector((state: RootState) => state.Group);
   const headers = [
     {
       content: "Fully Qualified Group Name",
@@ -85,39 +73,13 @@ const GroupList = ({
     },
   ];
 
-  async function getGroupData() {
-    setLoading(true);
-    await fetchData("dfab/nodegroups/", false, abortController.signal)
-      .then((response: any) => response.json())
-      .then(
-        (response: any) => {
-          if (response) {
-            response = response.filter(
-              (group: any) =>
-                !DEFAULT_GROUP_NAMES.includes(group.name.toLowerCase())
-            );
-            response = response.map((grp: any) => {
-              return {
-                ...grp,
-                categoryName: grp.category === "RACK" ? "POOL" : grp.category,
-              };
-            });
-            setGroupsData(response);
-            setGroupsDataCopy(response);
-            setGroupList(response);
-            setLoading(false);
-          }
-        },
-        (error: any) => {
-          setLoading(false);
-          setError(error);
-        }
-      );
-  }
+  useEffect(() => {
+    dispatch(actions.setFetchGroups(true));
+  }, []);
 
   useEffect(() => {
     if (fetchGroups) {
-      getGroupData();
+      dispatch(getGroupsData(abortController.signal));
       return () => {
         abortController.abort();
       };
@@ -125,10 +87,20 @@ const GroupList = ({
   }, [fetchGroups]);
 
   useEffect(() => {
+    dispatch(actions.setGroupsData(items));
+  }, [items]);
+
+  useEffect(() => {
+    return () => {
+      dispatch(actions.cleanUp());
+    };
+  }, []);
+
+  useEffect(() => {
     if (searchFilterText === "" && filter === "none") {
-      setGroupsData(groupsDataCopy);
+      dispatch(actions.setGroupsData(items));
     } else {
-      let filterdGroups = groupsDataCopy.filter((group: Group) =>
+      let filterdGroups = items.filter((group: Group) =>
         group.name.toLowerCase().includes(searchFilterText.toLowerCase())
       );
       switch (filter) {
@@ -145,7 +117,7 @@ const GroupList = ({
           );
           break;
       }
-      setGroupsData(filterdGroups);
+      dispatch(actions.setGroupsData(filterdGroups));
     }
   }, [filter, searchFilterText]);
 
@@ -218,11 +190,13 @@ const GroupList = ({
                     }
                     onDelete={() => {
                       window.scrollTo(0, 0);
-                      setRenderDeleteGroupForm(group);
+                      dispatch(actions.setRenderDeleteGroupsForm(true));
+                      dispatch(actions.setAddOrDeleteGroup(group));
                     }}
                     // onEdit={() => {
                     //   window.scrollTo(0, 0);
-                    //   setRenderUpdateGroupForm(group);
+                    //   dispatch(actions.setRenderUpdateGroupsForm(true));
+                    // dispatch(actions.setAddOrDeleteGroup(group));
                     // }}
                   />
                 </Tooltip>
@@ -244,16 +218,17 @@ const GroupList = ({
     }
   };
 
+  const errorValue = errors?.toString();
+
   return (
     <Fragment>
-      {error && error.length && (
+      {errorValue && !errorValue?.toLowerCase().includes("abort") && (
         <Notification
-          key={`notification_${Math.random()}`}
-          onDismiss={() => setError("")}
+          onDismiss={() => dispatch(actions.clearError())}
           inline
           severity="negative"
         >
-          {error}
+          {errorValue}
         </Notification>
       )}
       {loading ? (
@@ -278,7 +253,7 @@ const GroupList = ({
                       defaultValue={"none"}
                       name="group-filter"
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
-                        setFilter(e.target.value);
+                        dispatch(actions.setFilterValue(e.target.value));
                       }}
                       options={groupOptions}
                     />
@@ -287,7 +262,7 @@ const GroupList = ({
                     <SearchBox
                       key={`searchbox_group_list`}
                       onChange={(searchFilterText: string) => {
-                        setSearchFilterText(searchFilterText);
+                        dispatch(actions.setSearchFilterText(searchFilterText));
                       }}
                       placeholder="Search Groups"
                     />

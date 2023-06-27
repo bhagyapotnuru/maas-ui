@@ -1,23 +1,26 @@
 import { useState } from "react";
 
+import { useDispatch } from "react-redux";
+
 import classes from "../../../fabricManagement.module.scss";
-import type { Manager } from "../AddManager/type";
 
 import FormikForm from "app/base/components/FormikForm";
 import type { EmptyObject } from "app/base/types";
-import { deleteData } from "app/drut/config";
+import { deleteManagerData } from "app/drut/api";
+import { actions } from "app/store/drut/managers/slice";
+import type { Manager } from "app/store/drut/managers/types";
 
 type Props = {
   onClose: () => void;
   managerToDelete: Manager | undefined;
-  setFetchManagers: (value: boolean) => void;
 };
 
 export const DeleteManagerForm = ({
   onClose,
-  setFetchManagers,
   managerToDelete,
 }: Props): JSX.Element | null => {
+  const dispatch = useDispatch();
+
   const DELETE = "Delete";
   const FORCE_DELETE = "Force Delete";
 
@@ -41,13 +44,12 @@ export const DeleteManagerForm = ({
   const deleteManager = async (manager: Manager) => {
     try {
       setLoading(true);
-      const promise: Response = await deleteData(
-        `dfab/managers/${manager?.id}/?ForceDelete=${
-          submitLabel === FORCE_DELETE
-        }`
+      const promise: Response = await deleteManagerData(
+        manager?.id,
+        submitLabel === FORCE_DELETE
       );
       if (promise.ok) {
-        setFetchManagers(true);
+        dispatch(actions.setFetchManagers(true));
         onClose();
       } else if (promise.status === 412) {
         const message = await promise.text();
@@ -84,8 +86,8 @@ export const DeleteManagerForm = ({
         loading={loading}
         saving={loading}
         errors={error}
-        submitDisabled={["composition", "crossconnects"].some((s) =>
-          deleteMessage.toLowerCase().includes(s)
+        submitDisabled={["composition", "crossconnects", "composednode"].some(
+          (s) => deleteMessage.toLowerCase().includes(s)
         )}
         buttonsClassName={
           submitLabel === FORCE_DELETE ? classes["force-delete-button"] : ""

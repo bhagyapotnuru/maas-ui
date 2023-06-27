@@ -1,5 +1,6 @@
 import type { RouterState } from "redux-first-history";
 
+import type { GroupMeta, GroupState } from "../drut/groups/types";
 import type { VMClusterMeta, VMClusterState } from "../vmcluster/types";
 
 import type {
@@ -18,6 +19,20 @@ import type {
 } from "app/store/dhcpsnippet/types";
 import type { DiscoveryState, DiscoveryMeta } from "app/store/discovery/types";
 import type { DomainState, DomainMeta } from "app/store/domain/types";
+import type {
+  ManagersState,
+  ManagersMeta,
+} from "app/store/drut/managers/types";
+import type {
+  MonitorConfigurationState,
+  MonitorConfigurationMeta,
+} from "app/store/drut/monitor/types";
+import type {
+  UserZoneState,
+  UserZoneMeta,
+  AddZoneMeta,
+  AddZoneState,
+} from "app/store/drut/userzones/types";
 import type { EventState, EventMeta } from "app/store/event/types";
 import type { FabricState, FabricMeta } from "app/store/fabric/types";
 import type { GeneralState, GeneralMeta } from "app/store/general/types";
@@ -107,4 +122,9 @@ export type RootState = {
   [VLANMeta.MODEL]: VLANState;
   [VMClusterMeta.MODEL]: VMClusterState;
   [ZoneMeta.MODEL]: ZoneState;
+  [UserZoneMeta.MODEL]: UserZoneState;
+  [AddZoneMeta.MODEL]: AddZoneState;
+  [MonitorConfigurationMeta.MODEL]: MonitorConfigurationState;
+  [GroupMeta.MODEL]: GroupState;
+  [ManagersMeta.MODEL]: ManagersState;
 };

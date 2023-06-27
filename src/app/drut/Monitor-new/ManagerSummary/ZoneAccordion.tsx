@@ -7,14 +7,9 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import { NavLink } from "react-router-dom";
 
-import type {
-  Manager,
-  Zone,
-  Rack,
-} from "../../fabricManagement/FabricManagementContent/Managers/AddManager/type";
-
 import RackManagersData from "./RackManagersData";
 
+import type { Manager, Zone, Rack } from "app/store/drut/managers/types";
 import { groupAsMap } from "app/utils";
 
 type Props = {
@@ -73,9 +68,7 @@ const ZoneAccordion = ({ zone, managerData }: Props): JSX.Element => {
           <Typography>
             <RackManagersData
               rackManagers={rackManagers}
-              rackNames={(zone?.racks as Rack[]).map(
-                (rack: Rack) => rack.rack_name
-              )}
+              rackNames={zone?.racks.map((rack: Rack) => rack.rack_name)}
             />
           </Typography>
         </AccordionDetails>

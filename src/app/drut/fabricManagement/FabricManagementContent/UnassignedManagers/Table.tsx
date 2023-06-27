@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { MainTable } from "@canonical/react-components";
+import { useSelector, useDispatch } from "react-redux";
 
 import type { Manager } from "../Managers/type";
 import { getIconByStatus } from "../Managers/type";
@@ -11,17 +12,12 @@ import TableActions from "app/base/components/TableActions";
 import TableHeader from "app/base/components/TableHeader";
 import { useTableSort } from "app/base/hooks/index";
 import { SortDirection } from "app/base/types";
+import { actions } from "app/store/drut/managers/slice";
+import type { RootState } from "app/store/root/types";
 import { generateCheckboxHandlers, isComparable } from "app/utils";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
-  searchText: string;
-  managersData: Manager[];
-  pageSize: string;
-  prev: number;
-  next: number;
-  SelectedIDs: number[];
-  setSelectedIDs: (value: number[]) => void;
   setRenderDeleteManagerForm: (manager: any) => void;
 };
 
@@ -43,16 +39,14 @@ const getSortValue = (sortKey: SortKey, manager: Manager) => {
   return isComparable(value) ? value : null;
 };
 
-const ManagerTable = ({
-  searchText,
-  managersData,
-  SelectedIDs,
-  setSelectedIDs,
-  setRenderDeleteManagerForm,
-}: Props): JSX.Element => {
-  const [managers, setManagers] = useState<Manager[]>([]);
-  const unassignedManagersIds = managersData.map(
-    (unassignedManagers) => unassignedManagers.id
+const ManagerTable = ({ setRenderDeleteManagerForm }: Props): JSX.Element => {
+  const dispatch = useDispatch();
+  const { unassignedManagers, searchText, selectedIds } = useSelector(
+    (state: RootState) => state.Managers
+  );
+  const [managers, setManagers] = useState<Manager[] | any>([]);
+  const unassignedManagersIds = unassignedManagers.map(
+    (unassignedManagers: any) => unassignedManagers.id
   );
 
   const { currentSort, sortRows, updateSort } = useTableSort<Manager, SortKey>(
@@ -66,7 +60,7 @@ const ManagerTable = ({
   const { handleGroupCheckbox, handleRowCheckbox } = generateCheckboxHandlers<
     Manager["id"]
   >((unassignedManagersIds) => {
-    setSelectedIDs(unassignedManagersIds);
+    dispatch(actions.setSelectedIds(unassignedManagersIds));
   });
 
   const Manager_Headers = [
@@ -75,7 +69,7 @@ const ManagerTable = ({
         <GroupCheckbox
           handleGroupCheckbox={handleGroupCheckbox}
           items={unassignedManagersIds}
-          selectedItems={SelectedIDs}
+          selectedItems={selectedIds}
         />
       ),
       className: "drut-col-center",
@@ -165,12 +159,12 @@ const ManagerTable = ({
 
   useEffect(() => {
     searchText === ""
-      ? setManagers(managersData)
+      ? setManagers(unassignedManagers)
       : onSearchValueChange(searchText);
-  }, [searchText]);
+  }, [searchText, unassignedManagers]);
 
   const onSearchValueChange = (searchText: string) => {
-    const managers = ((managersData as []) || []).filter((row: any) =>
+    const managers = ((unassignedManagers as []) || []).filter((row: any) =>
       Object.values(row)
         .join("")
         .toLowerCase()
@@ -190,10 +184,10 @@ const ManagerTable = ({
               content: (
                 <RowCheckbox
                   handleRowCheckbox={() =>
-                    handleRowCheckbox(manager.id, SelectedIDs)
+                    handleRowCheckbox(manager.id, selectedIds)
                   }
                   item={manager.id}
-                  items={SelectedIDs}
+                  items={selectedIds}
                 />
               ),
               className: "drut-col-center",

@@ -1,10 +1,9 @@
 import { Col, Row, Select } from "@canonical/react-components";
 import { useFormikContext } from "formik";
 
-import type { Zone, Rack } from "../../Managers/AddManager/type";
-
 import FormikField from "app/base/components/FormikField";
 import type { AnyObject } from "app/base/types";
+import type { Zone, Rack } from "app/store/drut/managers/types";
 
 type Props = {
   zones: Zone[];
@@ -35,8 +34,10 @@ export const SetZoneFormFields = <V extends AnyObject>({
               { label: "Select Zone", value: "", disabled: true },
               ...zones
                 .filter(
-                  (zoneRack: Zone) =>
-                    zoneRack.zone_name.toLowerCase() !== "drut"
+                  (zoneRack: any) =>
+                    !["drut", "default_zone"].includes(
+                      zoneRack.zone_name.toLowerCase()
+                    )
                 )
                 .map((zone: Zone) => ({
                   key: `zone_id-${zone.zone_id}`,

@@ -127,26 +127,17 @@ export const MonitorConfigurationForm = ({
       payLoad["service_port"] = values.service_port;
       payLoad["service_model"] = values.service_model;
     }
-    const url = monitorConfigurationToUpdate?.id
-      ? `dfab/clusters/${monitorConfigurationToUpdate?.id}/`
-      : `dfab/clusters/`;
-    console.log();
+    const params = monitorConfigurationToUpdate?.id
+      ? `${monitorConfigurationToUpdate?.id}/`
+      : "";
     createOrUpdateMonitorConfigurations(
-      url,
+      params,
       payLoad,
       !!monitorConfigurationToUpdate?.id
     )
-      .then(async (promise: any) => {
-        if (promise.ok) {
-          clearHeaderContent();
-          setFetchConfigurations(true);
-        } else {
-          const response = await promise.json();
-          const error: string = Object.keys(response)
-            .map((key) => `${key.toUpperCase()} : ${response[key].toString()}`)
-            .join("\n");
-          console.log(error);
-        }
+      .then(() => {
+        clearHeaderContent();
+        setFetchConfigurations(true);
       })
       .catch((error: any) => {
         console.log(error);

@@ -291,6 +291,8 @@ const NodeSummary = (props: Props): JSX.Element => {
     );
   };
 
+  const errorValue = props.notFoundError?.toString();
+
   return (
     <>
       {(props.isLoadingInProgress || props.isRefreshInProgress) && (
@@ -300,13 +302,13 @@ const NodeSummary = (props: Props): JSX.Element => {
           />
         </Notification>
       )}
-      {props.notFoundError && (
+      {errorValue && !errorValue?.includes("AbortError") && (
         <Notification
           onDismiss={props.onDismissError}
           inline
           severity="negative"
         >
-          {props.notFoundError}
+          {errorValue}
         </Notification>
       )}
       {!props.isLoadingInProgress &&

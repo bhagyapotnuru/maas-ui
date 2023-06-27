@@ -9,7 +9,7 @@ import classess from "../monitor.module.scss";
 
 import Meter from "app/base/components/Meter";
 import { COLOURS } from "app/base/constants";
-import { fetchData } from "app/drut/config";
+import { fetchMachineDataByResourcePool } from "app/drut/api";
 import customDrutTheme from "app/utils/Themes/Themes";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
@@ -94,10 +94,9 @@ const ShellInABoxWidget = ({
 
   const fetchMachineData = async () => {
     try {
-      const promise = await fetchData(
-        `dfab/summary/?op=get_resourcepool&PoolName=${configData.resourcepool}`
+      const response = await fetchMachineDataByResourcePool(
+        configData.resourcepool
       );
-      const response = await promise.json();
       setMachineData(response);
     } catch (e) {}
   };
@@ -120,7 +119,7 @@ const ShellInABoxWidget = ({
               style={{ width: "950px !important" }}
             >
               <div className="logo-container">
-                <a target="_blank" href={configData.url}>
+                <a target="_blank" href={configData.url} rel="noreferrer">
                   <span className="app-name">{configData?.header}&nbsp;›</span>
                 </a>
               </div>

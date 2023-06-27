@@ -9,67 +9,59 @@ import {
   Row,
   Select,
 } from "@canonical/react-components";
+import { useSelector, useDispatch } from "react-redux";
+
+import { MANAGER_TYPES } from "../Managers/AddManager/constants";
 
 import classes from "./ManagerControls.module.css";
 
 import DebounceSearchBox from "app/base/components/DebounceSearchBox";
-import type { SetSearchFilter } from "app/base/types";
 import { paginationOptions } from "app/drut/types";
+import { actions } from "app/store/drut/managers/slice";
+import type { Zone, Rack } from "app/store/drut/managers/types";
+import type { RootState } from "app/store/root/types";
 
-type Props = {
-  searchText: string;
-  selectedItem: string;
-  setSearchText: SetSearchFilter;
-  pageSize: string;
-  prev: number;
-  next: number;
-  count: number;
-  setNext: (value: number) => void;
-  setPrev: (value: number) => void;
-  setPageSize: (value: string) => void;
-  setFilterType: (value: string) => void;
-  setSelectedItem: (value: string) => void;
-  managerCount: number;
-  filterData: any;
-};
+const ManagerControls = (): JSX.Element => {
+  const { next, prev, pageSize, count, selectedItem, zones, searchText } =
+    useSelector((state: RootState) => state.Managers);
+  let rackNames = (zones as Zone[])
+    .filter(
+      (zoneRack: any) =>
+        !["drut", "default_zone"].includes(zoneRack.zone_name.toLowerCase())
+    )
+    .map((zoneRackPair: Zone) => zoneRackPair.racks)
+    .reduce((accumulator: any, value: any) => accumulator.concat(value), [])
+    .map((rack: Rack) => rack.rack_fqgn);
+  rackNames = new Set<string>(rackNames);
 
-const ManagerControls = ({
-  selectedItem,
-  searchText,
-  managerCount,
-  setSearchText,
-  filterData,
-  pageSize,
-  prev,
-  next,
-  setNext,
-  setPrev,
-  setPageSize,
-  setFilterType,
-  setSelectedItem,
-  count,
-}: Props): JSX.Element => {
+  const filterData = {
+    "Manager Type": MANAGER_TYPES,
+    Pools: rackNames,
+  };
+
+  const dispatch = useDispatch();
+
   const [expandedSection, setExpandedSection] = useState();
   const previousNext = (type: any) => {
     if (type === "P") {
-      setPrev(prev - 1);
-      setNext(next - 1);
+      dispatch(actions.setPrev(prev - 1));
+      dispatch(actions.setNext(next - 1));
     } else {
-      setPrev(prev + 1);
-      setNext(next + 1);
+      dispatch(actions.setPrev(prev + 1));
+      dispatch(actions.setNext(next + 1));
     }
   };
 
   useEffect(() => {
     // Going to the first page if the pageSize is updated!
-    setPrev(0);
-    setNext(1);
+    dispatch(actions.setPrev(0));
+    dispatch(actions.setNext(1));
   }, [pageSize]);
 
   const onItemClick = (item: any, key: any) => {
-    setSelectedItem(item);
-    setSearchText(item);
-    setFilterType(key);
+    dispatch(actions.setSelectedItem(item === "OXC" ? "OPTICAL_SWITCH" : item));
+    dispatch(actions.setSearchText(item));
+    dispatch(actions.setFilterType(key));
   };
 
   const itemsData = (data: any, key: any) => {
@@ -138,15 +130,16 @@ const ManagerControls = ({
         <Col size={6}>
           <DebounceSearchBox
             onDebounced={(debouncedText) => {
-              console.log(debouncedText);
               if (debouncedText === "") {
-                setFilterType("");
-                setSelectedItem("");
+                dispatch(actions.setFilterType(""));
+                dispatch(actions.setSelectedItem(""));
               }
-              setSearchText(debouncedText);
+              dispatch(actions.setSearchText(debouncedText));
             }}
             searchText={searchText}
-            setSearchText={setSearchText}
+            setSearchText={(s: string) => {
+              dispatch(actions.setSearchText(s));
+            }}
           />
         </Col>
         <Col size={3} className={classes.show_select}>
@@ -156,7 +149,7 @@ const ManagerControls = ({
               defaultValue={pageSize.toString()}
               name="page-size"
               onChange={(evt: React.ChangeEvent<HTMLSelectElement>) => {
-                setPageSize(evt.target.value);
+                dispatch(actions.setPageSize(evt.target.value));
               }}
               options={paginationOptions}
               wrapperClassName="u-display-inline-block u-nudge-right"
@@ -177,7 +170,7 @@ const ManagerControls = ({
               hasIcon
               appearance="base"
               className="u-no-margin--right u-no-margin--bottom"
-              disabled={managerCount < next * +pageSize}
+              disabled={count < next * +pageSize}
               onClick={() => previousNext("N")}
             >
               <i className="p-icon--chevron-up drut-next-icon"></i>

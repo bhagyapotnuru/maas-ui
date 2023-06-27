@@ -4,13 +4,13 @@ import { Notification, Spinner } from "@canonical/react-components";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router";
 
-import { fetchData } from "app/drut/config";
+import { fetchNodeDataPath } from "app/drut/api";
 import DataPathInfo from "app/drut/fabric/FabricDataPath/DataPathInfo";
 import machineSelectors from "app/store/machine/selectors";
 import type { RootState } from "app/store/root/types";
 
 type Props = {
-  nodeId: any;
+  nodeId: string;
   isRefreshAction: boolean;
   isRefreshInProgress: boolean;
 };
@@ -41,8 +41,7 @@ const DataPaths = (props: Props): JSX.Element => {
   const getNodeDatapath = async (id: any) => {
     try {
       setLoading(true);
-      const response = await fetchData(`dfab/nodes/${id}/?op=get_data_path`);
-      const datpathData = await response.json();
+      const datpathData = await fetchNodeDataPath(id);
       setDataPath(datpathData);
     } catch (e) {
     } finally {

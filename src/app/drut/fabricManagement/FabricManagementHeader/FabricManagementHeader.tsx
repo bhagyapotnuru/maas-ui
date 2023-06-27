@@ -48,6 +48,7 @@ const FabricManagementHeader = ({
     },
   ];
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const zoneRoute = {
     active: location.pathname.startsWith(
       managersUrl.fabricManagement.userZoneMap.index
@@ -58,7 +59,6 @@ const FabricManagementHeader = ({
   };
 
   if (isAdmin) {
-    console.log(zoneRoute.label);
     // tabs.push(zoneRoute);
   }
 

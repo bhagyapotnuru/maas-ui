@@ -17,7 +17,7 @@ import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 
 import classess from "./ManageConfiguration.module.scss";
 
-import { postData } from "app/drut/config";
+import { setDisplayForMonitorConfigurations } from "app/drut/api";
 
 const getConfigListTable = (
   allConfigurations: MonitorConfiguration[],
@@ -164,9 +164,10 @@ const ManageConfiguration = ({
     } = {
       Clusters: clusters,
     };
-    const response = await postData("dfab/clusters/?op=set_display", payLoad);
-    const allClusters = await response.json();
-    onConfirm(allClusters);
+    try {
+      const allClusters = await setDisplayForMonitorConfigurations(payLoad);
+      onConfirm(allClusters);
+    } catch (e) {}
   };
 
   return (

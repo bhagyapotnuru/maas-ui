@@ -6,7 +6,8 @@ import MuiTabs from "@mui/material/Tabs";
 import { styled, ThemeProvider } from "@mui/material/styles";
 
 import DataPathOrderDetails from "./DataPathOrderDetails";
-import DataPaths from "./DataPaths";
+import NodeDataPaths from "./NodeDataPaths/NodeDataPaths";
+import NodeDataPathContextProvider from "./NodeDataPaths/Store/NodeDataPath-Context-Provider";
 import classess from "./NodeList.module.css";
 
 import { COLOURS } from "app/base/constants";
@@ -88,11 +89,14 @@ export default function DataPathTabs(props: Props): JSX.Element {
           </Tabs>
         </Box>
         <TabPanel value={value} index={0}>
-          <DataPaths
-            nodeId={props.nodeId}
-            isRefreshAction={props.isRefreshAction}
-            isRefreshInProgress={props.isRefreshInProgress}
-          />
+          <NodeDataPathContextProvider>
+            <NodeDataPaths
+              nodeId={props.nodeId}
+              isRefreshAction={props.isRefreshAction}
+              isRefreshInProgress={props.isRefreshInProgress}
+              isNodesPage={true}
+            />
+          </NodeDataPathContextProvider>
         </TabPanel>
         <TabPanel value={value} index={1}>
           <DataPathOrderDetails nodeId={props.nodeId} />

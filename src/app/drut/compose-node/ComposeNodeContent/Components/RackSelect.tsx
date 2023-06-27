@@ -5,7 +5,7 @@ import type { SelectChangeEvent } from "@mui/material/Select";
 
 import classes from "../../composedNode.module.scss";
 
-import type { Rack } from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
+import type { Rack } from "app/store/drut/managers/types";
 
 const RackSelect = ({
   selectedRack,

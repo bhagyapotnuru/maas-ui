@@ -8,12 +8,16 @@ import type { ResourceBlockOption } from "../Models/ResourceBlockOptions";
 
 import ResoruceBlockReConfigContext from "./resource-block-re-config-context";
 
-import { fetchData, postData } from "app/drut/config";
-import type {
-  Rack,
-  RackManager,
-  Zone,
-} from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
+import {
+  fetchResourceBlocksByQuery,
+  fetchZoneRacksDataByQuery,
+  crawlManagerBydata,
+  attachDetachResourceBlockById,
+} from "app/drut/api";
+import type { Rack, RackManager, Zone } from "app/store/drut/managers/types";
+
+export const loadingMsg = "Loading...";
+export const rbLoadingMsg = "Fetching Resource Blocks...";
 
 const ResourceBlockReConfigContextProvider = ({
   children,
@@ -63,7 +67,7 @@ const ResourceBlockReConfigContextProvider = ({
 
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [loadingMessage, setLoadingMessage] = useState("Loading...");
+  const [loadingMessage, setLoadingMessage] = useState(loadingMsg);
   const [isAttachDetachInProgress, setIsAttachDetachInProgress] =
     useState(false);
 
@@ -129,8 +133,9 @@ const ResourceBlockReConfigContextProvider = ({
       (zone) => zone.zone_id === +selectedZone
     );
     if (zone) {
-      setRacks(zone.racks as Rack[]);
-      setSelectedRack("");
+      const racks: Rack[] = zone.racks;
+      setRacks(racks);
+      setSelectedRack(racks[0] ? `${racks[0].rack_id}` : "");
       setSelectedManager("");
       setSelectedResourceBlock({ name: "", resourceBlockType: "", uuid: "" });
     }
@@ -140,7 +145,7 @@ const ResourceBlockReConfigContextProvider = ({
     let allManagers: RackManager[] = [];
     if (+selectedRack === 0) {
       allManagers = zones
-        .flatMap((zone) => zone.racks as Rack[])
+        .flatMap((zone) => zone.racks)
         .flatMap((rack) => rack.managers || []);
     } else {
       const rack: Rack | undefined = racks.find(
@@ -151,7 +156,7 @@ const ResourceBlockReConfigContextProvider = ({
     setSelectedManager("");
     setSelectedResourceBlock({ name: "", resourceBlockType: "", uuid: "" });
     setManagers(allManagers);
-  }, [selectedRack]);
+  }, [selectedRack, zones]);
 
   useEffect(() => {
     if (
@@ -166,7 +171,7 @@ const ResourceBlockReConfigContextProvider = ({
 
   const fetchZones = async () => {
     try {
-      setLoadingMessage("Loading...");
+      setLoadingMessage(loadingMsg);
       const params = { op: "get_zones_and_racks", ManagerType: ["PRU"] };
       const query: string = Object.keys(params)
         .flatMap((key: string) => {
@@ -176,20 +181,19 @@ const ResourceBlockReConfigContextProvider = ({
             : key + "=" + param;
         })
         .join("&");
-      const url: string = "dfab/nodegroups/?".concat(query);
-      const promise = await fetchData(url, false, abortController.signal);
-      if (promise.status === 200) {
-        const response: Zone[] = await promise.json();
-        const notDefaultZone = (zone: Zone) =>
-          zone.zone_name.toLowerCase() !== "default_zone";
-        setZones(response.filter(notDefaultZone));
-      } else {
-        const apiError: string = await promise.text();
-        const defaultError = "Error fetching Zones.";
-        setError(apiError ? apiError : defaultError);
-      }
+      const response: Zone[] = await fetchZoneRacksDataByQuery(
+        query,
+        abortController.signal
+      );
+      const zones = response.filter(
+        (zone: Zone) =>
+          !["drut", "default_zone"].includes(zone.zone_name.toLowerCase())
+      );
+      setZones(zones);
+      setSelectedZone(`${zones[0]?.zone_id}` || "");
     } catch (e: any) {
-      setError(e);
+      const defaultError = "Error fetching Zones.";
+      setError(e ? e : defaultError);
     } finally {
       setLoading(false);
     }
@@ -198,35 +202,31 @@ const ResourceBlockReConfigContextProvider = ({
   const fetchResourceBlocks = async () => {
     try {
       if (selectedManager) {
-        setLoadingMessage("Fetching Resource Blocks...");
+        setLoadingMessage(rbLoadingMsg);
         const params: {
           ManagerUuid: string;
         } = { ManagerUuid: selectedManager };
         const query: string = Object.keys(params)
           .map((key: string) => key + "=" + params[key as keyof typeof params])
           .join("&");
-        const url = "dfab/resourceblocks/?".concat(query);
-        const promise = await fetchData(url, false, abortController.signal);
-        if (promise.status === 200) {
-          const response: ResourceBlock = await promise.json();
-          setSelectedResourceBlock({
-            name: "All",
-            resourceBlockType: "All",
-            uuid: "All",
-          });
-          setResourceBlocksResponse(response);
-          setResourceBlockOptions(getResourceBlockOptions(response));
-          setResourceBlocksByType(
-            getResourceBlocksByKey(response.Links.Members)
-          );
-        } else {
-          const apiError: string = await promise.text();
-          const defaultError = "Error fetching Resource Block(s).";
-          setError(apiError ? apiError : defaultError);
-        }
+        const response: ResourceBlock = await fetchResourceBlocksByQuery(
+          `?${query}`,
+          abortController.signal
+        );
+        setSelectedResourceBlock({
+          name: "All",
+          resourceBlockType: "All",
+          uuid: "All",
+        });
+        setResourceBlocksResponse(response);
+        setResourceBlockOptions(getResourceBlockOptions(response));
+        setResourceBlocksByType(
+          getResourceBlocksByKey(response?.Links?.Members)
+        );
       }
     } catch (e: any) {
-      setError(e);
+      const defaultError = "Error fetching Resource Block(s).";
+      setError(e ? e : defaultError);
     } finally {
       setLoading(false);
     }
@@ -415,46 +415,38 @@ const ResourceBlockReConfigContextProvider = ({
 
   const crawlManager = () => {
     if (selectedManager) {
-      postData(`dfab/managers/${selectedManager}/?op=crawl_manager`)
-        .then((response: any) => {
-          return response.json();
-        })
-        .then(async (res: any) => {
+      crawlManagerBydata(selectedManager)
+        .then(async () => {
           await fetchResourceBlocks();
-        });
+        })
+        .catch((error) => console.log(error));
     }
   };
 
   const attachDetachResource = async () => {
+    const isDeleteAction = !!(resourceToDelete && resourceToDelete.Id);
     try {
       setIsAttachDetachInProgress(true);
-      const isDeleteAction = !!(resourceToDelete && resourceToDelete.Id);
       const payLoad = {
         Action: isDeleteAction ? "DeleteResource" : "AddResource",
         EndPointId: isDeleteAction ? resourceToDelete.Id : resourceToAttach.Id,
         FreePoolId: !isDeleteAction ? resourceToAttachFreePoolBlock.Id : "",
       };
-      const promise = await postData(
-        `dfab/resourceblocks/${currentRBToAttachOrDetachResource.Id}/`,
-        payLoad,
-        false
+      await attachDetachResourceBlockById(
+        currentRBToAttachOrDetachResource.Id,
+        payLoad
       );
-      if (promise.status === 200) {
-        setIsAnyActionInProgress(true);
-        await fetchResourceBlocks();
-        setResourceToDelete({} as Endpoint);
-        setShowFreePoolResourcePopUp(false);
-      } else {
-        const apiError: string = await promise.text();
-        const defaultError = `Error ${
-          isDeleteAction ? "Detaching" : "Attaching"
-        }  resource ${
-          isDeleteAction ? resourceToDelete.Name : resourceToAttach.Name
-        }.`;
-        setAttachDetachError(apiError ? apiError : defaultError);
-      }
+      setIsAnyActionInProgress(true);
+      await fetchResourceBlocks();
+      setResourceToDelete({} as Endpoint);
+      setShowFreePoolResourcePopUp(false);
     } catch (e: any) {
-      setAttachDetachError(e.toString());
+      const defaultError = `Error ${
+        isDeleteAction ? "Detaching" : "Attaching"
+      }  resource ${
+        isDeleteAction ? resourceToDelete.Name : resourceToAttach.Name
+      }.`;
+      setAttachDetachError(e ? e : defaultError);
     } finally {
       setIsAttachDetachInProgress(false);
       setResourceToAttach({} as Endpoint);

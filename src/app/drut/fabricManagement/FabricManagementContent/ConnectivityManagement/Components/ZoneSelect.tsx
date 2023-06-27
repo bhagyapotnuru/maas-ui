@@ -5,8 +5,9 @@ import Select from "@mui/material/Select";
 import type { SelectChangeEvent } from "@mui/material/Select";
 
 import classes from "../../../fabricManagement.module.scss";
-import type { Zone } from "../../Managers/AddManager/type";
 import type { ZoneSelectionProps } from "../types";
+
+import type { ZoneObj as Zone } from "app/store/drut/managers/types";
 
 const ZoneSelect = ({
   zones = [],

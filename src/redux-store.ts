@@ -20,7 +20,7 @@ const sagaMiddleware = createSagaMiddleware();
 const checkMiddleware = process.env.REACT_APP_CHECK_MIDDLEWARE === "true";
 const middleware = [
   ...getDefaultMiddleware({
-    thunk: false,
+    thunk: true,
     immutableCheck: checkMiddleware,
     serializableCheck: checkMiddleware,
   }),

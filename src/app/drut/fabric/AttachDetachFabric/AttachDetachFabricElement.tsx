@@ -23,13 +23,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router";
 import { NavLink } from "react-router-dom";
 
-import {
-  fetchData,
-  postData,
-  jsonTheme,
-  fetchResources,
-  throwHttpMessage,
-} from "../../config";
+import { fetchResourceBlocksByQuery } from "../../api";
+import { jsonTheme } from "../../config";
 import { nStatus, nodeStatus, blockStatus } from "../../nodeStatus";
 import {
   genObjAccord,
@@ -41,13 +36,19 @@ import {
 import ResourceDetails from "../../resources/View/ResourceDetail";
 import { getTypeTitle } from "../../types";
 import DataPathInfo from "../FabricDataPath/DataPathInfo";
-// import FabricDataPath from "../FabricDataPath/FabricDataPath";
 
 // import type { RouteParams } from "app/base/types";
 import classess from "./AttachDetachFabric.module.css";
 import CustomizedContextualMenu from "./CustomizedContextualMenu";
 import FqnnSelect from "./FqnnSelect";
 
+import {
+  fetchFabricsNodeData,
+  fetchNodeDataPath,
+  saveNodeComposition,
+  updateNodeCacheById,
+  saveNodeCompositionByQuery,
+} from "app/drut/api";
 import { actions as machineActions } from "app/store/machine";
 import machineSelectors from "app/store/machine/selectors";
 import type { RootState } from "app/store/root/types";
@@ -248,19 +249,16 @@ const AttachDetachFabricElement = ({
   const getResourceDetails = (id: any) => {
     if (id) {
       setLoading(true);
-      fetchResources(id)
-        .then((response: any) => response.json())
-        .then(
-          (result: any) => {
-            // setResources(result);
-            setIndividualResource(result);
-            setLoading(false);
-          },
-          (error: any) => {
-            setError(error);
-            setLoading(false);
-          }
-        );
+      fetchResourceBlocksByQuery(id ? `${id}/` : null)
+        .then((result: any) => {
+          // setResources(result);
+          setIndividualResource(result);
+          setLoading(false);
+        })
+        .catch((error: any) => {
+          setError(error);
+          setLoading(false);
+        });
     }
   };
 
@@ -269,35 +267,30 @@ const AttachDetachFabricElement = ({
     computeBlockId = null
   ) => {
     setLoading(true);
-    fetchResources(null, computeBlockId, true)
-      .then((response: any) => {
-        return throwHttpMessage(response, setError);
-      })
-      .then(
-        (result: any) => {
-          const rs = resourceData(result);
-          if (shouldFetchFabricsNodeData) {
-            if (machine && !isEmpty(machine.dfab_computeblock_id)) {
-              setRbID(machine.dfab_computeblock_id);
-            }
-            if ((machine && !isEmpty(machine.dfab_node_id)) || nodeId) {
-              setIsComposed(true);
-            } else {
-              setIsComposed(false);
-            }
-
-            if (machine && machine.dfab_cdi === false) {
-              setIsCDIEnabled(false);
-            }
+    fetchResourceBlocksByQuery(`?ComputeBlockId=${computeBlockId}`)
+      .then((result: any) => {
+        const rs = resourceData(result);
+        if (shouldFetchFabricsNodeData) {
+          if (machine && !isEmpty(machine.dfab_computeblock_id)) {
+            setRbID(machine.dfab_computeblock_id);
           }
-          setResources(rs[0]);
-          setLoading(false);
-        },
-        (error: any) => {
-          setLoading(false);
-          setError(error);
+          if ((machine && !isEmpty(machine.dfab_node_id)) || nodeId) {
+            setIsComposed(true);
+          } else {
+            setIsComposed(false);
+          }
+
+          if (machine && machine.dfab_cdi === false) {
+            setIsCDIEnabled(false);
+          }
         }
-      );
+        setResources(rs[0]);
+        setLoading(false);
+      })
+      .catch((error: any) => {
+        setLoading(false);
+        setError(error);
+      });
   };
 
   const isEmpty = (str: any = "") => {
@@ -479,11 +472,11 @@ const AttachDetachFabricElement = ({
       if (action === "D") {
         message = "Detaching resource block...";
         blockId = data.Id;
-        actionURL = `dfab/nodes/${nodeID}/?op=remove_resource_block`;
+        actionURL = `${nodeID}/?op=remove_resource_block`;
       } else {
         message = "Attaching resource block...";
         blockId = data.Id;
-        actionURL = `dfab/nodes/${nodeID}/?op=add_resource_block`;
+        actionURL = `${nodeID}/?op=add_resource_block`;
       }
       setLoadingText(message);
       const fData = {
@@ -491,18 +484,12 @@ const AttachDetachFabricElement = ({
       };
       setCurrent("");
       setInProgress(true);
-      const promise = await postData(actionURL, fData);
-      if (promise.ok) {
-        getFabricsNodeData(nodeID);
-        setTimeout(() => {
-          getResourceData(true, node?.ComputeBlocks[0]?.Id);
-          setLoadingText("");
-        }, 6000);
-      } else {
-        setInProgress(false);
-        const response = await promise.json();
-        setError(response);
-      }
+      await saveNodeCompositionByQuery(fData, actionURL);
+      getFabricsNodeData(nodeID);
+      setTimeout(() => {
+        getResourceData(true, node?.ComputeBlocks[0]?.Id);
+        setLoadingText("");
+      }, 6000);
       setCheckedResourceBlocks([]);
     } catch (e: any) {
       setError(e);
@@ -517,48 +504,42 @@ const AttachDetachFabricElement = ({
       return;
     }
     setLoading(true);
-    fetchData(`dfab/nodes/${id}/`)
-      .then((response: any) => {
-        return throwHttpMessage(response, setError);
-      })
-      .then(
-        (result: any) => {
-          if (result) {
-            setNode({ ...result });
-            if (result.ComputeBlocks && result.ComputeBlocks.length) {
-              const totalCount = result.DownstreamPorts;
-              /*result.ComputeBlocks.forEach((cm: any) => {
+    fetchFabricsNodeData(id)
+      .then((result: any) => {
+        if (result) {
+          setNode({ ...result });
+          if (result.ComputeBlocks && result.ComputeBlocks.length) {
+            const totalCount = result.DownstreamPorts;
+            /*result.ComputeBlocks.forEach((cm: any) => {
                 totalCount = totalCount + countDSPort(cm);
               });*/
-              const used =
-                result.ResourceBlocks && result.ResourceBlocks.length
-                  ? result.ResourceBlocks.length
-                  : 0;
-              setDownPorts({ available: totalCount - used, used });
-            }
-            const inProg = nStatus.includes(result.DataPathCreationOrderStatus);
-            setInProgress(inProg);
-            if (inProg) {
-              setTimeOut = setTimeout(() => {
-                clearTimeout(setTimeOut);
-                getFabricsNodeData(id, true);
-              }, 6000);
-            }
+            const used =
+              result.ResourceBlocks && result.ResourceBlocks.length
+                ? result.ResourceBlocks.length
+                : 0;
+            setDownPorts({ available: totalCount - used, used });
           }
-          setLoading(false);
-        },
-        (error: any) => {
-          setLoading(false);
-          setError(error);
+          const inProg = nStatus.includes(result.DataPathCreationOrderStatus);
+          setInProgress(inProg);
+          if (inProg) {
+            setTimeOut = setTimeout(() => {
+              clearTimeout(setTimeOut);
+              getFabricsNodeData(id, true);
+            }, 6000);
+          }
         }
-      );
+        setLoading(false);
+      })
+      .catch((error: any) => {
+        setLoading(false);
+        setError(error);
+      });
   };
 
   const getNodeDataPath = async (id: any) => {
     try {
       setLoading(true);
-      const response = await fetchData(`dfab/nodes/${id}/?op=get_data_path`);
-      const dataPathResponse = await response.json();
+      const dataPathResponse = await fetchNodeDataPath(id);
       setDataPath(dataPathResponse);
       setIsDataPath(!isDataPath);
     } catch (e: any) {
@@ -807,7 +788,7 @@ const AttachDetachFabricElement = ({
   const forceRefresh = async (id: any = machine?.dfab_node_id) => {
     try {
       setIsRefreshing(true);
-      await postData(`dfab/nodes/${id}/?op=update_node_cache`);
+      await updateNodeCacheById(id);
     } catch (e: any) {
       setError(e);
     } finally {
@@ -881,41 +862,26 @@ const AttachDetachFabricElement = ({
       ResourceBlocks: [rbID],
     };
 
-    postData("dfab/nodes/", fnData)
-      .then((response: any) => {
-        if (response.status === 200) {
-          return response.json();
+    saveNodeComposition(fnData)
+      .then((dt: any) => {
+        if (dt && dt.Id) {
+          dispatch(machineActions.get(machine.system_id));
+          setError(`Fetching data...`);
+          setTimeout(() => {
+            setError(``);
+            setComposedNodeId(dt.Id);
+            setLoading(false);
+            setCRefresh(true);
+          }, 2000);
         } else {
-          response.text().then((text: any) => {
-            setError(`Error: ${text}`);
-          });
-          throw response.text();
+          setLoading(false);
+          setError(`Id is not found in compose node response!`);
         }
       })
-      .then(
-        (dt: any) => {
-          if (dt && dt.Id) {
-            dispatch(machineActions.get(machine.system_id));
-            setError(`Fetching data...`);
-            setTimeout(() => {
-              setError(``);
-              setComposedNodeId(dt.Id);
-              setLoading(false);
-              setCRefresh(true);
-            }, 2000);
-          } else {
-            setLoading(false);
-            setError(`Id is not found in compose node response!`);
-          }
-        },
-        (error: any) => {
-          setLoading(false);
-          setCRefresh(true);
-          setError(error);
-        }
-      )
       .catch((err: any) => {
-        console.log(err);
+        setLoading(false);
+        setCRefresh(true);
+        setError(error);
       });
   };
 
@@ -928,6 +894,7 @@ const AttachDetachFabricElement = ({
 
   const isLoadingInProgress: boolean =
     loading || inProgress || isRefreshing || isRefreshInProgress;
+  const errorValue = error?.toString();
 
   return (
     <>
@@ -946,12 +913,10 @@ const AttachDetachFabricElement = ({
       ) : (
         ""
       )}
-      {error.length ? (
+      {errorValue && !errorValue?.includes("AbortError") && (
         <Notification onDismiss={() => setError("")} inline severity="negative">
-          {error}
+          {errorValue}
         </Notification>
-      ) : (
-        ""
       )}
       {getCompositionTemplates(isComposed, composedNodeId, node?.Name)}
       {!isCDIEnabled ? (

@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 
-import type { Manager } from "../../fabricManagement/FabricManagementContent/Managers/AddManager/type";
 import classess from "../monitor.module.scss";
 
 import DoughnutChart from "app/base/components/DoughnutChart";
+import type { Manager } from "app/store/drut/managers/types";
 import { groupAsMap } from "app/utils";
 
 const MANAGER_SUMMARY_PIE_COLOR_CODES: any = {

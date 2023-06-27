@@ -5,8 +5,9 @@ import Select from "@mui/material/Select";
 import type { SelectChangeEvent } from "@mui/material/Select";
 
 import classes from "../../../fabricManagement.module.scss";
-import type { Rack } from "../../Managers/AddManager/type";
 import type { TFicPoolSelectionProps } from "../types";
+
+import type { Rack } from "app/store/drut/managers/types";
 
 const TFicPoolSelect = ({
   tFicPools = [],

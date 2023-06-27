@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { Notification, Spinner } from "@canonical/react-components";
 
 import ResoruceBlockReConfigContext from "../Store/resource-block-re-config-context";
+import { loadingMsg } from "../Store/resource-block-re-config-provider";
 
 import ManageFreePoolResource from "./Components/ManageFreePoolResource";
 import ResourceBlockReConfigMainPageContent from "./ResourceBlockReConfigMainPageContent";
@@ -11,6 +12,7 @@ import DeleteConfirmationModal from "app/utils/Modals/DeleteConfirmationModal";
 
 const ResourceBlockReConfigMainPage = (): JSX.Element => {
   const context = useContext(ResoruceBlockReConfigContext);
+  const errorValue = context.error?.toString();
   return (
     <>
       {context.showFreePoolResourcePopup && (
@@ -35,31 +37,22 @@ const ResourceBlockReConfigMainPage = (): JSX.Element => {
             setError={context.setAttachDetachError}
           />
         )}
-      {context.error && context.error.length && (
+      {errorValue && !errorValue?.includes("AbortError") && (
         <Notification
-          key={`notification_${Math.random()}`}
           onDismiss={() => context.setError("")}
           inline
           severity="negative"
         >
-          {context.error}
+          {errorValue}
         </Notification>
       )}
-      {context.loading && (
-        <Notification
-          key={`notification_${Math.random()}`}
-          inline
-          severity="information"
-        >
-          <Spinner
-            text={context.loadingMessage}
-            key={`managerListSpinner_${Math.random()}`}
-          />
+      {context.loading && context.loadingMessage === loadingMsg ? (
+        <Notification inline severity="information">
+          <Spinner text={context.loadingMessage} />
         </Notification>
-      )}
-      <div>
+      ) : (
         <ResourceBlockReConfigMainPageContent />
-      </div>
+      )}
     </>
   );
 };

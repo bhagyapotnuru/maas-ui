@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 
 import { Notification, Spinner } from "@canonical/react-components";
 
-import { fetchData, postData } from "../config";
+import { createOrUpdateMonitorConfigurations } from "../api";
 import { partition } from "../utils";
 
 import ManageConfiguration from "./ManageConfiguration/ManageConfiguration";
 import MinimizedMonitor from "./MonitorGridLayout/MinimizedMonitor";
 import MonitorGridLayout from "./MonitorGridLayout/MonitorGridLayout";
 import type { MonitorConfiguration } from "./Types/MonitorConfiguration";
+
+import { fetchMonitorConfigurationList } from "app/drut/api";
 
 const MonitorDashboard = ({
   showConfigModal,
@@ -52,12 +54,8 @@ const MonitorDashboard = ({
   const fetchConfigurationList = async () => {
     try {
       setIsLoading(true);
-      const response = await fetchData(
-        `dfab/clusters/`,
-        false,
-        abortController.signal
-      );
-      const configResponse: MonitorConfiguration[] = await response.json();
+      const configResponse: MonitorConfiguration[] =
+        await fetchMonitorConfigurationList(abortController.signal);
       setConfigResponse(configResponse);
     } catch (e) {
     } finally {
@@ -67,8 +65,12 @@ const MonitorDashboard = ({
 
   const updateConfiguration = async (updatedConfig: MonitorConfiguration) => {
     try {
-      const url = `dfab/clusters/${updatedConfig.id}/`;
-      await postData(url, updatedConfig, !!updatedConfig.id);
+      const params = `${updatedConfig.id}/`;
+      await createOrUpdateMonitorConfigurations(
+        params,
+        updatedConfig,
+        !!updatedConfig.id
+      );
       setConfigResponse((prev: MonitorConfiguration[]) => {
         const configToUpdateIndex: number = prev.findIndex(
           (config: MonitorConfiguration) => config.id === updatedConfig.id

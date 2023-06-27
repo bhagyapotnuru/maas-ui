@@ -5,6 +5,8 @@ import classes from "../../composedNode.module.scss";
 
 import ResourceBlocksAccordion from "./ResourceBlocksAccordion";
 
+const defaultResourceTypes = ["Offload", "Storage", "Network", "DPU"];
+
 const ResourceBlockPage = ({
   resourceBlocksByType,
   expandedResourceBlockRow,
@@ -14,6 +16,8 @@ const ResourceBlockPage = ({
   setSelectedResourceBlocks,
   isMaxPortCountLimitReached,
   fetchingResourceBlocks,
+  setTargetResourceBlocks,
+  isTargetBlocks,
 }: {
   resourceBlocksByType: RBTypeResp;
   expandedResourceBlockRow: string;
@@ -23,6 +27,8 @@ const ResourceBlockPage = ({
   setSelectedResourceBlocks: (value: React.SetStateAction<RBTypeResp>) => void;
   isMaxPortCountLimitReached: boolean;
   fetchingResourceBlocks: boolean;
+  setTargetResourceBlocks?: (value: RBTypeResp) => void;
+  isTargetBlocks: boolean;
 }): JSX.Element => {
   const keys = Object.keys(resourceBlocksByType);
   const isDataAvailable: boolean = keys.some(
@@ -42,20 +48,39 @@ const ResourceBlockPage = ({
           />
         </Notification>
       ) : isDataAvailable ? (
-        keys.map((key: string) => {
-          return (
-            <ResourceBlocksAccordion
-              header={key}
-              expandedResourceBlockRow={expandedResourceBlockRow}
-              resourceBlocks={resourceBlocksByType[key]}
-              setExpandedResourceBlock={setExpandedResourceBlock}
-              expandedResourceType={expandedResourceType}
-              setExpandedResourceType={setExpandedResourceType}
-              setSelectedResourceBlocks={setSelectedResourceBlocks}
-              isMaxPortCountLimitReached={isMaxPortCountLimitReached}
-            />
-          );
-        })
+        isTargetBlocks ? (
+          defaultResourceTypes.map((key: string) => {
+            return (
+              <ResourceBlocksAccordion
+                header={key}
+                expandedResourceBlockRow={expandedResourceBlockRow}
+                resourceBlocks={resourceBlocksByType[key]}
+                setExpandedResourceBlock={setExpandedResourceBlock}
+                expandedResourceType={expandedResourceType}
+                setExpandedResourceType={setExpandedResourceType}
+                setSelectedResourceBlocks={setSelectedResourceBlocks}
+                isMaxPortCountLimitReached={isMaxPortCountLimitReached}
+                setTargetResourceBlocks={setTargetResourceBlocks}
+              />
+            );
+          })
+        ) : (
+          keys.map((key: string) => {
+            return (
+              <ResourceBlocksAccordion
+                header={key}
+                expandedResourceBlockRow={expandedResourceBlockRow}
+                resourceBlocks={resourceBlocksByType[key]}
+                setExpandedResourceBlock={setExpandedResourceBlock}
+                expandedResourceType={expandedResourceType}
+                setExpandedResourceType={setExpandedResourceType}
+                setSelectedResourceBlocks={setSelectedResourceBlocks}
+                isMaxPortCountLimitReached={isMaxPortCountLimitReached}
+                setTargetResourceBlocks={setTargetResourceBlocks}
+              />
+            );
+          })
+        )
       ) : (
         <div className={classes.no_data}>Data Not Available</div>
       )}

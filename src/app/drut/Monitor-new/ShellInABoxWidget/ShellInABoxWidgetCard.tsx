@@ -6,7 +6,7 @@ import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 // import classess from "../monitor.module.scss";
 
 import DoughnutChart from "app/base/components/DoughnutChart";
-import { fetchData } from "app/drut/config";
+import { fetchMachineDataByResourcePool } from "app/drut/api";
 import customDrutTheme from "app/utils/Themes/Themes";
 
 type Props = {
@@ -79,10 +79,9 @@ const ShellInABoxWidgetCard = ({ configData }: Props): JSX.Element => {
 
   const fetchMachineData = async () => {
     try {
-      const promise = await fetchData(
-        `dfab/summary/?op=get_resourcepool&PoolName=${configData.resourcepool}`
+      const response = await fetchMachineDataByResourcePool(
+        configData.resourcepool
       );
-      const response = await promise.json();
       setMachineData(response);
     } catch (e) {}
   };

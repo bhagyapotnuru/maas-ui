@@ -1,22 +1,17 @@
-import { useState } from "react";
-
 import { Spinner, Notification } from "@canonical/react-components";
+import { useDispatch, useSelector } from "react-redux";
 import * as Yup from "yup";
 
-import { postData } from "../../../../../config";
-import type { Group } from "../../type";
 import AddGroupFormFields from "../AddGroupFormFields";
-import type { AddGroupValues } from "../type";
 
 import FormikForm from "app/base/components/FormikForm";
 import type { ClearHeaderContent } from "app/base/types";
+import { addOrUpdateData } from "app/store/drut/groups/slice";
+import type { AddGroupValues } from "app/store/drut/groups/types";
+import type { RootState } from "app/store/root/types";
 
 type Props = {
   clearHeaderContent: ClearHeaderContent;
-  groupToUpdate?: Group | null;
-  setFetchGroups: (value: boolean) => void;
-  groupList: Group[];
-  setError: (error: string) => void;
 };
 
 const AddGroupSchema = Yup.object().shape({
@@ -27,47 +22,24 @@ const AddGroupSchema = Yup.object().shape({
   fqgn: Yup.string().required(),
 });
 
-export const AddGroupForm = ({
-  clearHeaderContent,
-  groupToUpdate,
-  setFetchGroups,
-  groupList,
-  setError,
-}: Props): JSX.Element => {
-  const [loading, setLoading] = useState(false);
-
+export const AddGroupForm = ({ clearHeaderContent }: Props): JSX.Element => {
+  const { loading, addOrDeleteGroup, items } = useSelector(
+    (state: RootState) => state.Group
+  );
+  const dispatch = useDispatch();
   const createUpdateGroup = (
     groupToAddorUpdate: AddGroupValues,
-    url: string,
+    id: string,
     isUpdateOperation: boolean
   ) => {
     delete groupToAddorUpdate["fqgn"];
-    const parentGroup = groupList.find(
+    const parentGroup = items.find(
       (group) => group.fqgn === groupToAddorUpdate.parentGroupName
     );
     groupToAddorUpdate.parentGroupId = parentGroup?.id;
     groupToAddorUpdate.type = "Physical";
-    setLoading(true);
-    postData(url, groupToAddorUpdate, isUpdateOperation)
-      .then((response: any) => {
-        if (response.status === 200) {
-          setLoading(false);
-          setFetchGroups(true);
-          return response.json();
-        } else {
-          response.text().then((text: string) => {
-            setLoading(true);
-            const isConstraintViolation: boolean = text.includes(
-              "ConstraintViolationException"
-            );
-            const errorMsg = isUpdateOperation
-              ? "Group name already exists. Cannot be updated with a duplicate name."
-              : "Group name already exists. Cannot be created with a duplicate name.";
-            setError(isConstraintViolation ? errorMsg : text);
-          });
-        }
-      })
-      .finally(() => clearHeaderContent());
+    dispatch(addOrUpdateData({ groupToAddorUpdate, id, isUpdateOperation }));
+    clearHeaderContent();
   };
 
   return (
@@ -80,7 +52,7 @@ export const AddGroupForm = ({
         >
           <Spinner
             text={`${
-              groupToUpdate?.id ? "Updating Group..." : "Adding Group..."
+              addOrDeleteGroup?.id ? "Updating Group..." : "Adding Group..."
             }`}
             key={`Add_groups_spinner_${Math.random()}`}
           />
@@ -88,15 +60,16 @@ export const AddGroupForm = ({
       ) : (
         <FormikForm<AddGroupValues>
           initialValues={{
-            parentGroupName: groupToUpdate?.parentGroupName || "",
-            name: groupToUpdate?.name || "",
-            type: groupToUpdate?.type || "Physical",
+            parentGroupName: addOrDeleteGroup?.parentGroupName || "",
+            name: addOrDeleteGroup?.name || "",
+            type: addOrDeleteGroup?.type || "Physical",
             category:
-              groupToUpdate?.category
+              addOrDeleteGroup?.category
                 .charAt(0)
                 .toUpperCase()
-                .concat(groupToUpdate?.category.slice(1).toLowerCase()) || "",
-            fqgn: groupToUpdate?.fqgn || "",
+                .concat(addOrDeleteGroup?.category.slice(1).toLowerCase()) ||
+              "",
+            fqgn: addOrDeleteGroup?.fqgn || "",
           }}
           onCancel={clearHeaderContent}
           onSaveAnalytics={{
@@ -105,14 +78,10 @@ export const AddGroupForm = ({
             label: "Add Group Form",
           }}
           onSubmit={(values: AddGroupValues) => {
-            if (groupToUpdate) {
-              createUpdateGroup(
-                values,
-                `dfab/nodegroups/${groupToUpdate?.id}/`,
-                true
-              );
+            if (addOrDeleteGroup) {
+              createUpdateGroup(values, `${addOrDeleteGroup?.id}/`, true);
             } else {
-              createUpdateGroup(values, `dfab/nodegroups/`, false);
+              createUpdateGroup(values, "", false);
             }
           }}
           onSuccess={() => {
@@ -123,10 +92,10 @@ export const AddGroupForm = ({
           validationSchema={AddGroupSchema}
         >
           <AddGroupFormFields
-            parentGroups={groupList.filter(
+            parentGroups={items.filter(
               (group) =>
                 group.category.toLowerCase() === "zone" &&
-                group.id !== groupToUpdate?.id
+                group.id !== addOrDeleteGroup?.id
             )}
           />
         </FormikForm>

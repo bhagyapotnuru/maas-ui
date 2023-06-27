@@ -1,10 +1,9 @@
 import { Col, Row, Select } from "@canonical/react-components";
 import { useFormikContext } from "formik";
 
-import type { Group } from "../../type";
-
 import FormikField from "app/base/components/FormikField";
 import type { AnyObject } from "app/base/types";
+import type { Group } from "app/store/drut/groups/types";
 
 export const AddGroupFormFields = <V extends AnyObject>({
   parentGroups = [],

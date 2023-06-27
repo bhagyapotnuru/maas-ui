@@ -10,8 +10,9 @@ import {
   Notification,
 } from "@canonical/react-components";
 
-import { fetchData, throwHttpMessage } from "../../config";
 import { arrayObject } from "../../parser";
+
+import { fetchFabricData, fetchFabricDataById } from "app/drut/api";
 interface Props {
   rf: any;
 }
@@ -23,21 +24,18 @@ const HealthView = ({ rf }: Props): JSX.Element => {
   const [error, setError] = useState("");
 
   async function getActiveFabricData() {
-    await fetchData("dfab/fabrics/")
-      .then((response: any) => response.json())
-      .then(
-        (result: any) => {
-          if (result && result.length) {
-            const fabm = result.find((dt: any) => dt.enabled === true);
-            if (fabm.id) {
-              getHealthData(fabm.id);
-            }
+    await fetchFabricData()
+      .then((result: any) => {
+        if (result && result.length) {
+          const fabm = result.find((dt: any) => dt.enabled === true);
+          if (fabm.id) {
+            getHealthData(fabm.id);
           }
-        },
-        (error: any) => {
-          console.log(error);
         }
-      );
+      })
+      .catch((error: any) => {
+        console.log(error);
+      });
   }
 
   const handleClick = (index: any): void => {
@@ -163,22 +161,17 @@ const HealthView = ({ rf }: Props): JSX.Element => {
   };
 
   const getHealthData = (id: any) => {
-    fetchData(`dfab/fabrics/${id}/?op=get_statistics`)
-      .then((response: any) => {
-        return throwHttpMessage(response, setError);
-      })
-      .then(
-        (results: any) => {
-          setLoading(false);
-          if (results) {
-            setHD(results.sort((a: any, b: any) => a - b));
-          }
-        },
-        (error: any) => {
-          setLoading(false);
-          console.log(error);
+    fetchFabricDataById(id)
+      .then((results: any) => {
+        setLoading(false);
+        if (results) {
+          setHD(results.sort((a: any, b: any) => a - b));
         }
-      );
+      })
+      .catch((error: any) => {
+        setLoading(false);
+        setError(error);
+      });
   };
 
   useEffect(() => {
@@ -231,14 +224,14 @@ const HealthView = ({ rf }: Props): JSX.Element => {
     },
   ];
 
+  const errorValue = error?.toString();
+
   return (
     <>
-      {error.length ? (
+      {errorValue && !errorValue?.includes("AbortError") && (
         <Notification onDismiss={() => setError("")} inline severity="negative">
-          {error}
+          {errorValue}
         </Notification>
-      ) : (
-        ""
       )}
       <Row className="u-nudge-down--small">
         <Col size={12}>

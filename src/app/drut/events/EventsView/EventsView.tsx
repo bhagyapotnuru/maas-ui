@@ -10,9 +10,10 @@ import {
   SearchBox,
   Select,
   Tooltip,
+  Notification,
 } from "@canonical/react-components";
 
-import { fetchData } from "../../config";
+import { fetchEventData } from "../../config";
 
 import classess from "./EventsView.module.css";
 
@@ -24,6 +25,7 @@ const EventsView = (): JSX.Element => {
   const [eventFullData, setEventFullData] = useState([]);
   const [oldPageSize, setOldPageSize] = useState(paginationOptions[0].value);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
   const [path, setPath] = useState("");
   const [prevNext, setPrevNext]: [any, any] = useState([null, null]);
   const [events, setEvents] = useState([]);
@@ -141,23 +143,20 @@ const EventsView = (): JSX.Element => {
     } else {
       url = path;
     }
-    await fetchData(url, true)
-      .then((response: any) => response.json())
-      .then(
-        (result: any) => {
-          setLoading(false);
-          if (result.events && result.events.length) {
-            const dt = result.events;
-            setEventFullData(dt);
-            setEvents(dt);
-          }
-          setPrevNext([result.next_uri, result.prev_uri]);
-        },
-        (error: any) => {
-          console.log(error);
-          setLoading(false);
+    await fetchEventData(url)
+      .then((result: any) => {
+        setLoading(false);
+        if (result.events && result.events.length) {
+          const dt = result.events;
+          setEventFullData(dt);
+          setEvents(dt);
         }
-      );
+        setPrevNext([result.next_uri, result.prev_uri]);
+      })
+      .catch((error: any) => {
+        setError(error);
+        setLoading(false);
+      });
   }
 
   const onSearchValueChange = (e: any) => {
@@ -193,8 +192,15 @@ const EventsView = (): JSX.Element => {
     }, 10);
   }, [path, pageSize]);
 
+  const errorValue = error?.toString();
+
   return (
     <>
+      {errorValue && !errorValue?.includes("AbortError") && (
+        <Notification onDismiss={() => setError("")} inline severity="negative">
+          {errorValue}
+        </Notification>
+      )}
       <Row className="u-nudge-down--small">
         <Col size={6}>
           <SearchBox

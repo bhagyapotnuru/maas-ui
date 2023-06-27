@@ -1,4 +1,4 @@
-import { Rack, Zone } from "../Managers/AddManager/type";
+import type { Rack, ZoneObj as Zone } from "app/store/drut/managers/types";
 
 export type ZoneSelectionProps = {
   zones: Zone[];

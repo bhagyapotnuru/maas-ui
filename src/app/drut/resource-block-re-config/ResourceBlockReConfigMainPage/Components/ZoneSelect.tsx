@@ -9,7 +9,7 @@ import type { ReConfigType } from "../../Store/ResourceBlockReConfigType";
 import ResoruceBlockReConfigContext from "../../Store/resource-block-re-config-context";
 import classes from "../../resource-block-re-config.module.scss";
 
-import type { Zone } from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
+import type { Zone } from "app/store/drut/managers/types";
 
 const ZoneSelect = (): JSX.Element => {
   const context: ReConfigType = useContext(ResoruceBlockReConfigContext);

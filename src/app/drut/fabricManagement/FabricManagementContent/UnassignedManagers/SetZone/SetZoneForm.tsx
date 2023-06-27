@@ -1,20 +1,21 @@
 import { useState, useEffect } from "react";
 
 import { Spinner, Notification } from "@canonical/react-components";
+import { useSelector, useDispatch } from "react-redux";
 import * as Yup from "yup";
-
-import type {
-  Zone,
-  Rack,
-  Manager,
-  RackByType,
-} from "../../Managers/AddManager/type";
 
 import SetZoneFormFields from "./SetZoneFormFields";
 
 import FormikForm from "app/base/components/FormikForm";
 import type { ClearHeaderContent } from "app/base/types";
-import { postData } from "app/drut/config";
+import { createUpdateManager, actions } from "app/store/drut/managers/slice";
+import type {
+  Zone,
+  Rack,
+  Manager,
+  RackByType,
+} from "app/store/drut/managers/types";
+import type { RootState } from "app/store/root/types";
 
 type setZoneForm = {
   zone_id: string;
@@ -23,37 +24,32 @@ type setZoneForm = {
 
 type Props = {
   clearHeaderContent: ClearHeaderContent;
-  setError: (value: string) => void;
-  setFetchManagers: (value: boolean) => void;
-  managerToMove: Manager[];
-  zones: Zone[];
-  setSelectedIDs: (value: []) => void;
 };
 
-export const AddManagerForm = ({
-  clearHeaderContent,
-  setError,
-  setFetchManagers,
-  managerToMove,
-  zones,
-  setSelectedIDs,
-}: Props): JSX.Element => {
-  const [loading, setLoading] = useState(false);
+export const AddManagerForm = ({ clearHeaderContent }: Props): JSX.Element => {
+  const { selectedIds, zones, clearHeader, formLoading, unassignedManagers } =
+    useSelector((state: RootState) => state.Managers);
+  const dispatch = useDispatch();
+
   const [racks, setRacks] = useState<Rack[] | undefined>([]);
   const [selectedZone, setSelectedZone] = useState("");
   const [selectedRack, setSelectedRack] = useState("");
 
-  const updateManagers = (
-    managersTobeUpdated: Manager[],
-    zone_id: string,
-    rack_id: string
-  ) => {
+  useEffect(() => {
+    if (clearHeader) {
+      clearHeaderContent();
+      dispatch(actions.setClearHeader(false));
+    }
+  }, [clearHeader]);
+
+  const updateManagers = (zone_id: string, rack_id: string) => {
     const racks =
       zones.find((zone: Zone) => zone.zone_id === +zone_id)?.racks || [];
-    const rackObj = (racks as Rack[]).find(
-      (rack: Rack) => rack.rack_id === +rack_id
+    const rackObj = racks.find((rack: Rack) => rack.rack_id === +rack_id);
+    const managersToUpdate: Manager[] = unassignedManagers.filter(
+      (manager: Manager) => selectedIds.includes(manager.id || 0)
     );
-    const updateManagersPayoad: Manager[] = managersTobeUpdated.map(
+    const updateManagersPayoad: Manager[] = managersToUpdate.map(
       (manager: Manager) => {
         return {
           id: manager.id,
@@ -64,27 +60,13 @@ export const AddManagerForm = ({
         } as Manager;
       }
     );
-    setLoading(true);
-    postData(`dfab/managers/`, updateManagersPayoad, true)
-      .then((response: any) => {
-        if (response.status === 200) {
-          setFetchManagers(true);
-          setLoading(false);
-          clearHeaderContent();
-          setSelectedIDs([]);
-          return response.json();
-        } else {
-          response.text().then((text: string) => {
-            setLoading(true);
-            const isConstraintViolation: boolean = text.includes(
-              "ConstraintViolationException"
-            );
-            const errorMsg = `Manager name already exists in rack ${rackObj?.rack_name}  Cannot be created with a duplicate name.`;
-            setError(isConstraintViolation ? errorMsg : text);
-          });
-        }
+    dispatch(
+      createUpdateManager({
+        params: "",
+        data: updateManagersPayoad,
+        isUpdateOperation: true,
       })
-      .catch((e: any) => setError(e));
+    );
   };
 
   useEffect(() => {
@@ -92,7 +74,7 @@ export const AddManagerForm = ({
       (zone: Zone) => zone.zone_id === +selectedZone
     )?.racks;
     if (racks) {
-      setRacks(racks as Rack[]);
+      setRacks(racks);
     }
   }, [selectedZone]);
 
@@ -105,14 +87,13 @@ export const AddManagerForm = ({
     const racks =
       zones.find((zone: Zone) => zone.zone_id === +zoneId)?.racks || [];
     const rackName =
-      (racks as Rack[]).find((rack: Rack) => rack.rack_id === +rackId)
-        ?.rack_name || "";
+      racks.find((rack: Rack) => rack.rack_id === +rackId)?.rack_name || "";
     return rackName;
   };
 
   return (
     <>
-      {loading ? (
+      {formLoading ? (
         <Notification
           key={`notification_${Math.random()}`}
           inline
@@ -139,7 +120,7 @@ export const AddManagerForm = ({
             label: "Add manager form",
           }}
           onSubmit={() => {
-            updateManagers(managerToMove, selectedZone, selectedRack);
+            updateManagers(selectedZone, selectedRack);
           }}
           onSuccess={() => {
             clearHeaderContent();

@@ -2,10 +2,10 @@ import { Col, Row, Select } from "@canonical/react-components";
 import { useFormikContext } from "formik";
 
 import { OPTICAL_SWITCH_PROTOCOLS, VENDORS } from "../constants";
-import type { Manager } from "../type";
 
 import FormikField from "app/base/components/FormikField";
 import type { AnyObject } from "app/base/types";
+import type { Manager } from "app/store/drut/managers/types";
 
 type Props = {
   managerToUpdate?: Manager;

@@ -22,7 +22,10 @@ import { Link } from "react-router-dom";
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 
 import monitorDasboardUrls from "app/drut/Monitor/url";
-import { deleteData, fetchData } from "app/drut/config";
+import {
+  fetchMonitorConfigurationList,
+  deleteMonitorConfig,
+} from "app/drut/api";
 import DeleteConfirmationModal from "app/utils/Modals/DeleteConfirmationModal";
 import customDrutTheme from "app/utils/Themes/Themes";
 
@@ -98,12 +101,8 @@ const ConfigurationList = (): JSX.Element => {
   const fetchConfigurationList = async () => {
     try {
       setIsLoading(true);
-      const response = await fetchData(
-        `dfab/clusters/`,
-        false,
-        abortController.signal
-      );
-      const configResponse: MonitorConfiguration[] = await response.json();
+      const configResponse: MonitorConfiguration[] =
+        await fetchMonitorConfigurationList(abortController.signal);
       setConfigResponse(
         configResponse.filter((response) => response.cluster_type !== "Maas")
       );
@@ -116,7 +115,7 @@ const ConfigurationList = (): JSX.Element => {
   const deleteConfiguration = async () => {
     try {
       setIsLoading(true);
-      await deleteData(`dfab/clusters/${configToDelete?.id}/`);
+      await deleteMonitorConfig(configToDelete?.id);
       setConfigToDelete(null);
       await fetchConfigurationList();
     } catch (e) {

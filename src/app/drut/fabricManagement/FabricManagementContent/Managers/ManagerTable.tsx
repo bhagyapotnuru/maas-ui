@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 
 import { MainTable } from "@canonical/react-components";
+import { useSelector, useDispatch } from "react-redux";
 
 import type { Manager } from "./type";
 import { getIconByStatus } from "./type";
@@ -11,22 +12,18 @@ import TableActions from "app/base/components/TableActions";
 import TableHeader from "app/base/components/TableHeader";
 import { useTableSort } from "app/base/hooks/index";
 import { SortDirection } from "app/base/types";
+import { actions } from "app/store/drut/managers/slice";
+import type { RootState } from "app/store/root/types";
 import { generateCheckboxHandlers, isComparable } from "app/utils";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
-  searchText: string;
   setRenderUpdateManagerForm: (manager: any) => void;
   setRenderDeleteManagerForm: (manager: any) => void;
-  managersData: Manager[];
-  pageSize: string;
-  prev: number;
-  next: number;
-  selectedIDs: number[];
-  setSelectedIDs: (selectedId: number[]) => void;
 };
 
 type SortKey =
+  | "id"
   | "name"
   | "manager_type"
   | "rack_fqgn"
@@ -45,31 +42,33 @@ const getSortValue = (sortKey: SortKey, manager: Manager) => {
       return manager?.ip_address || null;
     case "port_count":
       return manager?.port_count || 0;
+    case "id":
+      return manager?.id || null;
   }
   const value = manager[sortKey];
   return isComparable(value) ? value : null;
 };
 
 const ManagerTable = ({
-  searchText,
   setRenderUpdateManagerForm,
   setRenderDeleteManagerForm,
-  managersData,
-  selectedIDs,
-  setSelectedIDs,
 }: Props): JSX.Element => {
-  const managerIds = managersData.map((manager) => manager.id);
+  const dispatch = useDispatch();
+  const { items, searchText, selectedIds } = useSelector(
+    (state: RootState) => state.Managers
+  );
+  const managerIds = items?.map((manager) => manager.id);
   const { currentSort, sortRows, updateSort } = useTableSort<Manager, SortKey>(
     getSortValue,
     {
-      key: "manager_type",
-      direction: SortDirection.DESCENDING,
+      key: "id",
+      direction: SortDirection.ASCENDING,
     }
   );
   const { handleGroupCheckbox, handleRowCheckbox } = generateCheckboxHandlers<
     Manager["id"]
   >((managerIds) => {
-    setSelectedIDs(managerIds);
+    dispatch(actions.setSelectedIds(managerIds));
   });
   const Manager_Headers = [
     {
@@ -77,7 +76,7 @@ const ManagerTable = ({
         <GroupCheckbox
           handleGroupCheckbox={handleGroupCheckbox}
           items={managerIds}
-          selectedItems={selectedIDs}
+          selectedItems={selectedIds}
         />
       ),
       className: "drut-col-center",
@@ -193,16 +192,14 @@ const ManagerTable = ({
       width: 50,
     },
   ];
-  const [managers, setManagers] = useState<Manager[]>([]);
+  const [managers, setManagers] = useState<Manager[] | any>([]);
 
   useEffect(() => {
-    searchText === ""
-      ? setManagers(managersData)
-      : onSearchValueChange(searchText);
-  }, [searchText]);
+    searchText === "" ? setManagers(items) : onSearchValueChange(searchText);
+  }, [searchText, items]);
 
   const onSearchValueChange = (searchText: string) => {
-    const managers = ((managersData as []) || []).filter((row: any) =>
+    const managers = ((items as []) || []).filter((row: any) =>
       Object.values(row)
         .join("")
         .toLowerCase()
@@ -223,10 +220,10 @@ const ManagerTable = ({
               content: (
                 <RowCheckbox
                   handleRowCheckbox={() =>
-                    handleRowCheckbox(manager.id, selectedIDs)
+                    handleRowCheckbox(manager.id, selectedIds)
                   }
                   item={manager.id}
-                  items={selectedIDs}
+                  items={selectedIds}
                 />
               ),
               width: 15,
@@ -394,8 +391,6 @@ const ManagerTable = ({
   return (
     <MainTable
       className="p-table--network-group p-table-expanding--light"
-      defaultSort="manager_type"
-      defaultSortDirection="ascending"
       headers={Manager_Headers}
       rows={generateRows(managers)}
       sortable

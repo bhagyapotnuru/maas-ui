@@ -1,11 +1,8 @@
-import {
-  Rack,
-  RackManager,
-  Zone,
-} from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
-import { KeyValuePair } from "../Models/KeyValuePair";
-import { Endpoint, Member, ResourceBlock } from "../Models/ResourceBlock";
-import { ResourceBlockOption } from "../Models/ResourceBlockOptions";
+import type { KeyValuePair } from "../Models/KeyValuePair";
+import type { Endpoint, Member, ResourceBlock } from "../Models/ResourceBlock";
+import type { ResourceBlockOption } from "../Models/ResourceBlockOptions";
+
+import type { Rack, RackManager, Zone } from "app/store/drut/managers/types";
 
 export type ReConfigType = {
   zones: Zone[];

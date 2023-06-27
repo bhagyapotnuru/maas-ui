@@ -2,6 +2,7 @@ import * as React from "react";
 import { useEffect, useState } from "react";
 
 import { Notification, Spinner } from "@canonical/react-components";
+import { saveAs } from "file-saver";
 
 import type {
   Manager,
@@ -15,14 +16,21 @@ import type {
   PcieSwitchPortFields,
 } from "../../Models/Manager";
 import classess from "../../fabricManagement.module.scss";
-import type { Rack, RackByType, Zone } from "../Managers/AddManager/type";
 
 import ConnectivityManagementTable from "./Components/ConnectivityManagementTable";
 import HeaderSelections from "./Components/HeaderSelections";
 import ImportExportCsvBtns from "./Components/ImportExportCsvBtns";
 import Save from "./Components/Save";
 
-import { fetchData, postData, uploadFile } from "app/drut/config";
+import {
+  fetchZoneRacksDataByQuery,
+  fetchConnectivityDataByQuery,
+  deletePeerConnections,
+  updateConnectivityData,
+  uploadCsv,
+} from "app/drut/api";
+import { downLoadFile } from "app/drut/config";
+import type { Rack, ZoneObj as Zone } from "app/store/drut/managers/types";
 import DeleteConfirmationModal from "app/utils/Modals/DeleteConfirmationModal";
 
 const OxcManagement = (): JSX.Element => {
@@ -54,6 +62,7 @@ const OxcManagement = (): JSX.Element => {
   const [fetchingConnectivityResponse, setFetchingConnectivityResponse] =
     useState(false);
   const [uploadingInProgress, setUploadingInProgress] = useState(false);
+  const [exportingInProgress, setExportingInProgress] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Loading...");
   const abortController = new AbortController();
 
@@ -63,9 +72,17 @@ const OxcManagement = (): JSX.Element => {
   const [fileToImportPeerConnections, setFileToImportPeerConnections] =
     useState({} as FileList | null);
 
+  const [timeOutId, setTimeoutId] = useState({} as any);
+
   useEffect(() => {
     fetchZones();
   }, []);
+
+  useEffect(() => {
+    if (timeOutId) {
+      clearTimeout(timeOutId);
+    }
+  }, [timeOutId]);
 
   useEffect(() => {
     const zone: Zone | undefined = zones.find(
@@ -76,10 +93,13 @@ const OxcManagement = (): JSX.Element => {
       setSelectedTFicPool("");
       setIFicResponse([]);
       setTFicResponse([]);
-      setIFicPools((zone.racks as RackByType).ific);
-      setTFicPools((zone.racks as RackByType).tfic);
+      setIFicPools(zone.racks.ific);
+      setTFicPools(zone.racks.tfic);
     }
     fetchConnectivityInformation({ zone_id: selectedZone });
+    fetchConnectivityInformation({ ific_zone_id: selectedZone });
+    fetchConnectivityInformation({ tfic_zone_id: selectedZone });
+
     return () => abortController.abort();
   }, [selectedZone]);
 
@@ -167,23 +187,18 @@ const OxcManagement = (): JSX.Element => {
     try {
       setLoading(true);
       setLoadingMessage("Loading...");
-      const promise = await fetchData(
-        "dfab/nodegroups/?op=get_zones_and_racks_by_rack_type",
-        false,
+      const response: Zone[] = await fetchZoneRacksDataByQuery(
+        "op=get_zones_and_racks_by_rack_type",
         abortController.signal
       );
-      if (promise.status === 200) {
-        const response: Zone[] = await promise.json();
-        const notDefaultZone = (zone: Zone) =>
-          zone.zone_name.toLowerCase() !== "default_zone";
-        setZones(response.filter(notDefaultZone));
-      } else {
-        const apiError: string = await promise.text();
-        const defaultError = "Error fetching Zones.";
-        setError(apiError ? apiError : defaultError);
-      }
+      const zones = response.filter(
+        (zone: Zone) =>
+          !["drut", "default_zone"].includes(zone.zone_name.toLowerCase())
+      );
+      setZones(zones);
     } catch (e: any) {
-      setError(e);
+      const defaultError = "Error fetching Zones.";
+      setError(e ? e : defaultError);
     } finally {
       setLoading(false);
     }
@@ -220,19 +235,12 @@ const OxcManagement = (): JSX.Element => {
     try {
       setLoading(true);
       setLoadingMessage("Updating Connectivity Information");
-      const promise = await postData("/dfab/connectivity/", payLoad);
-      if (promise.status === 200) {
-        await fetchConnectivityInformation();
-      } else {
-        const apiError: string = promise.text();
-        setError(
-          apiError
-            ? apiError
-            : "Failed to Update Opitcal Switch Connections. Please try again."
-        );
-      }
+      await updateConnectivityData(payLoad);
+      await fetchConnectivityInformation();
     } catch (e: any) {
-      setError(e);
+      setError(
+        e ? e : "Failed to Update Opitcal Switch Connections. Please try again."
+      );
     } finally {
       setLoading(false);
     }
@@ -318,25 +326,17 @@ const OxcManagement = (): JSX.Element => {
     try {
       setPortsToRemoveInProgress(payLoad);
       SetClearingAllConnectionsInProgress(true);
-      const promise = await postData(
-        "dfab/connectivity/?op=delete_peer_connections",
-        payLoad
-      );
-
-      if (promise.status === 200) {
-        /**
-         * Commenting temporarily till BE throws an error for in use oxc port
-         * updateFicResponses(payLoad);
-         */
-        fetchConnectivityInformation();
-      } else {
-        setError(promise.text());
-        const apiError = await promise.text();
-        const defaultError = "Failed to remove peer connections";
-        setClearAllConnectionsError(apiError ? apiError : defaultError);
-      }
+      await deletePeerConnections(payLoad);
+      /**
+       * Commenting temporarily till BE throws an error for in use oxc port
+       * updateFicResponses(payLoad);
+       */
+      fetchConnectivityInformation();
     } catch (e: any) {
-      setClearAllConnectionsError(e);
+      window.scrollTo(0, 0);
+      setError(e);
+      const defaultError = "Failed to remove peer connections";
+      setClearAllConnectionsError(e ? e : defaultError);
     } finally {
       SetClearingAllConnectionsInProgress(false);
       resetSelectedPopupValue();
@@ -414,7 +414,6 @@ const OxcManagement = (): JSX.Element => {
   ) => {
     try {
       setFetchingConnectivityResponse(true);
-      const url = "dfab/connectivity/?";
       const params = queryType
         ? queryType
         : {
@@ -426,30 +425,28 @@ const OxcManagement = (): JSX.Element => {
         .filter((key) => !!params[key as keyof typeof params])
         .map((key: string) => key + "=" + params[key as keyof typeof params])
         .join(queryType ? "" : "&");
-      const promise = await fetchData(url.concat(queryParam));
-      if (promise.status === 200) {
-        const response: Manager = await promise.json();
-        if (queryType) {
-          const key: string = Object.keys(queryType)[0];
-          if (key.includes("ific")) {
-            setIFicResponse(response["IFIC"]);
-          } else if (key.includes("tfic")) {
-            setTFicResponse(response["TFIC"]);
-          } else {
-            setOxcResponse(response["OXC"]);
-          }
-        } else {
+      const response: Manager = await fetchConnectivityDataByQuery(queryParam);
+      if (queryType) {
+        const key: string = Object.keys(queryType)[0];
+        if (key.includes("ific")) {
           setIFicResponse(response["IFIC"]);
-          setOxcResponse(response["OXC"]);
+        } else if (key.includes("tfic")) {
           setTFicResponse(response["TFIC"]);
+        } else {
+          setOxcResponse(response["OXC"]);
         }
       } else {
-        setError(promise.text());
+        setIFicResponse(response["IFIC"]);
+        setOxcResponse(response["OXC"]);
+        setTFicResponse(response["TFIC"]);
       }
     } catch (e: any) {
       setError(e);
     } finally {
-      setFetchingConnectivityResponse(false);
+      const timeOutId = setTimeout(() => {
+        setFetchingConnectivityResponse(false);
+        setTimeoutId(timeOutId);
+      }, 1000);
     }
   };
 
@@ -545,19 +542,10 @@ const OxcManagement = (): JSX.Element => {
         const formData = new FormData();
         formData.append(`file`, file);
         setUploadingInProgress(true);
-        const promise: Response = await uploadFile(
-          "dfab/connectivity/?op=import_csv",
-          formData
-        );
-        if (promise.ok) {
-          setFileToImportPeerConnections(null);
-          if (selectedIFicPool || selectedTFicPool || selectedZone) {
-            fetchConnectivityInformation();
-          }
-        } else {
-          const apiError: string = await promise.text();
-          const defaultError = `Failed to upload ${file.name}`;
-          setError(apiError ? apiError : defaultError);
+        await uploadCsv(formData);
+        setFileToImportPeerConnections(null);
+        if (selectedIFicPool || selectedTFicPool || selectedZone) {
+          fetchConnectivityInformation();
         }
       } catch (e: any) {
         const defaultError = `Failed to upload ${file.name}`;
@@ -568,16 +556,37 @@ const OxcManagement = (): JSX.Element => {
     }
   };
 
+  const onClickExportCsv = async () => {
+    try {
+      setExportingInProgress(true);
+      const zone =
+        zones.find((v) => +v.zone_id === +selectedZone)?.zone_name || "";
+
+      const response: Response = await downLoadFile(
+        `dfab/connectivity/?op=export_csv&Zone=${zone}`,
+        abortController.signal
+      );
+      if (response.status === 200) {
+        const blob = await response.blob();
+        saveAs(blob, `${zone}.csv`);
+      } else {
+        const error = await response.text();
+        setError(error ? error : "Unable to export CSV");
+      }
+    } catch (e: any) {
+      setError(e);
+    } finally {
+      setExportingInProgress(false);
+    }
+  };
+
+  const errorValue = error?.toString();
+
   return (
     <>
-      {error && error.length && (
-        <Notification
-          key={`notification_${Math.random()}`}
-          onDismiss={() => setError("")}
-          inline
-          severity="negative"
-        >
-          {error}
+      {errorValue && !errorValue?.includes("AbortError") && (
+        <Notification onDismiss={() => setError("")} inline severity="negative">
+          {errorValue}
         </Notification>
       )}
       {loading && (
@@ -610,10 +619,13 @@ const OxcManagement = (): JSX.Element => {
             setSelectedTFicPool={setSelectedTFicPool}
           />
           <ImportExportCsvBtns
+            selectedZone={selectedZone}
             onImportFile={onImportFile}
             fileToImportPeerConnections={fileToImportPeerConnections}
             onClickCsvUpload={onClickCsvUpload}
             uploadingInProgress={uploadingInProgress}
+            exportingInProgress={exportingInProgress}
+            onClickExportCsv={onClickExportCsv}
           />
         </div>
         {selectedZone ? (

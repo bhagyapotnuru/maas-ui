@@ -11,6 +11,7 @@
   justify-content: space-between;
   font-size: 0.875rem;
   align-items: center;
+  margin-bottom: 20px;
 }
 
 .child_selection {
@@ -112,7 +113,7 @@
 .resouce_block_accordion {
   display: flex;
   flex-direction: column;
-  gap: 3rem;
+  gap: 2.5rem;
 }
 
 // Manage Free Pool Resource
@@ -190,6 +191,14 @@
   justify-content: space-between;
   min-height: 60vh;
   max-height: 60vh;
+}
+
+.text {
+  color: blue;
+}
+
+.textAccordion {
+  color: black;
 }
 
 // <----- Manage Free Pool Resource ---->

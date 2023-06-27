@@ -62,12 +62,9 @@ const IFICBlock = ({
     if (searchText === "") {
       setIFicDataCopy(iFicData);
     } else {
-      const filteredIficData = [] as FicManager[];
-      iFicData.forEach((row: FicManager) => {
-        if (row.name.toLowerCase().includes(searchText.toLowerCase())) {
-          filteredIficData.push(row);
-        }
-      });
+      const filteredIficData = iFicData.filter((row: FicManager) =>
+        row.name.toLowerCase().includes(searchText.toLowerCase())
+      );
       setIFicDataCopy(filteredIficData);
     }
   };

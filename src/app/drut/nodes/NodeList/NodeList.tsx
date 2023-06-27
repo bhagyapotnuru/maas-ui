@@ -12,13 +12,13 @@ import {
 } from "@canonical/react-components";
 import { NavLink, useParams } from "react-router-dom";
 
-import { fetchData, deleteData, throwHttpMessage } from "../../config";
 import { nodeStatus, nStatus } from "../../nodeStatus";
 import RegisterMachineForm from "../RegisterNode/RegisterNode";
 
 import classess from "./NodeList.module.css";
 import ResetForm from "./ResetForm";
 
+import { fetchDashboardNodeData, deleteNodeById } from "app/drut/api";
 import { getIconByStatus } from "app/drut/fabricManagement/FabricManagementContent/Managers/type";
 
 type Props = {
@@ -59,68 +59,57 @@ const NodeList = ({
   const getNodesData = (fetch = false) => {
     setSearchText("");
     setLoading(!fetch);
-    fetchData("dfab/nodes/", false, abortController.signal)
-      .then((response: any) => {
-        return throwHttpMessage(response, setError);
-      })
-      .then(
-        (dt: any) => {
-          if (dt && dt.length) {
-            const inProgress = dt.find((d: any) =>
-              nStatus.includes(d.DataPathCreationOrderStatus)
-            );
-            if (inProgress !== undefined) {
-              setTimeOut = setTimeout(() => {
-                clearTimeout(setTimeOut);
-                if (parms.id === undefined) {
-                  getNodesData(true);
-                }
-              }, 6000);
-            }
-            const result = dt.map((dt: any) => {
-              if (!dt.MachineName) {
-                dt.MachineName = "";
+    fetchDashboardNodeData(abortController.signal)
+      .then((dt: any) => {
+        if (dt && dt.length) {
+          const inProgress = dt.find((d: any) =>
+            nStatus.includes(d.DataPathCreationOrderStatus)
+          );
+          if (inProgress !== undefined) {
+            setTimeOut = setTimeout(() => {
+              clearTimeout(setTimeOut);
+              if (parms.id === undefined) {
+                getNodesData(true);
               }
-
-              return dt;
-            });
-
-            setNodes(result);
-            setNodeFullData(result);
-            if (!parms || !parms.id) {
-              onNodeDetail(null);
-            }
-          } else {
-            setNodes([]);
+            }, 6000);
           }
-          setLoading(false);
-        },
-        (error: any) => {
-          setLoading(false);
-          console.log(error);
+          const result = dt.map((dt: any) => {
+            if (!dt.MachineName) {
+              dt.MachineName = "";
+            }
+
+            return dt;
+          });
+
+          setNodes(result);
+          setNodeFullData(result);
+          if (!parms || !parms.id) {
+            onNodeDetail(null);
+          }
+        } else {
+          setNodes([]);
         }
-      );
+        setLoading(false);
+      })
+      .catch((error: any) => {
+        setLoading(false);
+        setError(error);
+      });
   };
 
   const deleteNode = (node: any) => {
     setLoading(true);
-    deleteData(`dfab/nodes/${node.Id}/`)
-      .then((response: any) => {
-        return throwHttpMessage(response, setError);
+    deleteNodeById(node.Id)
+      .then(() => {
+        getNodesData();
       })
-      .then(
-        () => {
-          getNodesData();
-        },
-        (error: any) => {
-          getNodesData();
-          setLoading(false);
-          console.log(error);
-        }
-      );
+      .catch((error: any) => {
+        setLoading(false);
+        setError(error);
+      });
   };
 
-  const resetNode = (node: any) => {
+  const resetNodeById = (node: any) => {
     setSelectedNode(node);
     setOpenResetForm(true);
   };
@@ -309,7 +298,7 @@ const NodeList = ({
             {
               children: "Reset Node",
               "data-test": "register-node-link",
-              onClick: () => resetNode(node),
+              onClick: () => resetNodeById(node),
             },
           ]}
         />
@@ -413,16 +402,13 @@ const NodeList = ({
     };
   }, [page]);
 
+  const errorValue = error?.toString();
+
   return (
     <Fragment key={`${Math.random()}`}>
-      {error && error.length && (
-        <Notification
-          key={`notification_${Math.random()}`}
-          onDismiss={() => setError("")}
-          inline
-          severity="negative"
-        >
-          {error}
+      {errorValue && !errorValue?.includes("AbortError") && (
+        <Notification onDismiss={() => setError("")} inline severity="negative">
+          {errorValue}
         </Notification>
       )}
 

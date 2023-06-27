@@ -21,7 +21,7 @@ import { CEPH_STATUS_FILTERS } from "./constants";
 
 import Meter from "app/base/components/Meter";
 import { COLOURS } from "app/base/constants";
-import { fetchData } from "app/drut/config";
+import { fetchMachineDataByResourcePool } from "app/drut/api";
 import customDrutTheme from "app/utils/Themes/Themes";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
@@ -243,10 +243,9 @@ const ShellInABoxWidget = ({
 
   const fetchMachineData = async () => {
     try {
-      const promise = await fetchData(
-        `dfab/summary/?op=get_resourcepool&PoolName=${configData.resourcepool}`
+      const response = await fetchMachineDataByResourcePool(
+        configData.resourcepool
       );
-      const response = await promise.json();
       setMachineData(response);
     } catch (e) {}
   };
@@ -293,7 +292,7 @@ const ShellInABoxWidget = ({
               />
             </div>
             <div className={classess.ceph_redirect}>
-              <a target="_blank" href={iframeUrl}>
+              <a target="_blank" href={iframeUrl} rel="noreferrer">
                 <OpenInNewIcon />
               </a>
             </div>

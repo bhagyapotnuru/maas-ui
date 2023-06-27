@@ -1,19 +1,59 @@
-// import { useEffect } from "react";
+import React, { useState, useEffect } from "react";
+
+import { Notification, Spinner } from "@canonical/react-components";
 
 import DashboardDatpath from "./DashboardDatapaths";
 import DashboardView from "./DashboardView";
+
+import { fetchSummaryData } from "app/drut/api";
 
 interface Props {
   pageid: string;
 }
 const DashboardMain = ({ pageid }: Props): JSX.Element => {
-  // useEffect(() => {}, [pageid]);
+  const [summary, setSummary] = useState([] as any);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const abort = new AbortController();
+
+  useEffect(() => {
+    if (pageid === "sum") {
+      getSummaryData();
+    }
+  }, [pageid]);
+
+  const getSummaryData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetchSummaryData(abort.signal);
+      setSummary(response);
+    } catch (error: any) {
+      setError(error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const errorValue = error?.toString();
+
   return (
     <>
-      {pageid === "sum" ? (
-        <DashboardView key={`dv_${Math.random()}`} />
+      {errorValue && !errorValue?.includes("AbortError") && (
+        <Notification onDismiss={() => setError("")} inline severity="negative">
+          {errorValue}
+        </Notification>
+      )}
+      {loading ? (
+        <Spinner />
       ) : (
-        <DashboardDatpath key={`dp_${Math.random()}`} />
+        <>
+          {pageid === "sum" ? (
+            <DashboardView summary={summary} setError={setError} />
+          ) : (
+            <DashboardDatpath summary={summary.Summary} />
+          )}
+        </>
       )}
     </>
   );

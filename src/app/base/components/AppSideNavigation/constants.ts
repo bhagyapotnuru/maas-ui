@@ -57,7 +57,7 @@ const navGroups: NavGroup[] = [
       },
       {
         label: "Fabric Management",
-        url: managersUrls.fabricManagement.index,
+        url: managersUrls.fabricManagement.managers.index,
       },
       {
         label: "DashBoard",

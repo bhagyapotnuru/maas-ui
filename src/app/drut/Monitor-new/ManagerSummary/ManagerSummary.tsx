@@ -2,16 +2,12 @@ import CloseFullscreenRoundedIcon from "@mui/icons-material/CloseFullscreenRound
 import IconButton from "@mui/material/IconButton";
 import { NavLink } from "react-router-dom";
 
-import type {
-  Manager,
-  Rack,
-  Zone,
-} from "../../fabricManagement/FabricManagementContent/Managers/AddManager/type";
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 import classes from "../monitor.module.scss";
 
 import ZoneAccordion from "./ZoneAccordion";
 
+import type { Manager, Zone } from "app/store/drut/managers/types";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
 type Props = {
@@ -81,7 +77,7 @@ const ManagerSummary = ({
             }}
           >
             {zoneRackPairs?.map((zone: Zone, index: number) => {
-              if ((zone.racks as Rack[]).length) {
+              if (zone.racks.length) {
                 return (
                   <ZoneAccordion
                     managerData={

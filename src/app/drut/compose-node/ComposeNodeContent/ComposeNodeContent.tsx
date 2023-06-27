@@ -16,11 +16,14 @@ import { CompositionState } from "../Models/ResourceBlock";
 
 import ComposeNodeStepper from "./Components/ComposeNodeStepper";
 
-import { fetchData, fetchResources } from "app/drut/config";
+import {
+  fetchZoneRacksDataByQuery,
+  fetchResourceBlocksByQuery,
+} from "app/drut/api";
 import type {
   RackByType,
-  Zone,
-} from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
+  ZoneObj as Zone,
+} from "app/store/drut/managers/types";
 
 const ComposeNodeContent = (): JSX.Element => {
   const [zones, setZones] = useState([] as Zone[]);
@@ -34,6 +37,9 @@ const ComposeNodeContent = (): JSX.Element => {
 
   const [loading, setLoading] = useState(false);
   const [fetchingResourceBlocks, setFetchingResourceBlocks] = useState(false);
+  const [resourceBlocksRefreshKey, setResourceBlocksRefreshKey] =
+    useState(false);
+  const [resourcesRefreshKey, setResourcesRefreshKey] = useState(false);
   const [loadingMessage, setLoadingMessage] = useState("Loading...");
   const [error, setError] = useState("");
   const [resources, setResources] = useState([] as any);
@@ -77,50 +83,98 @@ const ComposeNodeContent = (): JSX.Element => {
   }, [selectedIFICRack]);
 
   useEffect(() => {
+    if (resourceBlocksRefreshKey) {
+      fetchResourceBlocks("IFIC", resourceBlocksRefreshKey);
+      return () => {
+        abortController.abort();
+      };
+    }
+  }, [resourceBlocksRefreshKey]);
+
+  useEffect(() => {
     let res = resources;
     if (fqnn.selectedFqnn !== "All") {
       res = resources.filter(
         (val: any) => val.Manager.Fqnn === fqnn.selectedFqnn
       );
     }
-    setTargetResourceBlocks(getRespByType(res));
+    const responseByType = getCheckedTargetResourceBlocks(getRespByType(res));
+    setTargetResourceBlocks(responseByType);
   }, [fqnn.selectedFqnn]);
 
   useEffect(() => {
     if (
       activeStep === 2 &&
       selectedResourceBlocks.Compute &&
-      selectedResourceBlocks?.Compute[0]?.Id
+      selectedResourceBlocks?.Compute[0]?.Id &&
+      Object.keys(selectedResourceBlocks).length === 1 &&
+      Object.keys(targetResourceBlocks).length === 0
     ) {
       setFetchingResourceBlocks(true);
-      fetchResources(null, selectedResourceBlocks.Compute[0].Id)
-        .then((response: any) => response.json())
-        .then(
-          (result: any) => {
-            setResources(result.Links.Members);
-            setTargetResourceBlocks(getRespByType(result.Links.Members));
-            const uniqueFqnn = [
-              ...new Set(
-                result.Links.Members.map((val: any) => val.Manager.Fqnn)
-              ),
-            ];
-            const values = [
-              { label: "All", value: "All" },
-              ...uniqueFqnn.map((val: any) => ({
-                label: val,
-                value: val,
-              })),
-            ];
-            setFqnn({ uniqueFqnn: values, selectedFqnn: "All" });
-            setFetchingResourceBlocks(false);
-          },
-          (error: any) => {
-            setFetchingResourceBlocks(false);
-            setError(error);
-          }
-        );
+      fetchResourceBlocksByQuery(
+        `?op=get_new_schema&ComputeBlockId=${selectedResourceBlocks.Compute[0].Id}`
+      )
+        .then((result: any) => {
+          setResources(result.Links.Members);
+          setTargetResourceBlocks(getRespByType(result.Links.Members));
+          const uniqueFqnn = [
+            ...new Set(
+              result.Links.Members.map((val: any) => val.Manager.Fqnn)
+            ),
+          ];
+          const values = [
+            { label: "All", value: "All" },
+            ...uniqueFqnn.map((val: any) => ({
+              label: val,
+              value: val,
+            })),
+          ];
+          setFqnn({ uniqueFqnn: values, selectedFqnn: "All" });
+          setFetchingResourceBlocks(false);
+          setResourcesRefreshKey(false);
+        })
+        .catch((error: any) => {
+          setFetchingResourceBlocks(false);
+          setResourcesRefreshKey(false);
+          setError(error);
+        });
     }
   }, [activeStep]);
+
+  useEffect(() => {
+    if (resourcesRefreshKey) {
+      fetchResourceBlocksByQuery(
+        `?op=get_new_schema&ComputeBlockId=${selectedResourceBlocks.Compute[0].Id}`
+      )
+        .then((result: any) => {
+          setResources(result.Links.Members);
+          const responseByType = getCheckedTargetResourceBlocks(
+            getRespByType(result.Links.Members)
+          );
+          setTargetResourceBlocks(responseByType);
+          const uniqueFqnn = [
+            ...new Set(
+              result.Links.Members.map((val: any) => val.Manager.Fqnn)
+            ),
+          ];
+          const values = [
+            { label: "All", value: "All" },
+            ...uniqueFqnn.map((val: any) => ({
+              label: val,
+              value: val,
+            })),
+          ];
+          setFqnn({ uniqueFqnn: values, selectedFqnn: "All" });
+          setFetchingResourceBlocks(false);
+          setResourcesRefreshKey(false);
+        })
+        .catch((error: any) => {
+          setFetchingResourceBlocks(false);
+          setResourcesRefreshKey(false);
+          setError(error);
+        });
+    }
+  }, [resourcesRefreshKey]);
 
   useEffect(() => {
     if (selectedZone) {
@@ -129,7 +183,7 @@ const ComposeNodeContent = (): JSX.Element => {
       );
       setSelectedZoneName(zone?.zone_fqgn || "-");
       setRacks(zone?.racks as RackByType);
-      if (!!(zone?.racks as RackByType).ific.length) {
+      if (!!zone?.racks.ific.length) {
         setSelectedIFICRack("0");
       } else {
         setSelectedIFICRack("");
@@ -137,36 +191,55 @@ const ComposeNodeContent = (): JSX.Element => {
     }
   }, [selectedZone]);
 
+  const getCheckedTargetResourceBlocks = (response: RBTypeResp) => {
+    const responseByType = response;
+    const selectedIdTypes = Object.keys(selectedResourceBlocks).filter(
+      (type: string) => type !== "Compute"
+    );
+    if (selectedIdTypes.length) {
+      selectedIdTypes.forEach((type: string) => {
+        const selectedIds: string[] = selectedResourceBlocks[type].map(
+          (rb: Member) => rb.Id
+        );
+        const selectedForTypeMembers = responseByType[type].map(
+          (rb: Member) => {
+            return {
+              ...rb,
+              checked: selectedIds.includes(rb.Id),
+            };
+          }
+        );
+        responseByType[type] = selectedForTypeMembers;
+      });
+    }
+    return responseByType;
+  };
+
   const fetchZones = async () => {
     try {
       setLoading(true);
       setLoadingMessage("Loading...");
-      const promise = await fetchData(
-        "dfab/nodegroups/?op=get_zones_and_racks_by_rack_type",
-        false,
+      const response: Zone[] = await fetchZoneRacksDataByQuery(
+        "op=get_zones_and_racks_by_rack_type",
         abortController.signal
       );
-      if (promise.status === 200) {
-        const response: Zone[] = await promise.json();
-        const notDefaultZone = (zone: Zone) =>
-          zone.zone_name.toLowerCase() !== "default_zone";
-        setZones(response.filter(notDefaultZone));
-      } else {
-        const apiError: string = await promise.text();
-        const defaultError = "Error fetching Zones.";
-        setError(apiError ? apiError : defaultError);
-      }
+      const notDefaultZone = (zone: Zone) =>
+        zone.zone_name.toLowerCase() !== "default_zone";
+      setZones(response.filter(notDefaultZone));
     } catch (e: any) {
-      setError(e);
+      const defaultError = "Error fetching Zones.";
+      setError(e ? e : defaultError);
     } finally {
       setLoading(false);
     }
   };
 
-  const fetchResourceBlocks = async (managerType: string) => {
+  const fetchResourceBlocks = async (
+    managerType: string,
+    isRefreshAction?: boolean
+  ) => {
     try {
-      setFetchingResourceBlocks(true);
-      const url = "dfab/resourceblocks/?";
+      if (!isRefreshAction) setFetchingResourceBlocks(true);
       let params = {
         op: "get_new_schema",
         ZoneId: selectedZone,
@@ -183,37 +256,47 @@ const ComposeNodeContent = (): JSX.Element => {
       if (managerType == "TFIC") {
         queryParam += `&ManagerType=PRU`;
       }
-      const promise = await fetchData(
-        url.concat(queryParam),
-        false,
+      const response: ResourceBlock = await fetchResourceBlocksByQuery(
+        `?${queryParam}`,
         abortController.signal
       );
-      if (promise.status === 200) {
-        const response: ResourceBlock = await promise.json();
-        if (managerType === "IFIC") {
+      if (managerType === "IFIC") {
+        if (isRefreshAction) {
+          const responseByType = getRespByType(response.Links.Members);
+          if (selectedResourceBlocks["Compute"].length) {
+            const selectedId = selectedResourceBlocks["Compute"][0]?.Id;
+            const computeTypeResources = responseByType?.Compute;
+            const check = computeTypeResources.find(
+              (rb: Member) => rb.Id === selectedId
+            );
+            if (check) {
+              check.checked = true;
+            }
+            responseByType["Compute"] = computeTypeResources;
+          }
+          setComputeResourceBlocks(responseByType);
+        } else {
           setComputeResourceBlocks(getRespByType(response.Links.Members));
           setSelectedResourceBlocks((resourceBlocks: RBTypeResp) => {
             delete resourceBlocks["Compute"];
             return { ...resourceBlocks };
           });
-        } else if (managerType === "TFIC") {
-          setTargetResourceBlocks(getRespByType(response.Links.Members));
-          setSelectedResourceBlocks((resourceBlocks: RBTypeResp) => {
-            Object.keys(resourceBlocks)
-              .filter((key: string) => key !== "Compute")
-              .forEach((key: string) => delete resourceBlocks[key]);
-            return { ...resourceBlocks };
-          });
         }
-      } else {
-        const apiError: string = await promise.text();
-        const defaultError = "Error fetching Resource Blocks.";
-        setError(apiError ? apiError : defaultError);
+      } else if (managerType === "TFIC") {
+        setTargetResourceBlocks(getRespByType(response.Links.Members));
+        setSelectedResourceBlocks((resourceBlocks: RBTypeResp) => {
+          Object.keys(resourceBlocks)
+            .filter((key: string) => key !== "Compute")
+            .forEach((key: string) => delete resourceBlocks[key]);
+          return { ...resourceBlocks };
+        });
       }
     } catch (e: any) {
-      setError(e);
+      const defaultError = "Error fetching Resource Blocks.";
+      setError(e ? e : defaultError);
     } finally {
       setFetchingResourceBlocks(false);
+      setResourceBlocksRefreshKey(false);
     }
   };
 
@@ -291,58 +374,60 @@ const ComposeNodeContent = (): JSX.Element => {
     return unusedResourceBlocks;
   };
 
+  const errorValue = error?.toString();
+
   return (
     <>
-      {error && error.length && (
-        <Notification
-          inline
-          key={`notification_${Math.random()}`}
-          onDismiss={() => setError("")}
-          severity="negative"
-        >
-          {error}
+      {errorValue && !errorValue?.includes("AbortError") && (
+        <Notification onDismiss={() => setError("")} inline severity="negative">
+          {errorValue}
         </Notification>
       )}
       {loading ? (
         <Notification
-          inline
           key={`notification_${Math.random()}`}
+          inline
           severity="information"
         >
           <Spinner
-            key={`managerListSpinner_${Math.random()}`}
             text={loadingMessage}
+            key={`managerListSpinner_${Math.random()}`}
           />
         </Notification>
       ) : (
         <div>
           <ComposeNodeStepper
-            activeStep={activeStep}
-            computeResourceBlocks={computeResourceBlocks}
-            enteredNodeName={enteredNodeName}
-            expandedResourceBlockRow={expandedResourceBlockRow}
-            expandedResourceType={expandedResourceType}
-            fetchingResourceBlocks={fetchingResourceBlocks}
-            fqnn={fqnn}
-            isMaxPortCountLimitReached={isMaxPortCountLimitReached}
+            zones={zones}
+            selectedZone={selectedZone}
+            setSelectedZone={setSelectedZone}
             racks={racks}
             selectedIFICRack={selectedIFICRack}
-            selectedResourceBlocks={selectedResourceBlocks}
             selectedTFICRack={selectedTFICRack}
-            selectedZone={selectedZone}
+            setSelectedIFICRack={setSelectedIFICRack}
+            setSelectedTFICRack={setSelectedTFICRack}
+            computeResourceBlocks={computeResourceBlocks}
+            targetResourceBlocks={targetResourceBlocks}
+            expandedResourceBlockRow={expandedResourceBlockRow}
+            setExpandedResourceBlock={setExpandedResourceBlock}
+            expandedResourceType={expandedResourceType}
+            setExpandedResourceType={setExpandedResourceType}
+            enteredNodeName={enteredNodeName}
+            setEnteredNodeName={setEnteredNodeName}
+            selectedResourceBlocks={selectedResourceBlocks}
+            setSelectedResourceBlocks={setSelectedResourceBlocks}
+            isMaxPortCountLimitReached={isMaxPortCountLimitReached}
+            setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
+            setTargetResourceBlocks={setTargetResourceBlocks}
             selectedZoneName={selectedZoneName}
             setActiveStep={setActiveStep}
-            setEnteredNodeName={setEnteredNodeName}
-            setExpandedResourceBlock={setExpandedResourceBlock}
-            setExpandedResourceType={setExpandedResourceType}
+            activeStep={activeStep}
+            fetchingResourceBlocks={fetchingResourceBlocks}
+            fqnn={fqnn}
             setFqnn={setFqnn}
-            setIsMaxPortCountLimitReached={setIsMaxPortCountLimitReached}
-            setSelectedIFICRack={setSelectedIFICRack}
-            setSelectedResourceBlocks={setSelectedResourceBlocks}
-            setSelectedTFICRack={setSelectedTFICRack}
-            setSelectedZone={setSelectedZone}
-            targetResourceBlocks={targetResourceBlocks}
-            zones={zones}
+            resourceBlocksRefreshKey={resourceBlocksRefreshKey}
+            setResourceBlocksRefreshKey={setResourceBlocksRefreshKey}
+            resourcesRefreshKey={resourcesRefreshKey}
+            setResourcesRefreshKey={setResourcesRefreshKey}
           />
         </div>
       )}

@@ -12,7 +12,6 @@ import {
 } from "@canonical/react-components";
 import { NavLink } from "react-router-dom";
 
-import { fetchData } from "../../config";
 import { getParsedSummary, getSummaryInventry } from "../../summaryParser";
 import { getTypeTitle } from "../../types";
 import DSMeterChart from "../View/DSMeterChart";
@@ -21,10 +20,15 @@ import DSPieChart from "../View/DSPieChart";
 import Meter from "app/base/components/Meter";
 import { COLOURS } from "app/base/constants";
 import { useWindowTitle } from "app/base/hooks/index";
+import { fetchEventDataByQuery, fetchDashboardNodeData } from "app/drut/api";
 
-const DashboardView = (): JSX.Element => {
+type Props = {
+  summary: any;
+  setError: (value: any) => void;
+};
+
+const DashboardView = ({ summary, setError }: Props): JSX.Element => {
   const mountedRef = useRef(true);
-  const abcSummary = new AbortController();
   const abcNode = new AbortController();
   const abcEvent = new AbortController();
   const [cStatus, setCStatus] = useState({
@@ -356,109 +360,85 @@ const DashboardView = (): JSX.Element => {
     );
   };
 
-  const getSummaryData = () => {
-    setLoading(true);
-    fetchData("dfab/summary/", false, abcSummary.signal)
-      .then((response: any) => response.json())
-      .then(
-        (result: any) => {
-          setLoading(false);
-          if (result) {
-            getClusterSummary(result);
-            getClusterInvetory(result);
-          }
-        },
-        (error: any) => {
-          console.log(error);
-          if (!mountedRef.current) return;
-          setLoading(false);
-        }
-      );
-  };
+  useEffect(() => {
+    if (summary) {
+      getClusterSummary(summary);
+      getClusterInvetory(summary);
+    }
+  }, [summary]);
 
   const getEventData = (): any => {
     setLoading(true);
-    fetchData(
-      "dfab/events/?op=query&limit=10&dashboard=true",
-      false,
-      abcEvent.signal
-    )
-      .then((response: any) => response.json())
-      .then(
-        (result: any): any => {
-          setLoading(false);
-          if (result.events && result.events.length) {
-            setEvents(result.events);
-          }
-        },
-        (error: any): any => {
-          console.log(error);
-          if (!mountedRef.current) return;
-          setLoading(false);
+    fetchEventDataByQuery("?op=query&limit=10&dashboard=true", abcEvent.signal)
+      .then((result: any): any => {
+        setLoading(false);
+        if (result.events && result.events.length) {
+          setEvents(result.events);
         }
-      );
+      })
+      .catch((error: any): any => {
+        setError(error);
+        if (!mountedRef.current) return;
+        setLoading(false);
+      });
   };
 
   const getNodesData = (): any => {
-    fetchData("dfab/nodes/", false, abcNode.signal)
-      .then((response: any) => response.json())
-      .then(
-        (result: any): any => {
-          setLoading(false);
-          if (result && result.length) {
-            const totalNodes = result.length;
-            const trNodes = result.filter(
-              (nd: any) =>
-                nd.MachineId && (nd.MachineId !== null || nd.MachineId !== "")
-            ).length;
+    fetchDashboardNodeData(abcNode.signal)
+      .then((result: any): any => {
+        setLoading(false);
+        if (result && result.length) {
+          const totalNodes = result.length;
+          const trNodes = result.filter(
+            (nd: any) =>
+              nd.MachineId && (nd.MachineId !== null || nd.MachineId !== "")
+          ).length;
 
-            const trnpNodes = result.filter(
-              (nd: any) =>
-                nd.MachineId &&
-                (nd.MachineId !== null || nd.MachineId !== "") &&
-                nd.DataPathCreationOrderStatus === "IN_PROGRESS"
-            ).length;
+          const trnpNodes = result.filter(
+            (nd: any) =>
+              nd.MachineId &&
+              (nd.MachineId !== null || nd.MachineId !== "") &&
+              nd.DataPathCreationOrderStatus === "IN_PROGRESS"
+          ).length;
 
-            const tpNodes = result.filter(
-              (nd: any) => nd.DataPathCreationOrderStatus === "IN_PROGRESS"
-            ).length;
+          const tpNodes = result.filter(
+            (nd: any) => nd.DataPathCreationOrderStatus === "IN_PROGRESS"
+          ).length;
 
-            const tfNodes = result.filter(
-              (nd: any) =>
-                nd.Status &&
-                nd.Status.Health !== "OK" &&
-                nd.DataPathCreationOrderStatus !== "IN_PROGRESS"
-            ).length;
+          const tfNodes = result.filter(
+            (nd: any) =>
+              nd.Status &&
+              nd.Status.Health !== "OK" &&
+              nd.DataPathCreationOrderStatus !== "IN_PROGRESS"
+          ).length;
 
-            const dt = {
-              total: totalNodes,
-              counters: {
-                "Free Node": totalNodes + trnpNodes - tpNodes - trNodes,
-                Registered: trNodes,
-                Failed: tfNodes,
-                "In Progress": tpNodes,
-              },
-            };
+          const dt = {
+            total: totalNodes,
+            counters: {
+              "Free Node": totalNodes + trnpNodes - tpNodes - trNodes,
+              Registered: trNodes,
+              Failed: tfNodes,
+              "In Progress": tpNodes,
+            },
+          };
 
-            setCStatus(dt);
-          }
-        },
-        (error: any): any => {
-          console.log(error);
-          if (!mountedRef.current) return;
-          setLoading(false);
+          setCStatus(dt);
         }
-      );
+      })
+      .catch((error: any): any => {
+        setError(error);
+        if (!mountedRef.current) return;
+        setLoading(false);
+      });
   };
 
   useEffect(() => {
-    getSummaryData();
     getEventData();
     getNodesData();
+
     return () => {
       // Cleaning subscription
       mountedRef.current = false;
-      abcSummary.abort();
       abcNode.abort();
       abcEvent.abort();
     };

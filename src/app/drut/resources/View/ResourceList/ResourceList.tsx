@@ -9,12 +9,13 @@ import {
   Spinner,
   Button,
   Modal,
+  Notification,
 } from "@canonical/react-components";
 import type { MainTableRow } from "@canonical/react-components/dist/components/MainTable/MainTable";
 import { JSONTree } from "react-json-tree";
 import { NavLink, useParams } from "react-router-dom";
 
-import { fetchResources } from "../../../config";
+import { fetchResourceBlocksByQuery } from "../../../api";
 import { resourceData, resourcesByType } from "../../../parser";
 import ResourceDetails from "../ResourceDetail";
 
@@ -35,6 +36,7 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
   const [expandedRow, setExpandedRow] = useState(-1);
   const [currentRowIndex, setCurrentRowIndex] = useState(-1);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
   const [filter, setFilter] = useState({});
   const [grouping, setGrouping] = useState("");
   const [selectedData, setSelectedData] = useState({ Name: "" });
@@ -46,34 +48,31 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
   function getResourceData(id: any = null) {
     // onChangeContent({}, false);
     setLoading(true);
-    fetchResources(id ? id : null)
-      .then((response: any) => response.json())
-      .then(
-        (result: any) => {
-          if (!id) {
-            const rs = resourceData(result);
-            setFilter(JSON.parse(JSON.stringify(rs[0].filter)));
-            if (rs[0].filter) {
-              delete rs[0].filter;
-            }
-            setResources(rs[0]);
-            setFullRSData(rs[0]);
-            onChangeContent(rs[1], false);
-          } else {
-            onChangeContent({}, true);
-            let resourceData: any = {};
-            if (result !== undefined) {
-              resourceData = result;
-            }
-            setResources(resourceData);
+    fetchResourceBlocksByQuery(id ? `${id}/` : ``)
+      .then((result: any) => {
+        if (!id) {
+          const rs = resourceData(result);
+          setFilter(JSON.parse(JSON.stringify(rs[0].filter)));
+          if (rs[0].filter) {
+            delete rs[0].filter;
           }
-          setLoading(false);
-        },
-        (error: any) => {
-          console.log(error);
-          setLoading(false);
+          setResources(rs[0]);
+          setFullRSData(rs[0]);
+          onChangeContent(rs[1], false);
+        } else {
+          onChangeContent({}, true);
+          let resourceData: any = {};
+          if (result !== undefined) {
+            resourceData = result;
+          }
+          setResources(resourceData);
         }
-      );
+        setLoading(false);
+      })
+      .catch((e: any) => {
+        setLoading(false);
+        setError(e);
+      });
   }
 
   const handleClick = (index: any): void => {
@@ -599,9 +598,15 @@ const ResourceList = ({ onChangeContent, selected }: Props): JSX.Element => {
   }, [selected]);
 
   const rows = renderRSTable(resources);
+  const errorValue = error?.toString();
 
   return (
     <>
+      {errorValue && !errorValue?.includes("AbortError") && (
+        <Notification onDismiss={() => setError("")} inline severity="negative">
+          {errorValue}
+        </Notification>
+      )}
       <Row>
         <Col size={12} className="fabric-sel-main-container">
           {loading ? (

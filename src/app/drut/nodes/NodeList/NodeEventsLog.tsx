@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 
-import { MainTable, Spinner, Tooltip } from "@canonical/react-components";
+import {
+  MainTable,
+  Notification,
+  Spinner,
+  Tooltip,
+} from "@canonical/react-components";
 
-import { fetchData } from "app/drut/config";
+import { fetchEventDataByQuery } from "app/drut/api";
 
 type Props = {
   nodeId: string;
@@ -11,6 +16,7 @@ type Props = {
 const NodeEventLog = (props: Props): JSX.Element => {
   const abortController = new AbortController();
 
+  const [error, setError] = useState("");
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -45,24 +51,23 @@ const NodeEventLog = (props: Props): JSX.Element => {
 
   async function getEventData(id: any = "") {
     setLoading(true);
-    const url = `/MAAS/api/2.0/dfab/events/?op=query&nodeid=${id}`;
-    await fetchData(url, true, abortController.signal)
-      .then((response: any) => response.json())
-      .then(
-        (result: any) => {
-          if (result && result.events && result.events.length) {
-            setEvents(result.events);
-          } else {
-            setEvents([]);
-          }
-          setLoading(false);
-        },
-        (error: any) => {
+    await fetchEventDataByQuery(
+      `?op=query&nodeid=${id}`,
+      abortController.signal
+    )
+      .then((result: any) => {
+        if (result && result.events && result.events.length) {
+          setEvents(result.events);
+        } else {
           setEvents([]);
-          console.log(error);
-          setLoading(false);
         }
-      );
+        setLoading(false);
+      })
+      .catch((error: any) => {
+        setEvents([]);
+        setError(error);
+        setLoading(false);
+      });
   }
 
   const getEventIformation = (events: any) => {
@@ -123,7 +128,17 @@ const NodeEventLog = (props: Props): JSX.Element => {
   );
 
   const elementToRender = loading ? <Spinner text="Loading..." /> : logsTable;
+  const errorValue = error?.toString();
 
-  return <>{elementToRender}</>;
+  return (
+    <>
+      {errorValue && !errorValue?.includes("AbortError") && (
+        <Notification onDismiss={() => setError("")} inline severity="negative">
+          {errorValue}
+        </Notification>
+      )}
+      {elementToRender}
+    </>
+  );
 };
 export default NodeEventLog;

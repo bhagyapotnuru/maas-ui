@@ -1,39 +1,43 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Spinner, Notification } from "@canonical/react-components";
+import { useSelector, useDispatch } from "react-redux";
 import * as Yup from "yup";
 
-import { postData } from "../../../../../config";
 import AddManagerFormFields from "../AddManagerFormFields";
 import { IP_ADDRESS_REGEX, PORT_REGEX, MANAGER_NAME_REGEX } from "../constants";
-import type { Manager, Zone, Rack } from "../type";
 
 import FormikForm from "app/base/components/FormikForm";
 import type { ClearHeaderContent } from "app/base/types";
+import { createUpdateManager, actions } from "app/store/drut/managers/slice";
+import type { Manager } from "app/store/drut/managers/types";
+import type { RootState } from "app/store/root/types";
 
 type Props = {
   clearHeaderContent: ClearHeaderContent;
-  zoneRackPairs: any;
-  setError: (value: string) => void;
-  setFetchManagers: (value: boolean) => void;
   managerToUpdate?: Manager;
-  isUnassigned: boolean;
 };
 
 export const AddManagerForm = ({
   clearHeaderContent,
-  zoneRackPairs,
-  setError,
   managerToUpdate,
-  setFetchManagers,
-  isUnassigned,
 }: Props): JSX.Element => {
-  const [loading, setLoading] = useState(false);
+  const { formLoading, clearHeader } = useSelector(
+    (state: RootState) => state.Managers
+  );
+  const dispatch = useDispatch();
   const [selectedZone, setSelectedZone] = useState("");
   const [selectedManagerType, setSelectedManagerType] = useState(
     managerToUpdate?.manager_type || ""
   );
   const [saveButtondisability, setSaveButtondisability] = useState(true);
+  const { redfishurlEdit } = useSelector((state: RootState) => state.Managers);
+  useEffect(() => {
+    if (clearHeader) {
+      clearHeaderContent();
+      dispatch(actions.setClearHeader(false));
+    }
+  }, [clearHeader]);
 
   const AddManagerOXCSchema = Yup.object().shape({
     manager_type: Yup.string().required("Manager Type required"),
@@ -71,16 +75,15 @@ export const AddManagerForm = ({
       .required("Name required"),
   });
 
-  const getRackName = (zoneId: string, rackId: string) => {
-    const racks =
-      zoneRackPairs.find((zone: Zone) => zone.zone_id === +zoneId)?.racks || [];
-    const rackName = racks.find(
-      (rack: Rack) => rack.rack_id === +rackId
-    )?.rackName;
-    return rackName;
-  };
+  const UpdateRedfishurlSchema = Yup.object().shape({
+    protocol: Yup.string().required("Protocol required"),
+    ip_address: Yup.string()
+      .matches(IP_ADDRESS_REGEX, "Invalid IP address")
+      .required("IP address is required"),
+    port: Yup.string().matches(PORT_REGEX, "Invalid Port"),
+  });
 
-  const createUpdateManager = (
+  const createOrUpdateManager = (
     managerToAddorUpdate: Manager,
     url: string,
     isUpdateOperation: boolean
@@ -115,40 +118,28 @@ export const AddManagerForm = ({
       }
       addPayload.push(managerToAddorUpdate);
     }
-    setLoading(true);
-    postData(
-      url,
-      isUpdateOperation ? updatePayload : addPayload,
-      isUpdateOperation
-    )
-      .then((response: any) => {
-        if (response.status === 200) {
-          setLoading(false);
-          setFetchManagers(true);
-          return response.json();
-        } else {
-          response.text().then((text: string) => {
-            setLoading(true);
-            const isConstraintViolation: boolean = text.includes(
-              "ConstraintViolationException"
-            );
-            const errorMsg = `Manager name already exists in pool ${getRackName(
-              managerToAddorUpdate?.zone_id || "",
-              managerToAddorUpdate?.rack_id || ""
-            )}  Cannot be created with a duplicate name.`;
-            setError(isConstraintViolation ? errorMsg : text);
-          });
-        }
+    dispatch(
+      createUpdateManager({
+        params: url,
+        data: isUpdateOperation
+          ? redfishurlEdit
+            ? {
+                remote_redfish_service_uri:
+                  managerToAddorUpdate.remote_redfish_uri,
+              }
+            : updatePayload
+          : addPayload,
+        isUpdateOperation: isUpdateOperation,
       })
-      .catch((e: any) => setError(e))
-      .finally(() => clearHeaderContent());
+    );
+    dispatch(actions.setRedfishurlEdit(false));
   };
 
   const getValidationSchema = () => {
     if (selectedManagerType === "OXC") {
       return managerToUpdate ? UpdateManagerSchema : AddManagerOXCSchema;
     } else if (managerToUpdate) {
-      return UpdateManagerSchema;
+      return redfishurlEdit ? UpdateRedfishurlSchema : UpdateManagerSchema;
     } else {
       return AddManagerRedfishSchema;
     }
@@ -167,7 +158,7 @@ export const AddManagerForm = ({
 
   return (
     <>
-      {loading ? (
+      {formLoading ? (
         <Notification
           key={`notification_${Math.random()}`}
           inline
@@ -183,6 +174,7 @@ export const AddManagerForm = ({
       ) : (
         <FormikForm<Manager>
           initialValues={{
+            id: managerToUpdate?.id || 0,
             manager_type: managerToUpdate?.manager_type || "",
             rack_id: managerToUpdate?.rack_id || "",
             rack_name: managerToUpdate?.rack_name || "",
@@ -197,6 +189,7 @@ export const AddManagerForm = ({
             manufacturer: managerToUpdate?.manufacturer || "",
             protocol: managerToUpdate?.protocol || defaultProtocol,
             remote_redfish_uri: managerToUpdate?.remote_redfish_uri || "",
+            discovery_status: managerToUpdate?.discovery_status || "",
           }}
           onCancel={clearHeaderContent}
           onSaveAnalytics={{
@@ -206,13 +199,9 @@ export const AddManagerForm = ({
           }}
           onSubmit={(values: Manager) => {
             if (managerToUpdate) {
-              createUpdateManager(
-                values,
-                `dfab/managers/${managerToUpdate?.id}/`,
-                true
-              );
+              createOrUpdateManager(values, `${managerToUpdate?.id}/`, true);
             } else {
-              createUpdateManager(values, `dfab/managers/`, false);
+              createOrUpdateManager(values, "", false);
             }
           }}
           onSuccess={() => {
@@ -224,14 +213,12 @@ export const AddManagerForm = ({
           submitDisabled={saveButtondisability}
         >
           <AddManagerFormFields
-            zoneRackPairs={zoneRackPairs}
             selectedManagerType={selectedManagerType}
             setSelectedManagerType={setSelectedManagerType}
             managerToUpdate={managerToUpdate}
             setSelectedZone={setSelectedZone}
             selectedZone={selectedZone}
             setSaveButtondisability={setSaveButtondisability}
-            isUnassigned={isUnassigned}
           />
         </FormikForm>
       )}

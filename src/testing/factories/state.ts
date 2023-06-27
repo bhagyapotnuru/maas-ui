@@ -5,6 +5,7 @@ import { bondOptions } from "./general";
 
 import { ACTION_STATUS } from "app/base/constants";
 import type { APIError, ActionState } from "app/base/types";
+import { paginationOptions } from "app/drut/types";
 import type { BootResourceState } from "app/store/bootresource/types";
 import type { ConfigState } from "app/store/config/types";
 import { DEFAULT_STATUSES as DEFAULT_CONTROLLER_STATUSES } from "app/store/controller/slice";
@@ -28,6 +29,13 @@ import type {
 import type { DHCPSnippetState } from "app/store/dhcpsnippet/types";
 import type { DiscoveryState } from "app/store/discovery/types";
 import type { DomainState } from "app/store/domain/types";
+import type { GroupState } from "app/store/drut/groups/types";
+import type { ManagersState } from "app/store/drut/managers/types";
+import type { MonitorConfigurationState } from "app/store/drut/monitor/types";
+import type {
+  UserZoneState,
+  AddZoneState,
+} from "app/store/drut/userzones/types";
 import type { EventState } from "app/store/event/types";
 import type { FabricState } from "app/store/fabric/types";
 import type {
@@ -649,6 +657,63 @@ export const routerState = define<RouterState>({
   action: "POP",
 });
 
+export const userZoneState = define<UserZoneState>({
+  ...defaultState,
+  errors: null,
+});
+
+export const addZoneState = define<AddZoneState>({
+  ...defaultState,
+  errors: null,
+});
+
+export const groupState = define<GroupState>({
+  ...defaultState,
+  fetchGroups: true,
+  searchFilterText: "",
+  filter: "",
+  renderAddGroupsForm: false,
+  renderDeleteGroupsForm: false,
+  renderUpdateGroupsForm: false,
+  addOrDeleteGroup: null,
+  groupsData: [],
+  errors: null,
+});
+
+export const monitorConfigurationState = define<MonitorConfigurationState>({
+  ...defaultState,
+  errors: null,
+  managers: [],
+  zones: [],
+  machines: {},
+  resourceBlock: {},
+  clusterTypes: [],
+  resourcePools: [],
+  applicationPools: [],
+});
+
+export const managersState = define<ManagersState>({
+  ...defaultState,
+  errors: null,
+  searchText: "",
+  prev: 0,
+  next: 1,
+  pageSize: paginationOptions[0].value,
+  formLoading: false,
+  unassignedManagers: [],
+  isUnassigned: false,
+  fetchManagers: false,
+  selectedIds: [],
+  clearHeader: false,
+  isInProgressCallManagers: false,
+  isInProgressCallUnassignedManagers: false,
+  filterType: "",
+  selectedItem: "",
+  count: 0,
+  zones: [],
+  redfishurlEdit: false,
+});
+
 export const rootState = define<RootState>({
   bootresource: bootResourceState,
   config: configState,
@@ -686,4 +751,9 @@ export const rootState = define<RootState>({
   vlan: vlanState,
   vmcluster: vmClusterState,
   zone: zoneState,
+  UserZone: userZoneState,
+  AddZone: addZoneState,
+  MonitorConfiguration: monitorConfigurationState,
+  Group: groupState,
+  Managers: managersState,
 });

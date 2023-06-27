@@ -7,7 +7,7 @@ import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 
 import MonitorGridItem from "./MonitorGridItem";
 
-import { postData } from "app/drut/config";
+import { updateGridLayoutForMonitorConfigs } from "app/drut/api";
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
 
@@ -63,7 +63,7 @@ const MonitorGridLayout = ({
       }
     );
     try {
-      await postData("dfab/clusters/?op=set_gridlayout", {
+      await updateGridLayoutForMonitorConfigs({
         Clusters: monitorLayoutConfig,
       });
       if (resizedWidget) {

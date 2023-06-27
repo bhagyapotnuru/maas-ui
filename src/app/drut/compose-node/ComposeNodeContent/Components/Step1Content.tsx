@@ -4,7 +4,7 @@ import NodeNameInputField from "./NodeNameInputField";
 import PageInformation from "./PageInformation";
 import ZoneSelect from "./ZoneSelect";
 
-import type { Zone } from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
+import type { ZoneObj as Zone } from "app/store/drut/managers/types";
 
 const Step1Content = ({
   zones,

@@ -12,9 +12,6 @@ const urls = {
     unassignedManagers: {
       index: "/drut-cdi/unassigned-managers",
     },
-    IficBmc: {
-      index: "/drut-cdi/ific-bmc",
-    },
     userZoneMap: {
       index: "/drut-cdi/user-zone-mapping",
     },

@@ -9,7 +9,7 @@ import type { ReConfigType } from "../../Store/ResourceBlockReConfigType";
 import ResoruceBlockReConfigContext from "../../Store/resource-block-re-config-context";
 import classes from "../../resource-block-re-config.module.scss";
 
-import type { RackManager } from "app/drut/fabricManagement/FabricManagementContent/Managers/AddManager/type";
+import type { RackManager } from "app/store/drut/managers/types";
 
 const ManagerSelect = (): JSX.Element => {
   const context: ReConfigType = useContext(ResoruceBlockReConfigContext);

@@ -23,7 +23,7 @@ import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 import classess from "../monitor.module.scss";
 
 import DoughnutChart from "app/base/components/DoughnutChart";
-import { fetchData } from "app/drut/config";
+import { fetchMachineSummaryData } from "app/drut/api";
 import customDrutTheme from "app/utils/Themes/Themes";
 import CustomizedTooltip from "app/utils/Tooltip/DrutTooltip";
 
@@ -73,8 +73,7 @@ const MachineSummary = ({
   const fetchMachineSummary = async () => {
     try {
       setLoading(true);
-      const response = await fetchData(`dfab/summary/?op=get_machine`);
-      const configResponse = await response.json();
+      const configResponse = await fetchMachineSummaryData();
       setMachineSummaryResponse(configResponse);
     } catch (e) {
     } finally {

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 
 import {
   Button,
@@ -8,10 +8,6 @@ import {
   Row,
   Tooltip,
 } from "@canonical/react-components";
-import ArrowForwardIosSharpIcon from "@mui/icons-material/ArrowForwardIosSharp";
-import MuiAccordion from "@mui/material/Accordion";
-import MuiAccordionDetails from "@mui/material/AccordionDetails";
-import MuiAccordionSummary from "@mui/material/AccordionSummary";
 import Paper from "@mui/material/Paper";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -22,11 +18,14 @@ import TableRow from "@mui/material/TableRow";
 import Typography from "@mui/material/Typography";
 import { styled, ThemeProvider } from "@mui/material/styles";
 
-import { COLOURS } from "../../../base/constants";
-
 import classess from "./FabricDataPath.module.css";
 
-import { fetchData } from "app/drut/config";
+import { fetchTxRxData } from "app/drut/api";
+import {
+  Accordion1 as Accordion,
+  AccordionDetails,
+  AccordionSummary,
+} from "app/drut/components/accordion";
 import customDrutTheme from "app/utils/Themes/Themes";
 
 interface Props {
@@ -38,56 +37,6 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
   const [modalState, setModalState] = useState(false);
   const [powerData, setPowerData] = useState({ dt: null, type: "" });
   const [parentExpanded, setParentExpanded] = useState([] as string[]);
-
-  const Accordion = styled((props: any) => (
-    <MuiAccordion
-      disableGutters={true}
-      elevation={0}
-      square={false}
-      {...props}
-    />
-  ))(({ theme }) => ({
-    border: `1px solid ${theme.palette.divider}`,
-    "&:not(:last-child)": {
-      borderBottom: 0,
-    },
-    "&:before": {
-      display: "none",
-    },
-    marginBottom: "0.5%",
-    fontWeight: "600",
-    padding: "0",
-  }));
-
-  const AccordionSummary = styled((props: any) => (
-    <MuiAccordionSummary
-      expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: "0.9rem" }} />}
-      {...props}
-    />
-  ))(({ theme }) => ({
-    backgroundColor:
-      theme.palette.mode === "dark"
-        ? COLOURS.ACCORDIAN_BG_TRUE
-        : COLOURS.ACCORDIAN_BG_FALSE,
-    flexDirection: "row-reverse",
-    "& .MuiAccordionSummary-expandIconWrapper.Mui-expanded": {
-      transform: "rotate(90deg)",
-    },
-    "& .MuiTypography-root": {
-      width: "100%",
-      paddingTop: 0,
-      fontWeight: 300,
-      maxWidth: "none",
-    },
-    "& .MuiAccordionSummary-content": {
-      marginLeft: theme.spacing(1),
-    },
-  }));
-
-  const AccordionDetails = styled(MuiAccordionDetails)(({ theme }) => ({
-    padding: theme.spacing(2),
-    borderTop: "1px solid rgba(0, 0, 0, .125)",
-  }));
 
   const TableCell = styled(MuiTableCell)(({ theme }) => ({
     "&.MuiTableCell-root": {
@@ -114,12 +63,12 @@ const DataPathInfo = ({ data, isList }: Props): JSX.Element => {
 
   const getTxRXInfo = (sw: any = "", prt: any = "", type: any) => {
     setModalState(!modalState);
-    fetchData(`dfab/opticalmodule/?switch=${sw}&port=${prt}`)
-      .then((response: any) => {
-        return response.json();
-      })
+    fetchTxRxData(sw, prt)
       .then((dt: any) => {
         setPowerData({ dt: dt, type: type });
+      })
+      .catch((e) => {
+        console.log(e);
       });
     return "No information";
   };

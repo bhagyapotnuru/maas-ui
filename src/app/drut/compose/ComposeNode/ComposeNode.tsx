@@ -16,7 +16,7 @@ import {
 } from "@canonical/react-components";
 import { createBrowserHistory } from "history";
 
-import { fetchResources, postData } from "../../config";
+import { fetchResourceBlocksByQuery } from "../../api";
 import {
   // generateObjData,
   genObjAccord,
@@ -31,6 +31,8 @@ import { rsTypeUI } from "../../types";
 // import type { Resourceblock } from "app/store/resourceblock/types";
 // import { ResourceblockMeta } from "app/store/resourceblock/types";
 // import type { RootState } from "app/store/root/types";
+
+import { saveNodeComposition } from "app/drut/api";
 
 const ComposeNode = (): JSX.Element => {
   const history = createBrowserHistory();
@@ -106,20 +108,20 @@ const ComposeNode = (): JSX.Element => {
                 current === "Compute" ? (
                   <>
                     <CheckboxInput
-                      name="csgroup"
+                      checked={elm.checked}
                       id={elm.Id}
                       label=""
+                      name="csgroup"
                       onChange={(e) => onResourceSelection(e, elm, current)}
-                      checked={elm.checked}
                     />
                   </>
                 ) : (
                   <CheckboxInput
-                    label=""
-                    id={elm.Id}
-                    onChange={(e) => onResourceSelection(e, elm, current)}
                     checked={elm.checked}
                     disabled={!elm.checked && countDSP - countDSPSelected <= 0}
+                    id={elm.Id}
+                    label=""
+                    onChange={(e) => onResourceSelection(e, elm, current)}
                   />
                 ),
             },
@@ -135,12 +137,12 @@ const ComposeNode = (): JSX.Element => {
                 >
                   <span className="drut-elapsis-block-name">
                     <Link
+                      color="default"
                       key="nodeNameLink"
-                      title={elm?.Name}
                       onClick={() => {
                         handleClick(index);
                       }}
-                      color="default"
+                      title={elm?.Name}
                     >
                       {`${elm?.Name}`}
                     </Link>
@@ -247,14 +249,14 @@ const ComposeNode = (): JSX.Element => {
     return (
       <div style={{ padding: "0px 30px" }}>
         <MainTable
-          expanding
-          paginate={8}
-          key="computeTable"
-          headers={headers}
-          rows={table}
-          sortable
           className="drut-table-border"
           emptyStateMsg="Data not available."
+          expanding
+          headers={headers}
+          key="computeTable"
+          paginate={8}
+          rows={table}
+          sortable
         />
 
         <div>
@@ -309,7 +311,7 @@ const ComposeNode = (): JSX.Element => {
       if (selValue.length) {
         selValue.forEach((elm: any) => {
           selectedResource.push(
-            <Col size={6} className="drut-composed-block-row">
+            <Col className="drut-composed-block-row" size={6}>
               <label>
                 {elm.Name}, Device Count: {elm?.DeviceCount}, Status:{" "}
                 {elm?.Status.Health} ({elm?.Status.State})
@@ -396,22 +398,19 @@ const ComposeNode = (): JSX.Element => {
   function getResourceData() {
     setPageLoading(true);
     console.log("Calling in Composed Node.tsx ");
-    fetchResources()
-      .then((response: any) => response.json())
-      .then(
-        (result: any) => {
-          setPageLoading(false);
-          const rs: any = resourceData(result);
-          if (rs[0].filter) {
-            delete rs[0].filter;
-          }
-          setResources(rs[0]);
-        },
-        (error: any) => {
-          setPageLoading(false);
-          console.log(error);
+    fetchResourceBlocksByQuery(``)
+      .then((result: any) => {
+        setPageLoading(false);
+        const rs: any = resourceData(result);
+        if (rs[0].filter) {
+          delete rs[0].filter;
         }
-      );
+        setResources(rs[0]);
+      })
+      .catch((error: any) => {
+        setPageLoading(false);
+        setError(error);
+      });
   }
 
   const clearPageData = () => {
@@ -467,37 +466,22 @@ const ComposeNode = (): JSX.Element => {
         Name: nodeName,
         ResourceBlocks: selBlocks,
       };
-      postData("dfab/nodes/", fnData)
-        .then((response: any) => {
-          if (response.status === 200) {
-            return response.json();
+      saveNodeComposition(fnData)
+        .then(() => {
+          setLoading(false);
+          if (type === "SN") {
+            setAType("");
+            setTimeout(() => {
+              clearPageData();
+              getResourceData();
+            }, 1000);
           } else {
-            response.text().then((text: any) => {
-              setError(`Error: ${text}`);
-            });
-            throw response.text;
+            navigateRoute("nodes");
           }
         })
-        .then(
-          () => {
-            setLoading(false);
-            if (type === "SN") {
-              setAType("");
-              setTimeout(() => {
-                clearPageData();
-                getResourceData();
-              }, 1000);
-            } else {
-              navigateRoute("nodes");
-            }
-          },
-          (error: any) => {
-            setLoading(false);
-            console.log(error);
-          }
-        )
         .catch((err: any) => {
-          console.log(err);
+          setLoading(false);
+          setError(error);
         });
     }
   };
@@ -510,9 +494,9 @@ const ComposeNode = (): JSX.Element => {
           <div className={"drut-compose-lable"}>
             {key === current ? (
               <Link
-                style={{} /*{ float: "right" }*/}
                 className=""
                 onClick={() => resetPanel()}
+                style={{} /*{ float: "right" }*/}
               >
                 <i className="p-icon--minus"></i>
                 &nbsp;
@@ -528,9 +512,9 @@ const ComposeNode = (): JSX.Element => {
               </Link>
             ) : (
               <Link
-                style={{} /*{ float: "right" }*/}
                 className=""
                 onClick={() => openSelectionPanel(key)}
+                style={{} /*{ float: "right" }*/}
               >
                 <i className="p-icon--plus"></i>
                 &nbsp;
@@ -558,6 +542,8 @@ const ComposeNode = (): JSX.Element => {
   useEffect(() => {
     getResourceData();
   }, []);
+
+  const errorValue = error?.toString();
 
   return (
     <>
@@ -603,11 +589,11 @@ const ComposeNode = (): JSX.Element => {
                     <>
                       <Col size={6}>
                         <Input
-                          type="text"
                           id="c_name"
                           label="Name"
-                          value={nodeName}
                           onChange={(e) => handleNameChange(e)}
+                          type="text"
+                          value={nodeName}
                         />
                       </Col>
                       <Col size={12}>
@@ -632,8 +618,8 @@ const ComposeNode = (): JSX.Element => {
                         */}
                         <Button
                           className="p-button--positive"
-                          onClick={() => saveComposition("S")}
                           disabled={!isCompute || !nodeName.length}
+                          onClick={() => saveComposition("S")}
                         >
                           Compose Systems
                         </Button>
@@ -645,9 +631,16 @@ const ComposeNode = (): JSX.Element => {
                         <Spinner text="Composing a Node..." />
                       ) : (
                         <>
-                          <Notification inline severity="negative">
-                            {error}
-                          </Notification>
+                          {errorValue &&
+                            !errorValue?.includes("AbortError") && (
+                              <Notification
+                                inline
+                                onDismiss={() => setError("")}
+                                severity="negative"
+                              >
+                                {errorValue}
+                              </Notification>
+                            )}
                           <div>
                             <Button className="" onClick={() => composeAgain()}>
                               Verify and Compose Again

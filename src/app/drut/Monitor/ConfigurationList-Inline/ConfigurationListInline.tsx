@@ -28,7 +28,7 @@ import { styled, ThemeProvider, createTheme } from "@mui/material/styles";
 import classess from "../MonitorDashboardConfig.module.scss";
 import type { MonitorConfiguration } from "../Types/MonitorConfiguration";
 
-import { fetchData } from "app/drut/config";
+import { fetchMonitorConfigurationList } from "app/drut/api";
 
 const TableCell = styled(MuiTableCell)(({ theme }) => ({
   "&.MuiTableCell-root": {
@@ -243,29 +243,14 @@ const ConfigurationList = (): JSX.Element => {
   async function fetchConfigurationList() {
     try {
       setIsLoading(true);
-      const response = await fetchData(
-        `dfab/clusters/`,
-        false,
-        abortController.signal
-      );
-      const configListReponse: MonitorConfiguration[] = await response.json();
+      const configListReponse: MonitorConfiguration[] =
+        await fetchMonitorConfigurationList(abortController.signal);
       setConfigList(configListReponse);
     } catch (e) {
     } finally {
       setIsLoading(false);
     }
   }
-
-  // async function saveConfiguration(config: MonitorConfiguration) {
-  //   try {
-  //     setIsLoading(true);
-  //     const response = await postData(`dfab/clusters/`, config, false);
-  //     await response.json();
-  //   } catch (e) {
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
 
   const getTableRowToRender = (config: MonitorConfiguration) =>
     config.isEditable

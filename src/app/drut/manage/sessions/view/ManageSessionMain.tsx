@@ -10,7 +10,7 @@ import {
 } from "@canonical/react-components";
 import { CSVLink } from "react-csv";
 
-import { fetchData, deleteData } from "../../../config";
+import { fetchSessionData, deleteUserSession } from "app/drut/api";
 
 export const DEBOUNCE_INTERVAL = 500;
 
@@ -24,34 +24,30 @@ const ManageSessionMain = (): JSX.Element => {
 
   async function getSessionData() {
     setLoading(true);
-    const url = "/MAAS/api/2.0/dfab/user-sessions/";
-    await fetchData(url, true)
-      .then((response: any) => response.json())
-      .then(
-        (result: any) => {
-          setLoading(false);
-          if (result && result.length) {
-            const dt = result;
-            setSessionFullData(dt);
-            setSessionData(dt);
+    await fetchSessionData()
+      .then((result: any) => {
+        setLoading(false);
+        if (result && result.length) {
+          const dt = result;
+          setSessionFullData(dt);
+          setSessionData(dt);
 
-            const exportData = dt.map((d: any) => {
-              return {
-                "User Name": d.last_name || "NA",
-                "User ID": d.user_name,
-                "User Type": d.is_superuser ? "Administrator" : "User",
-                "Last Login": d.last_login || "NA",
-                "Expire Date": d.expire_date || "NA",
-              };
-            });
-            setSessionEData(exportData);
-          }
-        },
-        (error: any) => {
-          console.log(error);
-          setLoading(false);
+          const exportData = dt.map((d: any) => {
+            return {
+              "User Name": d.last_name || "NA",
+              "User ID": d.user_name,
+              "User Type": d.is_superuser ? "Administrator" : "User",
+              "Last Login": d.last_login || "NA",
+              "Expire Date": d.expire_date || "NA",
+            };
+          });
+          setSessionEData(exportData);
         }
-      );
+      })
+      .catch((error: any) => {
+        console.log(error);
+        setLoading(false);
+      });
   }
 
   const onSearchValueChange = (e: any) => {
@@ -77,7 +73,7 @@ const ManageSessionMain = (): JSX.Element => {
   };
 
   const onDelete = (key: any = "") => {
-    deleteData(`/dfab/user-sessions/${key}/`).then(
+    deleteUserSession(key).then(
       () => {
         getSessionData();
       },

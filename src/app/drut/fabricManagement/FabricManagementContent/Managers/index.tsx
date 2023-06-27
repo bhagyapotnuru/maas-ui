@@ -1,22 +1,33 @@
 import { useEffect, useState } from "react";
 
 import { Button, ContextualMenu, Spinner } from "@canonical/react-components";
+import { useSelector, useDispatch } from "react-redux";
 import { Route, Switch, Link } from "react-router-dom";
 
 import FabricManagementHeader from "../../FabricManagementHeader";
 import managersUrl from "../../url";
 
 import AddManagerForm from "./AddManager/AddManagerForm";
-import type { Rack, Zone, Manager } from "./AddManager/type";
 import DeleteManagerForm from "./DeleteManager/DeleteManagerForm";
 import ManagerContent from "./ManagerContent";
 
 import Section from "app/base/components/Section";
 import { useWindowTitle } from "app/base/hooks";
 import NotFound from "app/base/views/NotFound";
-import { fetchData, throwHttpMessage, postData } from "app/drut/config";
+import {
+  createUpdateManager,
+  fetchZoneRacksByQuery,
+  actions,
+} from "app/store/drut/managers/slice";
+import type { Rack, Zone, Manager } from "app/store/drut/managers/types";
+import type { RootState } from "app/store/root/types";
 
 const Managers = (): JSX.Element => {
+  const { formLoading, zones, selectedIds, items } = useSelector(
+    (state: RootState) => state.Managers
+  );
+  const dispatch = useDispatch();
+
   const [renderAddManagersForm, setRenderAddManagersForm] = useState(false);
   const [renderUpdateManagersForm, setRenderUpdateManagersForm] =
     useState(false);
@@ -24,55 +35,28 @@ const Managers = (): JSX.Element => {
     useState(false);
 
   const [manager, setManager] = useState<Manager | undefined>();
-  const [managerData, setManagerData] = useState<Manager[]>([]);
   const [timeoutId, setTimeoutId] = useState<any>("");
-  const [zoneRackPairs, setZoneRackPairs] = useState([] as Zone[]);
-  const [fetchManagers, setFetchManagers] = useState(false);
-  const [rackNames, setRackNames] = useState<Set<string> | null>(null);
-  const [selectedIDs, setSelectedIDs] = useState([] as number[]);
-  const [loading, setLoading] = useState(false);
 
-  const [error, setError] = useState("");
   const abortController = new AbortController();
 
   useEffect(() => {
-    getZones();
+    dispatch(fetchZoneRacksByQuery(abortController.signal));
     return () => {
       abortController.abort();
     };
   }, []);
 
   useEffect(() => {
-    if (zoneRackPairs) {
-      const rackNames = (zoneRackPairs as Zone[])
-        .map((zoneRackPair: Zone) => zoneRackPair.racks as Rack[])
-        .reduce((accumulator: any, value: any) => accumulator.concat(value), [])
-        .map((rack: Rack) => rack.rack_fqgn);
-      setRackNames(new Set<string>(rackNames));
-    }
-  }, [zoneRackPairs]);
-
-  const getZones = async () => {
-    await fetchData(
-      "dfab/nodegroups/?op=get_zones_and_racks",
-      false,
-      abortController.signal
-    )
-      .then((response: any) => {
-        return throwHttpMessage(response, setError);
-      })
-      .then((res: any) => {
-        setZoneRackPairs(res);
-      })
-      .catch((e: any) => setError(e));
-  };
+    dispatch(actions.cleanup());
+    dispatch(actions.setIsUnassigned(false));
+  }, []);
 
   const moveManagersToRack = (managersTobeUpdated: Manager[]) => {
     const racks =
-      zoneRackPairs.find(
+      zones.find(
         (zone: Zone) => zone.zone_name.toLowerCase() === "default_zone"
       )?.racks || [];
-    const rackObj = (racks as Rack[]).find(
+    const rackObj = racks.find(
       (rack: Rack) => rack.rack_name.toLowerCase() === "default_rack"
     );
     const updateManagersPayoad: Manager[] = managersTobeUpdated.map(
@@ -86,26 +70,13 @@ const Managers = (): JSX.Element => {
         } as Manager;
       }
     );
-    setLoading(true);
-    postData(`dfab/managers/`, updateManagersPayoad, true)
-      .then((response: any) => {
-        if (response.status === 200) {
-          setFetchManagers(true);
-          setLoading(false);
-          setSelectedIDs([]);
-          return response.json();
-        } else {
-          response.text().then((text: string) => {
-            const isConstraintViolation: boolean = text.includes(
-              "ConstraintViolationException"
-            );
-            const errorMsg = `Manager name already exists in rack ${rackObj?.rack_name}  Cannot be created with a duplicate name.`;
-            setError(isConstraintViolation ? errorMsg : text);
-            setLoading(false);
-          });
-        }
+    dispatch(
+      createUpdateManager({
+        params: "",
+        data: updateManagersPayoad,
+        isUpdateOperation: true,
       })
-      .catch((e: any) => setError(e));
+    );
   };
 
   const clearHeaderContent = () => {
@@ -118,6 +89,7 @@ const Managers = (): JSX.Element => {
     if (renderDeleteManagersForm) {
       setRenderDeleteManagersForm(false);
     }
+    dispatch(actions.setRedfishurlEdit(false));
   };
 
   let headerContent: JSX.Element | null = null;
@@ -128,12 +100,6 @@ const Managers = (): JSX.Element => {
     headerContent = (
       <AddManagerForm
         clearHeaderContent={() => setRenderAddManagersForm(false)}
-        isUnassigned={false}
-        setError={setError}
-        setFetchManagers={setFetchManagers}
-        zoneRackPairs={zoneRackPairs.filter(
-          (zone: Zone) => zone.zone_name.toLowerCase() !== "default_zone"
-        )}
       />
     );
     headerTitle = "Add Manager";
@@ -141,14 +107,8 @@ const Managers = (): JSX.Element => {
   if (renderUpdateManagersForm) {
     headerContent = (
       <AddManagerForm
-        clearHeaderContent={() => setRenderUpdateManagersForm(false)}
-        isUnassigned={false}
         managerToUpdate={manager}
-        setError={setError}
-        setFetchManagers={setFetchManagers}
-        zoneRackPairs={zoneRackPairs.filter(
-          (zone: Zone) => zone.zone_name.toLowerCase() !== "default_zone"
-        )}
+        clearHeaderContent={() => setRenderUpdateManagersForm(false)}
       />
     );
     headerTitle = "Update Manager";
@@ -158,7 +118,6 @@ const Managers = (): JSX.Element => {
       <DeleteManagerForm
         managerToDelete={manager}
         onClose={() => setRenderDeleteManagersForm(false)}
-        setFetchManagers={setFetchManagers}
       />
     );
     headerTitle = "Delete Manager";
@@ -216,8 +175,8 @@ const Managers = (): JSX.Element => {
           children: "Move to Unassigned..",
           onClick: () => {
             moveManagersToRack(
-              managerData.filter((manager: Manager) =>
-                selectedIDs.includes(manager.id || 0)
+              items.filter((manager: Manager) =>
+                selectedIds.includes(manager.id || 0)
               )
             );
           },
@@ -226,7 +185,7 @@ const Managers = (): JSX.Element => {
       position="right"
       toggleAppearance="positive"
       toggleClassName="row-menu-toggle u-no-margin--bottom"
-      toggleDisabled={selectedIDs.length <= 0}
+      toggleDisabled={selectedIds.length <= 0}
       toggleLabel="Take action"
     />,
   ];
@@ -234,32 +193,23 @@ const Managers = (): JSX.Element => {
   return (
     <>
       <Section
+        key="managersHeader"
         className="u-no-padding--bottom"
         header={
           <FabricManagementHeader
-            buttonContent={buttonContent}
-            headerContent={headerContent}
-            subtitle={loading && <Spinner text="Unassigning..." />}
             tag="managers"
+            headerContent={headerContent}
+            buttonContent={buttonContent}
             title={headerTitle}
+            subtitle={formLoading && <Spinner text="Unassigning..." />}
           />
         }
-        key="managersHeader"
       >
         <Switch>
           <Route exact path={managersUrl.fabricManagement.managers.index}>
             <ManagerContent
-              error={error}
-              fetchManagers={fetchManagers}
-              managerData={managerData}
-              rackNames={rackNames}
-              selectedIDs={selectedIDs}
-              setError={setError}
-              setFetchManagers={setFetchManagers}
-              setManagerData={setManagerData}
-              setRenderDeleteManagerForm={deleteManager}
               setRenderUpdateManagerForm={updateManager}
-              setSelectedIDs={setSelectedIDs}
+              setRenderDeleteManagerForm={deleteManager}
             />
           </Route>
           <Route path="*">
